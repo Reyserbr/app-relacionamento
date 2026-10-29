@@ -17,7 +17,6 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
 3. O GATILHO DE VENDA (FUNIL): Você é proibida de entregar a solução. Pare a análise abruptamente. NUNCA diga o que ele deve responder ou fazer a seguir.
 4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise exclusivamente com este parágrafo: "Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo."`;
 
-    // Formata o histórico garantindo que não quebre as regras do Google
     const contents = messages.map((m: any) => ({
       role: m.role === "user" ? "user" : "model",
       parts: [{ text: m.content }]
@@ -36,8 +35,14 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
       ]
     };
 
-    // Tenta os modelos ativos atuais da Google em ordem de prioridade
-    const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash"];
+    // 1. Tenta os modelos apontados pelo próprio alerta do Google
+    const modelsToTry = [
+      "gemini-3.0-flash",
+      "gemini-3.8-flash",
+      "gemini-flash-latest",
+      "gemini-2.5-flash"
+    ];
+    
     let googleResponse: Response | null = null;
     let lastError = "";
 
@@ -57,9 +62,33 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
       }
     }
 
-    // Se mesmo assim der erro, exibe o motivo no próprio balão do chat (não apaga sua mensagem!)
+    // 2. Auto-descoberta: se todos acima falharem, busca na sua conta qual modelo está ativo e usa ele
     if (!googleResponse) {
-      console.error("Erro Google API:", lastError);
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        const availableModel = listData.models?.find((m: any) => 
+          m.supportedGenerationMethods?.includes("generateContent") && 
+          m.name.includes("gemini")
+        );
+
+        if (availableModel) {
+          const autoUrl = `https://generativelanguage.googleapis.com/v1beta/${availableModel.name}:generateContent?key=${apiKey}`;
+          const autoRes = await fetch(autoUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (autoRes.ok) {
+            googleResponse = autoRes;
+          } else {
+            lastError = await autoRes.text();
+          }
+        }
+      }
+    }
+
+    if (!googleResponse) {
       const errorStream = new ReadableStream({
         start(controller) {
           controller.enqueue(new TextEncoder().encode(`Erro da API Google: ${lastError}`));
@@ -72,7 +101,6 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
     const data = await googleResponse.json();
     const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Não consegui processar a resposta.";
 
-    // Envia a resposta no formato exato que o componente visual do seu chat espera
     const stream = new ReadableStream({
       start(controller) {
         controller.enqueue(new TextEncoder().encode(replyText));
@@ -83,7 +111,6 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
     return new StreamingTextResponse(stream);
 
   } catch (error: any) {
-    console.error("Erro interno:", error);
     return new Response(`Erro interno: ${error.message}`, { status: 500 });
   }
 }
