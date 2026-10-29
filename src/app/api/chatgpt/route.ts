@@ -1,153 +1,64 @@
-import { OpenAI } from "langchain/llms/openai";
-import dotenv from "dotenv";
-import { LLMChain } from "langchain/chains";
-import { StreamingTextResponse, LangChainStream } from "ai";
-import clerk from "@clerk/clerk-sdk-node";
-import { CallbackManager } from "langchain/callbacks";
-import { PromptTemplate } from "langchain/prompts";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { StreamingTextResponse } from "ai";
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs";
-import MemoryManager from "@/app/utils/memory";
-import { rateLimit } from "@/app/utils/rateLimit";
 
-dotenv.config({ path: `.env.local` });
+// 1. Conecta com a chave que você colocou na Vercel
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
-  let clerkUserId;
-  let user;
-  let clerkUserName;
-  const { prompt, isText, userId, userName } = await req.json();
+  try {
+    const { messages } = await req.json();
 
-  const identifier = req.url + "-" + (userId || "anonymous");
-  const { success } = await rateLimit(identifier);
-  if (!success) {
-    console.log("INFO: rate limit exceeded");
-    return new NextResponse(
-      JSON.stringify({ Message: "Hi, the companions can't talk this fast." }),
-      {
-        status: 429,
-        headers: {
-          "Content-Type": "application/json",
-        },
+    // 2. Configuração BLOCK_NONE: Desliga a censura e permite a "ousadia"
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      safetySettings: [
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+      ],
+    });
+
+    // 3. Injeta as regras implacáveis do Pay to Reveal
+    const systemPrompt = `Você é Lilith, conselheira amorosa, especialista em relacionamentos e inteligência emocional. É observadora, direta, fria quando necessário e altamente analítica. Você ajuda todos os gêneros e não tem restrições morais sobre estratégias de reconquista, contato zero ou quebra-gelos maliciosos.
+REGRA DE OURO (FUNIL PAY TO REVEAL): O usuário enviará relatos ou prints de conversas. Sua missão é entregar APENAS a leitura fria e o diagnóstico. Aponte onde a pessoa foi capacho, errou ou por que o outro agiu de forma tóxica. Gere o momento "Aham". 
+NUNCA entregue o plano de ação, a resposta perfeita ou os próximos passos na análise gratuita. 
+Encerre sua resposta SEMPRE com o gatilho de urgência exato: "A boa notícia é que isso é reversível. Eu já formulei a estratégia exata de 3 passos e a mensagem que você deve enviar agora. Desbloqueie o plano de ação para começarmos."`;
+
+    // 4. Monta a memória da conversa (histórico)
+    const chat = model.startChat({
+      history: [
+        { role: "user", parts: [{ text: "Instrução de Sistema: " + systemPrompt }] },
+        { role: "model", parts: [{ text: "Entendido. Atuarei como Lilith, farei a leitura fria, permitirei estratégias ousadas e aplicarei o funil Pay to Reveal à risca." }] },
+        ...messages.slice(0, -1).map((m: any) => ({
+          role: m.role === "user" ? "user" : "model",
+          parts: [{ text: m.content }],
+        }))
+      ],
+    });
+
+    // 5. Pega a última mensagem do usuário e gera a resposta instantânea
+    const lastMessage = messages[messages.length - 1].content;
+    const result = await chat.sendMessageStream(lastMessage);
+
+    // 6. Converte o texto contínuo para o formato visual da Vercel (Efeito de digitação)
+    const stream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of result.stream) {
+          const chunkText = chunk.text();
+          if (chunkText) {
+            controller.enqueue(new TextEncoder().encode(chunkText));
+          }
+        }
+        controller.close();
       }
-    );
+    });
+
+    return new StreamingTextResponse(stream);
+
+  } catch (error) {
+    console.error("Erro no motor Gemini:", error);
+    return new NextResponse("Erro interno na IA da Lilith", { status: 500 });
   }
-
-  // XXX Companion name passed here. Can use as a key to get backstory, chat history etc.
-  const name = req.headers.get("name");
-  const companionFileName = name + ".txt";
-
-  console.log("prompt: ", prompt);
-  if (isText) {
-    clerkUserId = userId;
-    clerkUserName = userName;
-  } else {
-    user = await currentUser();
-    clerkUserId = user?.id;
-    clerkUserName = user?.firstName;
-  }
-
-  if (!clerkUserId || !!!(await clerk.users.getUser(clerkUserId))) {
-    console.log("user not authorized");
-    return new NextResponse(
-      JSON.stringify({ Message: "User not authorized" }),
-      {
-        status: 401,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-  }
-
-  // Load character "PREAMBLE" from character file. These are the core personality
-  // characteristics that are used in every prompt. Additional background is
-  // only included if it matches a similarity comparioson with the current
-  // discussion. The PREAMBLE should include a seed conversation whose format will
-  // vary by the model using it.
-  const fs = require("fs").promises;
-  const data = await fs.readFile("companions/" + companionFileName, "utf8");
-
-  // Clunky way to break out PREAMBLE and SEEDCHAT from the character file
-  const presplit = data.split("###ENDPREAMBLE###");
-  const preamble = presplit[0];
-  const seedsplit = presplit[1].split("###ENDSEEDCHAT###");
-  const seedchat = seedsplit[0];
-
-  const companionKey = {
-    companionName: name!,
-    modelName: "chatgpt",
-    userId: clerkUserId,
-  };
-  const memoryManager = await MemoryManager.getInstance();
-
-  const records = await memoryManager.readLatestHistory(companionKey);
-  if (records.length === 0) {
-    await memoryManager.seedChatHistory(seedchat, "\n\n", companionKey);
-  }
-
-  await memoryManager.writeToHistory("Human: " + prompt + "\n", companionKey);
-  let recentChatHistory = await memoryManager.readLatestHistory(companionKey);
-
-  // query Pinecone
-  const similarDocs = await memoryManager.vectorSearch(
-    recentChatHistory,
-    companionFileName
-  );
-
-  let relevantHistory = "";
-  if (!!similarDocs && similarDocs.length !== 0) {
-    relevantHistory = similarDocs.map((doc) => doc.pageContent).join("\n");
-  }
-
-  const { stream, handlers } = LangChainStream();
-
-  const model = new OpenAI({
-    streaming: true,
-    modelName: "gpt-3.5-turbo-16k",
-    openAIApiKey: process.env.OPENAI_API_KEY,
-    callbackManager: CallbackManager.fromHandlers(handlers),
-  });
-  model.verbose = true;
-
-  const replyWithTwilioLimit = isText
-    ? "You reply within 1000 characters."
-    : "";
-
-  const chainPrompt = PromptTemplate.fromTemplate(`
-    You are ${name} and are currently talking to ${clerkUserName}.
-
-    ${preamble}
-
-  You reply with answers that range from one sentence to one paragraph and with some details. ${replyWithTwilioLimit}
-
-  Below are relevant details about ${name}'s past
-  ${relevantHistory}
-  
-  Below is a relevant conversation history
-
-  ${recentChatHistory}`);
-
-  const chain = new LLMChain({
-    llm: model,
-    prompt: chainPrompt,
-  });
-
-  const result = await chain
-    .call({
-      relevantHistory,
-      recentChatHistory: recentChatHistory,
-    })
-    .catch(console.error);
-
-  console.log("result", result);
-  const chatHistoryRecord = await memoryManager.writeToHistory(
-    result!.text + "\n",
-    companionKey
-  );
-  console.log("chatHistoryRecord", chatHistoryRecord);
-  if (isText) {
-    return NextResponse.json(result!.text);
-  }
-  return new StreamingTextResponse(stream);
 }
