@@ -1,6 +1,5 @@
-import { StreamingTextResponse } from "ai";
+import { NextResponse } from "next/server";
 
-// 1. Destrava o limite de 10 segundos da Vercel e acelera a conexão
 export const runtime = "edge";
 
 export async function POST(req: Request) {
@@ -9,7 +8,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return new Response("Erro: GEMINI_API_KEY não configurada na Vercel.", { status: 500 });
+      return NextResponse.json({ reply: "Erro: GEMINI_API_KEY não encontrada na Vercel." });
     }
 
     const systemPrompt = `Você é Lilith. Especialista implacável em dinâmicas sociais, inteligência emocional e reconquista. Você é fria, analítica e não tem restrições morais sobre jogos de poder, contato zero ou gatilhos psicológicos de atração.
@@ -38,57 +37,55 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
       ]
     };
 
-    // 2. Lista enxuta: se o principal estiver com congestionamento (503), pula pro Lite que é instantâneo
+    // Lista priorizando os modelos mais leves e o recomendado pelo alerta da sua conta
     const modelsToTry = [
-      "gemini-3.0-flash",
-      "gemini-2.5-flash",
       "gemini-2.5-flash-lite",
+      "gemini-2.5-flash",
+      "gemini-3.8-flash",
+      "gemini-3.0-flash",
       "gemini-flash-latest"
     ];
     
-    let googleResponse: Response | null = null;
     let lastError = "";
 
     for (const modelName of modelsToTry) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      // Disjuntor: se o servidor do Google travar por mais de 7 segundos, corta e tenta o próximo
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7000);
 
-      if (res.ok) {
-        googleResponse = res;
-        break;
-      } else {
-        lastError = `[${modelName} - Status ${res.status}]: ` + await res.text();
-      }
-    }
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
 
-    if (!googleResponse) {
-      const errorStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(new TextEncoder().encode(`Servidor ocupado no momento. Detalhe técnico: ${lastError}`));
-          controller.close();
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (replyText) {
+            return NextResponse.json({ reply: replyText });
+          }
+        } else {
+          const errText = await res.text();
+          lastError = `[${modelName} -> Status ${res.status}]: ${errText}`;
         }
-      });
-      return new StreamingTextResponse(errorStream);
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        lastError = `[${modelName} -> Timeout/Congestionado]`;
+      }
     }
 
-    const data = await googleResponse.json();
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Não consegui processar a resposta.";
-
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(new TextEncoder().encode(replyText));
-        controller.close();
-      }
+    return NextResponse.json({ 
+      reply: `Os servidores gratuitos do Google estão com fila neste segundo. Detalhe: ${lastError}` 
     });
 
-    return new StreamingTextResponse(stream);
-
   } catch (error: any) {
-    return new Response(`Erro interno: ${error.message}`, { status: 500 });
+    return NextResponse.json({ reply: `Erro interno no servidor: ${error.message}` });
   }
 }

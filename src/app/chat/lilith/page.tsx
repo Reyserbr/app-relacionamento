@@ -1,17 +1,22 @@
 "use client";
 
-import { useChat } from "ai/react";
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+}
+
 export default function LilithChat() {
-  const { messages, input, setInput, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: "/api/chatgpt",
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Lê a intenção do botão clicado e preenche o texto
+  // Lê a intenção do botão clicado na Home e preenche o campo
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const action = params.get("action");
@@ -20,15 +25,60 @@ export default function LilithChat() {
     if (action === "analise") setInput("Pode analisar esta conversa para mim? Aqui estão as mensagens: \n\n");
     if (action === "responder") setInput("A pessoa me mandou isso. O que eu respondo agora para virar o jogo a meu favor? \n\n");
     
-    // Limpa a URL após carregar o texto
     if (action) {
-      window.history.replaceState(null, '', '/chat/lilith');
+      window.history.replaceState(null, "", "/chat/lilith");
     }
-  }, [setInput]);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isLoading]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+    };
+
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/chatgpt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: updatedMessages }),
+      });
+
+      const data = await res.json();
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: data.reply || "Não consegui processar a resposta.",
+        },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "Falha de conexão com o servidor. Tente enviar novamente.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-stone-50 font-sans">
@@ -86,10 +136,10 @@ export default function LilithChat() {
 
       {/* Caixa de Texto */}
       <footer className="p-4 bg-white border-t border-stone-200 shrink-0">
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative flex items-center">
+        <form onSubmit={handleSend} className="max-w-4xl mx-auto relative flex items-center">
           <input
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Escreva a sua mensagem ou cole um relato..."
             className="w-full bg-stone-50 border border-stone-200 text-stone-800 rounded-full pl-6 pr-14 py-4 focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all shadow-inner"
           />
