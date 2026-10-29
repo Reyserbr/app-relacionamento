@@ -1,5 +1,8 @@
 import { StreamingTextResponse } from "ai";
 
+// 1. Destrava o limite de 10 segundos da Vercel e acelera a conexão
+export const runtime = "edge";
+
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
@@ -35,12 +38,12 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
       ]
     };
 
-    // 1. Tenta os modelos apontados pelo próprio alerta do Google
+    // 2. Lista enxuta: se o principal estiver com congestionamento (503), pula pro Lite que é instantâneo
     const modelsToTry = [
       "gemini-3.0-flash",
-      "gemini-3.8-flash",
-      "gemini-flash-latest",
-      "gemini-2.5-flash"
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-flash-latest"
     ];
     
     let googleResponse: Response | null = null;
@@ -48,6 +51,7 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
 
     for (const modelName of modelsToTry) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,40 +62,14 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
         googleResponse = res;
         break;
       } else {
-        lastError = await res.text();
-      }
-    }
-
-    // 2. Auto-descoberta: se todos acima falharem, busca na sua conta qual modelo está ativo e usa ele
-    if (!googleResponse) {
-      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      if (listRes.ok) {
-        const listData = await listRes.json();
-        const availableModel = listData.models?.find((m: any) => 
-          m.supportedGenerationMethods?.includes("generateContent") && 
-          m.name.includes("gemini")
-        );
-
-        if (availableModel) {
-          const autoUrl = `https://generativelanguage.googleapis.com/v1beta/${availableModel.name}:generateContent?key=${apiKey}`;
-          const autoRes = await fetch(autoUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-          if (autoRes.ok) {
-            googleResponse = autoRes;
-          } else {
-            lastError = await autoRes.text();
-          }
-        }
+        lastError = `[${modelName} - Status ${res.status}]: ` + await res.text();
       }
     }
 
     if (!googleResponse) {
       const errorStream = new ReadableStream({
         start(controller) {
-          controller.enqueue(new TextEncoder().encode(`Erro da API Google: ${lastError}`));
+          controller.enqueue(new TextEncoder().encode(`Servidor ocupado no momento. Detalhe técnico: ${lastError}`));
           controller.close();
         }
       });
