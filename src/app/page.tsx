@@ -1,14 +1,14 @@
 import Navbar from "@/components/Navbar";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-stone-50 text-stone-800 font-sans selection:bg-rose-200">
-      {/* Mantemos a Navbar original por enquanto para não quebrar a autenticação */}
       <Navbar />
 
       <div className="w-full max-w-5xl px-6 py-12 sm:py-20 mx-auto flex flex-col items-center">
         
-        {/* Hero Section - Apresentação Limpa e Acolhedora */}
+        {/* Hero Section */}
         <div className="text-center max-w-3xl mb-12 mt-8">
           <h1 className="text-5xl sm:text-7xl font-serif font-bold tracking-tight text-stone-900 mb-6">
             LilithLove
@@ -19,21 +19,21 @@ export default function Home() {
             Analise conversas, melhore seus relacionamentos e saiba exatamente como agir.
           </p>
           
-          {/* Chips - Ações Rápidas (Aba 1 do seu escopo) */}
+          {/* Chips - Ações Rápidas conectadas ao chat */}
           <div className="flex flex-wrap justify-center gap-3 mt-4">
-            <button className="px-6 py-3 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
+            <Link href="/chat/lilith" className="px-6 py-3 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
               <span className="text-xl">💬</span> Preciso de um conselho
-            </button>
-            <button className="px-6 py-3 bg-orange-100 hover:bg-orange-200 text-orange-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
+            </Link>
+            <Link href="/chat/lilith" className="px-6 py-3 bg-orange-100 hover:bg-orange-200 text-orange-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
               <span className="text-xl">🔍</span> Analisar uma conversa
-            </button>
-            <button className="px-6 py-3 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
+            </Link>
+            <Link href="/chat/lilith" className="px-6 py-3 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
               <span className="text-xl">✍️</span> O que respondo agora?
-            </button>
+            </Link>
           </div>
         </div>
 
-        {/* Ferramentas Inteligentes - Grid de Funil (Aba 2 do seu escopo) */}
+        {/* Ferramentas Inteligentes */}
         <div className="w-full mt-16">
           <h2 className="text-3xl font-serif font-semibold text-stone-800 mb-8 text-center">
             Ferramentas Inteligentes
@@ -62,20 +62,20 @@ export default function Home() {
               <p className="text-stone-500 leading-relaxed">Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).</p>
             </div>
 
-            {/* Card 4 - Premium/Destaque (O Motor de Vendas) */}
-            <div className="bg-gradient-to-br from-rose-50 to-orange-50 p-8 rounded-3xl shadow-sm border border-rose-200 hover:shadow-md transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group">
+            {/* Card 4 - Premium conectado ao chat */}
+            <Link href="/chat/lilith" className="bg-gradient-to-br from-rose-50 to-orange-50 p-8 rounded-3xl shadow-sm border border-rose-200 hover:shadow-md transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full">
               <div className="absolute top-6 right-6 bg-rose-900 text-rose-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
                 Alta Eficácia
               </div>
               <div className="bg-white/60 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform">❤️‍🩹</div>
               <h3 className="text-xl font-semibold text-rose-900 mb-3">Reconectar / Reconquistar</h3>
               <p className="text-rose-800/80 leading-relaxed pr-12">O módulo urgente. Como voltar a falar depois de um tempo, com estratégias de reversão de crise guiadas por IA.</p>
-            </div>
+            </Link>
 
           </div>
         </div>
         
-        {/* Trilhas de Aprendizado - Teaser de Retenção (Aba 3 do seu escopo) */}
+        {/* Trilhas de Aprendizado */}
         <div className="w-full mt-24 pt-16 border-t border-stone-200 text-center">
           <span className="text-rose-600 font-semibold tracking-wider uppercase text-sm mb-4 block">Exclusivo Assinantes</span>
           <h2 className="text-3xl font-serif font-semibold text-stone-800 mb-8">
