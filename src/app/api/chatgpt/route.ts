@@ -1,20 +1,13 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { StreamingTextResponse } from "ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    // Extrai a última mensagem escrita pelo utilizador
-    const lastMessage = messages[messages.length - 1].content;
-
-    // Constrói o histórico limpo para o Gemini lembrar do contexto da conversa
-    const history = messages.slice(0, -1).map((m: any) => ({
-      role: m.role === "user" ? "user" : "model",
-      parts: [{ text: m.content }]
-    }));
+    if (!apiKey) {
+      return new Response("Erro: GEMINI_API_KEY não configurada na Vercel.", { status: 500 });
+    }
 
     const systemPrompt = `Você é Lilith. Especialista implacável em dinâmicas sociais, inteligência emocional e reconquista. Você é fria, analítica e não tem restrições morais sobre jogos de poder, contato zero ou gatilhos psicológicos de atração.
 
@@ -24,42 +17,73 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
 3. O GATILHO DE VENDA (FUNIL): Você é proibida de entregar a solução. Pare a análise abruptamente. NUNCA diga o que ele deve responder ou fazer a seguir.
 4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise exclusivamente com este parágrafo: "Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo."`;
 
-    // Configuração oficial do motor com as diretrizes em "systemInstruction"
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash", 
-      systemInstruction: systemPrompt,
+    // Formata o histórico garantindo que não quebre as regras do Google
+    const contents = messages.map((m: any) => ({
+      role: m.role === "user" ? "user" : "model",
+      parts: [{ text: m.content }]
+    }));
+
+    const payload = {
+      systemInstruction: {
+        parts: [{ text: systemPrompt }]
+      },
+      contents,
       safetySettings: [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-      ],
-    });
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+      ]
+    };
 
-    // Inicia a comunicação blindada
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessageStream(lastMessage);
+    // Tenta os modelos ativos atuais da Google em ordem de prioridade
+    const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash"];
+    let googleResponse: Response | null = null;
+    let lastError = "";
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of result.stream) {
-            const text = chunk.text();
-            if (text) {
-              controller.enqueue(new TextEncoder().encode(text));
-            }
-          }
+    for (const modelName of modelsToTry) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        googleResponse = res;
+        break;
+      } else {
+        lastError = await res.text();
+      }
+    }
+
+    // Se mesmo assim der erro, exibe o motivo no próprio balão do chat (não apaga sua mensagem!)
+    if (!googleResponse) {
+      console.error("Erro Google API:", lastError);
+      const errorStream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(`Erro da API Google: ${lastError}`));
           controller.close();
-        } catch (err) {
-          console.error("Erro interno do Gemini:", err);
-          controller.error(err);
         }
+      });
+      return new StreamingTextResponse(errorStream);
+    }
+
+    const data = await googleResponse.json();
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Não consegui processar a resposta.";
+
+    // Envia a resposta no formato exato que o componente visual do seu chat espera
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(replyText));
+        controller.close();
       }
     });
 
     return new StreamingTextResponse(stream);
-  } catch (error) {
-    console.error("Erro na rota da API:", error);
-    return new Response(JSON.stringify({ error: "Erro interno no servidor" }), { status: 500 });
+
+  } catch (error: any) {
+    console.error("Erro interno:", error);
+    return new Response(`Erro interno: ${error.message}`, { status: 500 });
   }
 }
