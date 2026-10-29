@@ -25,17 +25,13 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
 3. O GATILHO DE VENDA (FUNIL): Você é proibida de entregar a solução. Pare a análise abruptamente. NUNCA diga o que ele deve responder ou fazer a seguir.
 4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise exclusivamente com este parágrafo: "Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo."`;
 
-    // Constrói o array exato que o Gemini e a Vercel exigem para não dar falha de stream
-    const geminiMessages = [
-      { role: "user", parts: [{ text: systemPrompt }] },
-      { role: "model", parts: [{ text: "Entendido. Serei analítica, não darei sermões e executarei o funil de vendas perfeitamente." }] },
-      ...messages.map((m: any) => ({
-        role: m.role === "user" ? "user" : "model",
-        parts: [{ text: m.content }]
-      }))
-    ];
+    // Transforma o histórico num texto contínuo. Isso impede 100% a falha de formatação da API.
+    const conversationText = messages.map((m: any) => `${m.role === "user" ? "Usuário" : "Lilith"}: ${m.content}`).join("\n\n");
+    
+    // Constrói o prompt final blindado
+    const finalPrompt = `${systemPrompt}\n\n--- INÍCIO DA CONVERSA ---\n\n${conversationText}\n\nLilith:`;
 
-    const result = await model.generateContentStream({ contents: geminiMessages });
+    const result = await model.generateContentStream(finalPrompt);
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -48,7 +44,7 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
           }
           controller.close();
         } catch (err) {
-          console.error("Erro interno do Gemini:", err);
+          console.error("Erro na leitura do stream do Gemini:", err);
           controller.error(err);
         }
       }
