@@ -21,13 +21,13 @@ export default function Home() {
           
           {/* Chips - Ações Rápidas conectadas ao chat */}
           <div className="flex flex-wrap justify-center gap-3 mt-4">
-            <Link href="/chat/lilith" className="px-6 py-3 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
+            <Link href="/chat/lilith?action=conselho" className="px-6 py-3 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
               <span className="text-xl">💬</span> Preciso de um conselho
             </Link>
-            <Link href="/chat/lilith" className="px-6 py-3 bg-orange-100 hover:bg-orange-200 text-orange-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
+            <Link href="/chat/lilith?action=analise" className="px-6 py-3 bg-orange-100 hover:bg-orange-200 text-orange-900 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
               <span className="text-xl">🔍</span> Analisar uma conversa
             </Link>
-            <Link href="/chat/lilith" className="px-6 py-3 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
+            <Link href="/chat/lilith?action=responder" className="px-6 py-3 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2">
               <span className="text-xl">✍️</span> O que respondo agora?
             </Link>
           </div>
@@ -63,7 +63,7 @@ export default function Home() {
             </div>
 
             {/* Card 4 - Premium conectado ao chat */}
-            <Link href="/chat/lilith" className="bg-gradient-to-br from-rose-50 to-orange-50 p-8 rounded-3xl shadow-sm border border-rose-200 hover:shadow-md transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full">
+            <Link href="/chat/lilith?action=conselho" className="bg-gradient-to-br from-rose-50 to-orange-50 p-8 rounded-3xl shadow-sm border border-rose-200 hover:shadow-md transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full">
               <div className="absolute top-6 right-6 bg-rose-900 text-rose-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
                 Alta Eficácia
               </div>

@@ -6,13 +6,26 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 
 export default function LilithChat() {
-  // Conecta o chat à nossa API com o Gemini
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input, setInput, handleInputChange, handleSubmit, isLoading } = useChat({
     api: "/api/chatgpt",
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Faz scroll automático para a mensagem mais recente
+  // Lê a intenção do botão clicado e preenche o texto
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get("action");
+    
+    if (action === "conselho") setInput("Preciso de um conselho. A situação é a seguinte: ");
+    if (action === "analise") setInput("Pode analisar esta conversa para mim? Aqui estão as mensagens: \n\n");
+    if (action === "responder") setInput("A pessoa me mandou isso. O que eu respondo agora para virar o jogo a meu favor? \n\n");
+    
+    // Limpa a URL após carregar o texto
+    if (action) {
+      window.history.replaceState(null, '', '/chat/lilith');
+    }
+  }, [setInput]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);

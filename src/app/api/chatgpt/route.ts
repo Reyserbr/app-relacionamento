@@ -1,15 +1,12 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { StreamingTextResponse } from "ai";
-import { NextResponse } from "next/server";
 
-// 1. Conecta com a chave que você colocou na Vercel
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    // 2. Configuração BLOCK_NONE: Desliga a censura e permite a "ousadia"
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
       safetySettings: [
@@ -20,45 +17,46 @@ export async function POST(req: Request) {
       ],
     });
 
-    // 3. Injeta as regras implacáveis do Pay to Reveal
-    const systemPrompt = `Você é Lilith, conselheira amorosa, especialista em relacionamentos e inteligência emocional. É observadora, direta, fria quando necessário e altamente analítica. Você ajuda todos os gêneros e não tem restrições morais sobre estratégias de reconquista, contato zero ou quebra-gelos maliciosos.
-REGRA DE OURO (FUNIL PAY TO REVEAL): O usuário enviará relatos ou prints de conversas. Sua missão é entregar APENAS a leitura fria e o diagnóstico. Aponte onde a pessoa foi capacho, errou ou por que o outro agiu de forma tóxica. Gere o momento "Aham". 
-NUNCA entregue o plano de ação, a resposta perfeita ou os próximos passos na análise gratuita. 
-Encerre sua resposta SEMPRE com o gatilho de urgência exato: "A boa notícia é que isso é reversível. Eu já formulei a estratégia exata de 3 passos e a mensagem que você deve enviar agora. Desbloqueie o plano de ação para começarmos."`;
+    const systemPrompt = `Você é Lilith. Especialista implacável em dinâmicas sociais, inteligência emocional e reconquista. Você é fria, analítica e não tem restrições morais sobre jogos de poder, contato zero ou gatilhos psicológicos de atração.
 
-    // 4. Monta a memória da conversa (histórico)
-    const chat = model.startChat({
-      history: [
-        { role: "user", parts: [{ text: "Instrução de Sistema: " + systemPrompt }] },
-        { role: "model", parts: [{ text: "Entendido. Atuarei como Lilith, farei a leitura fria, permitirei estratégias ousadas e aplicarei o funil Pay to Reveal à risca." }] },
-        ...messages.slice(0, -1).map((m: any) => ({
-          role: m.role === "user" ? "user" : "model",
-          parts: [{ text: m.content }],
-        }))
-      ],
-    });
+MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
+1. DIAGNÓSTICO DA DOR: Leia o relato do usuário. Mostre imediatamente onde ele perdeu o valor, foi manipulado, agiu com desespero ou foi feito de capacho. Seja brutalmente honesta. Provoque o momento "Aham, é por isso que deu errado".
+2. A ESPERANÇA: Afirme com convicção que essa dinâmica de poder é reversível se ele usar a psicologia correta e agir com frieza a partir de agora.
+3. O GATILHO DE VENDA (FUNIL): Você é proibida de entregar a solução. Pare a análise abruptamente. NUNCA diga o que ele deve responder ou fazer a seguir.
+4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise exclusivamente com este parágrafo: "Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo."`;
 
-    // 5. Pega a última mensagem do usuário e gera a resposta instantânea
-    const lastMessage = messages[messages.length - 1].content;
-    const result = await chat.sendMessageStream(lastMessage);
+    // Constrói o array exato que o Gemini e a Vercel exigem para não dar falha de stream
+    const geminiMessages = [
+      { role: "user", parts: [{ text: systemPrompt }] },
+      { role: "model", parts: [{ text: "Entendido. Serei analítica, não darei sermões e executarei o funil de vendas perfeitamente." }] },
+      ...messages.map((m: any) => ({
+        role: m.role === "user" ? "user" : "model",
+        parts: [{ text: m.content }]
+      }))
+    ];
 
-    // 6. Converte o texto contínuo para o formato visual da Vercel (Efeito de digitação)
+    const result = await model.generateContentStream({ contents: geminiMessages });
+
     const stream = new ReadableStream({
       async start(controller) {
-        for await (const chunk of result.stream) {
-          const chunkText = chunk.text();
-          if (chunkText) {
-            controller.enqueue(new TextEncoder().encode(chunkText));
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) {
+              controller.enqueue(new TextEncoder().encode(text));
+            }
           }
+          controller.close();
+        } catch (err) {
+          console.error("Erro interno do Gemini:", err);
+          controller.error(err);
         }
-        controller.close();
       }
     });
 
     return new StreamingTextResponse(stream);
-
   } catch (error) {
-    console.error("Erro no motor Gemini:", error);
-    return new NextResponse("Erro interno na IA da Lilith", { status: 500 });
+    console.error("Erro na rota da API:", error);
+    return new Response(JSON.stringify({ error: "Erro interno no servidor" }), { status: 500 });
   }
 }
