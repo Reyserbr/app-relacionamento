@@ -42,25 +42,25 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Card 1 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 hover:shadow-md transition-all cursor-pointer flex flex-col items-start group">
+            <Link href="/chat/lilith?action=responder" className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 hover:shadow-md transition-all cursor-pointer flex flex-col items-start group">
               <div className="bg-stone-50 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform">👋</div>
               <h3 className="text-xl font-semibold mb-3 text-stone-800">Primeiro Contato</h3>
               <p className="text-stone-500 leading-relaxed">Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.</p>
-            </div>
+            </Link>
 
             {/* Card 2 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 hover:shadow-md transition-all cursor-pointer flex flex-col items-start group">
+            <Link href="/chat/lilith?action=analise" className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 hover:shadow-md transition-all cursor-pointer flex flex-col items-start group">
               <div className="bg-stone-50 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform">🚩</div>
               <h3 className="text-xl font-semibold mb-3 text-stone-800">Detector de Red Flags</h3>
               <p className="text-stone-500 leading-relaxed">Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.</p>
-            </div>
+            </Link>
 
             {/* Card 3 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 hover:shadow-md transition-all cursor-pointer flex flex-col items-start group">
+            <Link href="/chat/lilith?action=responder" className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 hover:shadow-md transition-all cursor-pointer flex flex-col items-start group">
               <div className="bg-stone-50 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform">🥂</div>
               <h3 className="text-xl font-semibold mb-3 text-stone-800">Pós-Encontro</h3>
               <p className="text-stone-500 leading-relaxed">Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).</p>
-            </div>
+            </Link>
 
             {/* Card 4 - Premium conectado ao chat */}
             <Link href="/chat/lilith?action=conselho" className="bg-gradient-to-br from-rose-50 to-orange-50 p-8 rounded-3xl shadow-sm border border-rose-200 hover:shadow-md transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full">
@@ -82,9 +82,9 @@ export default function Home() {
             Trilhas de Desenvolvimento
           </h2>
           <div className="flex flex-wrap justify-center gap-4">
-            <div className="px-6 py-4 bg-white border border-stone-100 shadow-sm rounded-2xl text-stone-600 font-medium">✨ Ame a Si Mesmo Primeiro</div>
-            <div className="px-6 py-4 bg-white border border-stone-100 shadow-sm rounded-2xl text-stone-600 font-medium">🛑 Contato Zero na Prática</div>
-            <div className="px-6 py-4 bg-white border border-stone-100 shadow-sm rounded-2xl text-stone-600 font-medium">🔥 Desperte sua Confiança</div>
+            <Link href="/chat/lilith?action=conselho" className="px-6 py-4 bg-white hover:bg-rose-50 transition-colors border border-stone-100 shadow-sm rounded-2xl text-stone-600 font-medium">✨ Ame a Si Mesmo Primeiro</Link>
+            <Link href="/chat/lilith?action=conselho" className="px-6 py-4 bg-white hover:bg-rose-50 transition-colors border border-stone-100 shadow-sm rounded-2xl text-stone-600 font-medium">🛑 Contato Zero na Prática</Link>
+            <Link href="/chat/lilith?action=conselho" className="px-6 py-4 bg-white hover:bg-rose-50 transition-colors border border-stone-100 shadow-sm rounded-2xl text-stone-600 font-medium">🔥 Desperte sua Confiança</Link>
           </div>
         </div>
 

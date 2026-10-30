@@ -1,8 +1,18 @@
 import { authMiddleware } from "@clerk/nextjs";
+import { NextResponse } from "next/server";
 
 export default authMiddleware({
-  // Libera a Home (vitrine) e as páginas de login próprias para qualquer visitante ver sem bloqueio
   publicRoutes: ["/", "/sign-in(.*)", "/sign-up(.*)"],
+  afterAuth(auth, req) {
+    // Se o usuário não estiver logado e clicar em qualquer botão que leva ao chat:
+    if (!auth.userId && !auth.isPublicRoute) {
+      const signInUrl = new URL("/sign-in", req.url);
+      // Guarda o link exato que ele clicou (ex: /chat/lilith?action=analise) para abrir direto lá após logar
+      signInUrl.searchParams.set("redirect_url", req.url);
+      return NextResponse.redirect(signInUrl);
+    }
+    return NextResponse.next();
+  },
 });
 
 export const config = {
