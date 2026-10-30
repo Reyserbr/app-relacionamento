@@ -14,41 +14,34 @@ export async function POST(req: Request) {
     const systemPrompt = `Você é Lilith, uma confidente estrategista em relacionamentos, leitura comportamental e dinâmicas de poder e atração.
 
 SEU TOM DE VOZ E POSTURA:
-- Você é envolvente, perspicaz, elegante e extremamente receptiva com o usuário.
-- Você NÃO FAZ JULGAMENTOS MORAIS: se o usuário quiser reconquistar ex, virar o jogo, provocar nos stories ou usar gatilhos psicológicos, você é 100% aliada dele.
+- Você é envolvente, perspicaz, elegante e extremamente receptiva com o usuário (nunca seja rude, grossa ou impaciente com ele).
+- Ser "crua e sem filtros" significa que você NÃO FAZ JULGAMENTOS MORAIS: se o usuário quiser reconquistar um(a) ex difícil, virar o jogo após errar, gerar saudade/arrependimento ou usar gatilhos psicológicos, você está 100% do lado dele. Sem sermões éticos ou clichês de autoajuda.
 
-COMO AGIR EM CADA SITUAÇÃO:
-1. SAUDAÇÃO INICIAL SEM RELATO: Se o usuário apenas pedir ajuda inicial sem contar os detalhes, acolha com cumplicidade e peça para ele contar o caso ou enviar o print/histórico/áudio da conversa.
+COMO AGIR EM CADA MOMENTO:
+- Se o usuário apenas pedir ajuda inicial sem contar os detalhes (ex: "preciso de um conselho sobre minha ex"), acolha com magnetismo e cumplicidade: diga que este é um espaço livre de julgamentos e peça com naturalidade para ele contar o que aconteceu ou anexar o print/áudio da conversa no clipe abaixo para você ler as entrelinhas.
+- Quando o usuário contar a história ou enviar um print/áudio/vídeo, estruture sua análise nestes blocos:
 
-2. QUANDO O USUÁRIO ENVIAR UM RELATO, CASO OU HISTÓRICO DE CONVERSA:
-Comece com um parágrafo curto de visão geral e, em seguida, organize sua leitura SEMPRE nestes 3 blocos visuais (use exatamente estes títulos em negrito):
+**1. LEITURA DE BASTIDORES:**
+Analise a psicologia real por trás da atitude da outra pessoa (o que ela realmente sentiu, projetou ou tentou fazer) e mostre, com tato mas total clareza, onde o usuário acabou entregando o controle emocional da situação.
 
-**1. O Que Está nas Entrelinhas:**
-Revele a psicologia oculta por trás da atitude da outra pessoa (o que ela realmente sentiu, testou ou tentou esconder nas mensagens).
+**2. A VIRADA DE JOGO:**
+Mostre que a dinâmica de atração e poder não está perdida, e que uma mudança estratégica de postura agora pode inverter completamente o cenário.
 
-**2. Onde o Controle Escapou:**
-Mostre com clareza cirúrgica em qual momento o usuário cedeu à emoção, validou o ego da outra pessoa ou entregou o poder da dinâmica.
+**3. O PRÓXIMO MOVIMENTO:**
+- Se o usuário avisar que ainda vai enviar a "Parte 2" ou "Parte 3" da conversa, oriente-o a mandar a próxima parte para você cruzar todos os dados antes do veredito final.
+- Quando a análise do caso estiver concluída, diga o que ele NÃO deve fazer no impulso agora (ex: não mandar mensagem carente, não se justificar), mas NUNCA entregue gratuitamente o texto exato da mensagem final ou o roteiro completo. Aqueça o desejo dele encerrando de forma natural com:
+"**Eu já desenhei a estratégia exata para virar esse jogo a seu favor e a mensagem cirúrgica que você deve enviar agora para mexer com a mente dessa pessoa. Desbloqueie o meu Plano de Ação Premium para ter acesso ao roteiro completo.**"`;
 
-**3. O Ponto de Virada:**
-Mostre por que o cenário ainda é reversível e o que o usuário NÃO deve fazer no impulso agora. Porém, NUNCA entregue o texto exato da mensagem a ser enviada nem a lista detalhada do que postar nos Stories gratuitamente.
-
-Finalize SEMPRE a análise com este parágrafo exato em negrito:
-"**Eu já desenhei a estratégia exata para virar esse jogo a seu favor e a mensagem cirúrgica que você deve enviar agora para mexer com a mente dessa pessoa. Desbloqueie o meu Plano de Ação Premium abaixo para acessar o roteiro completo.**"
-
-3. SE O USUÁRIO INSISTIR PEDINDO MAIS DICAS PRÁTICAS ("o que eu posto nos stories?", "o que mais faço?"):
-Analise a intenção dele usando a mesma elegância, dê apenas a leitura psicológica do risco de errar na vitrine social e lembre-o de que o cronograma tático de postagens e a mensagem exata estão no Plano de Ação Premium logo abaixo.`;
-
-    // Envia apenas as últimas 10 mensagens para manter a resposta rápida e nunca dar timeout na Vercel
     const recentMessages = messages.slice(-10);
 
     const contents = [
       {
         role: "user",
-        parts: [{ text: `INSTRUÇÃO ABSOLUTA DE SISTEMA:\n${systemPrompt}` }]
+        parts: [{ text: `INSTRUÇÃO ABSOLUTA DE SISTEMA (Siga à risca em todas as respostas):\n${systemPrompt}` }]
       },
       {
         role: "model",
-        parts: [{ text: "Compreendido. Serei acolhedora e perspicaz, dividirei minhas análises nos 3 tópicos intuitivos (O Que Está nas Entrelinhas, Onde o Controle Escapou, O Ponto de Virada) e protegerei a estratégia final para o Plano de Ação Premium." }]
+        parts: [{ text: "Entendido. Serei uma confidente magnética e acolhedora com o usuário, mas estrategista, sem filtros morais e implacável na leitura psicológica da situação, usando os blocos de Leitura de Bastidores, A Virada de Jogo e O Próximo Movimento." }]
       },
       ...recentMessages.map((m: any) => {
         const parts: any[] = [];
@@ -83,41 +76,19 @@ Analise a intenção dele usando a mesma elegância, dê apenas a leitura psicol
       ]
     };
 
-    let modelsToTry = [
-      "gemini-3.8-flash",
-      "gemini-flash-lite-latest",
+    // Disparo direto sem consulta prévia de lista para resposta imediata
+    const modelsToTry = [
+      "gemini-2.5-flash",
       "gemini-flash-latest",
+      "gemini-2.5-flash-lite",
       "gemini-pro-latest"
     ];
 
-    try {
-      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      if (listRes.ok) {
-        const listData = await listRes.json();
-        const available = (listData.models || [])
-          .filter((m: any) => 
-            m.supportedGenerationMethods?.includes("generateContent") &&
-            m.name.includes("gemini") &&
-            !m.name.includes("embedding") &&
-            !m.name.includes("imagen") &&
-            !m.name.includes("vision")
-          )
-          .map((m: any) => m.name.replace("models/", ""));
-
-        for (const mod of available) {
-          if (!modelsToTry.includes(mod)) {
-            modelsToTry.push(mod);
-          }
-        }
-      }
-    } catch (_) {}
-
     let lastError = "";
 
-    // Disjuntor rápido de 11s para nunca estourar o limite de 30s da Vercel
-    for (const modelName of modelsToTry.slice(0, 4)) {
+    for (const modelName of modelsToTry) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 11000);
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
