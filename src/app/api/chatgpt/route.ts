@@ -37,11 +37,8 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
       ]
     };
 
-    // Lista priorizando os modelos mais leves e o recomendado pelo alerta da sua conta
+    // Foco exclusivo nos modelos ativos da sua conta, sem queimar cota à toa
     const modelsToTry = [
-      "gemini-2.5-flash-lite",
-      "gemini-2.5-flash",
-      "gemini-3.8-flash",
       "gemini-3.0-flash",
       "gemini-flash-latest"
     ];
@@ -49,9 +46,9 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
     let lastError = "";
 
     for (const modelName of modelsToTry) {
-      // Disjuntor: se o servidor do Google travar por mais de 7 segundos, corta e tenta o próximo
+      // 22 segundos de margem para a IA escrever textos completos sem ser cortada no meio
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 7000);
+      const timeoutId = setTimeout(() => controller.abort(), 22000);
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -77,15 +74,15 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
         }
       } catch (err: any) {
         clearTimeout(timeoutId);
-        lastError = `[${modelName} -> Timeout/Congestionado]`;
+        lastError = `[${modelName} -> Demorou mais de 22s]`;
       }
     }
 
     return NextResponse.json({ 
-      reply: `Os servidores gratuitos do Google estão com fila neste segundo. Detalhe: ${lastError}` 
+      reply: `Falha na resposta. Diagnóstico real: ${lastError}` 
     });
 
   } catch (error: any) {
-    return NextResponse.json({ reply: `Erro interno no servidor: ${error.message}` });
+    return NextResponse.json({ reply: `Erro interno: ${error.message}` });
   }
 }
