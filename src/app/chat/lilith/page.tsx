@@ -44,13 +44,12 @@ export default function LilithChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Limite base de 5 mensagens + bônus caso desbloqueie via anúncio
+  // Limite de 5 respostas da Lilith por caso (+ bônus se assistir anúncio)
   const BASE_FREE_LIMIT = 5;
   const totalAllowed = BASE_FREE_LIMIT + bonusLimit;
   const assistantRepliesCount = messages.filter((m) => m.role === "assistant").length;
   const isLimitReached = assistantRepliesCount >= totalAllowed;
 
-  // Carrega o histórico de casos salvo no navegador
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -81,13 +80,11 @@ export default function LilithChat() {
     }
   }, []);
 
-  // Salva automaticamente qualquer nova mensagem no histórico do Caso atual
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
     setSessions((prev) => {
       const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Novo Caso";
       const cleanTitle = firstUserMsg.slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
 
-      // Remove o base64 pesado ao salvar no localStorage para não lotar a memória do navegador
       const lightMessages = updatedMsgs.map((m) =>
         m.attachment ? { ...m, attachment: undefined } : m
       );
@@ -157,7 +154,6 @@ export default function LilithChat() {
     }
   };
 
-  // Desbloqueia +3 mensagens ao assistir anúncio
   const handleUnlockAdBonus = () => {
     setIsWatchingAd(true);
     setTimeout(() => {
@@ -218,11 +214,6 @@ export default function LilithChat() {
     });
   };
 
-  const hasPitchTrigger = (text: string) => {
-    const lower = text.toLowerCase();
-    return lower.includes("plano de ação premium") || lower.includes("roteiro completo");
-  };
-
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (isLimitReached) {
@@ -281,7 +272,7 @@ export default function LilithChat() {
 
   return (
     <div className="flex h-screen bg-[#faf7f5] font-sans overflow-hidden">
-      {/* BARRA LATERAL RETRÁTIL DE HISTÓRICO DE CASOS */}
+      {/* BARRA LATERAL DE HISTÓRICO DE CASOS */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 lg:hidden"
@@ -339,7 +330,6 @@ export default function LilithChat() {
 
       {/* ÁREA PRINCIPAL DO CHAT */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Cabeçalho com as cores originais da Print 1 */}
         <header className="flex items-center justify-between px-4 sm:px-6 py-4 bg-white/90 backdrop-blur-md border-b border-rose-100 shadow-sm shrink-0">
           <div className="flex items-center gap-2 sm:gap-3">
             <button
@@ -422,35 +412,6 @@ export default function LilithChat() {
                   )}
 
                   <div>{formatText(m.content)}</div>
-
-                  {/* Card de Desbloqueio do Plano de Ação */}
-                  {m.role === "assistant" && hasPitchTrigger(m.content) && (
-                    <div className="mt-5 pt-4 border-t border-rose-100">
-                      <div className="bg-gradient-to-br from-rose-950 via-rose-900 to-stone-900 text-white p-5 rounded-2xl shadow-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[11px] uppercase tracking-widest font-bold text-amber-300 flex items-center gap-1">
-                            🔒 Estratégia Confidencial Pronta
-                          </span>
-                          <span className="text-xs bg-white/10 px-2.5 py-0.5 rounded-full text-rose-100">
-                            Acesso Imediato
-                          </span>
-                        </div>
-                        <h4 className="font-serif font-bold text-base sm:text-lg text-white mb-1">
-                          Plano de Ação + Mensagem Cirúrgica
-                        </h4>
-                        <p className="text-xs text-rose-100/90 mb-4 leading-relaxed">
-                          Destrave a mensagem palavra por palavra para quebrar o silêncio, o guia do que postar nos Stories e os próximos passos táticos.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setShowPaywallModal(true)}
-                          className="w-full py-3 px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
-                        >
-                          <span>🔓 Desbloquear Meu Plano de Ação Agora</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             ))
@@ -471,7 +432,7 @@ export default function LilithChat() {
           <div ref={messagesEndRef} />
         </main>
 
-        {/* Rodapé de Digitação (Enter quebra linha livremente sem enviar por acidente) */}
+        {/* Rodapé de Digitação: Enter envia, Shift + Enter pula linha */}
         <footer className="p-3 sm:p-4 bg-white border-t border-rose-100 shrink-0">
           <div className="max-w-4xl mx-auto">
             {attachment && (
@@ -495,10 +456,10 @@ export default function LilithChat() {
               <div className="bg-rose-950 text-white p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
                 <div className="text-center sm:text-left">
                   <p className="font-serif font-bold text-sm sm:text-base text-amber-300">
-                    Você atingiu o limite de {totalAllowed} mensagens deste caso.
+                    Você atingiu o limite de {totalAllowed} análises gratuitas deste caso.
                   </p>
                   <p className="text-xs text-rose-100">
-                    Desbloqueie o Plano Premium ilimitado ou libere +3 mensagens extras agora.
+                    Desbloqueie o Plano de Ação Premium para liberar o roteiro completo e mensagens ilimitadas.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -507,7 +468,7 @@ export default function LilithChat() {
                     onClick={() => setShowPaywallModal(true)}
                     className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs sm:text-sm rounded-xl shadow transition-colors"
                   >
-                    🔓 Opções de Desbloqueio
+                    🔓 Desbloquear Agora
                   </button>
                 </div>
               </div>
@@ -536,14 +497,14 @@ export default function LilithChat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => {
-                    // Enter e Shift+Enter quebram linha normalmente; Ctrl+Enter envia
-                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                    // Se apertar Enter SEM segurar o Shift, envia a mensagem. Com Shift+Enter, pula linha.
+                    if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
                       handleSend();
                     }
                   }}
                   rows={Math.min(5, Math.max(1, input.split("\n").length))}
-                  placeholder="Conte o caso ou cole a conversa (Enter pula linha, clique na seta para enviar)..."
+                  placeholder="Conte o caso ou cole a conversa (Shift + Enter para pular linha)..."
                   className="w-full bg-stone-50 border border-stone-200 text-stone-800 rounded-3xl pl-5 pr-14 py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all shadow-inner text-sm sm:text-base resize-none max-h-40 overflow-y-auto"
                 />
 
@@ -562,7 +523,7 @@ export default function LilithChat() {
         </footer>
       </div>
 
-      {/* MODAL DE PAYWALL + REWARDED AD (+3 MENSAGENS) */}
+      {/* MODAL DE PAYWALL QUANDO ATINGE O LIMITE DE 5 MENSAGENS */}
       {showPaywallModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-rose-100 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
