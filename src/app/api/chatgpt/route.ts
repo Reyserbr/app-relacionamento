@@ -18,12 +18,11 @@ REGRAS DE COMPORTAMENTO:
 - Se o usuário mandar apenas um "oi" ou pedir ajuda sem contar a história, NÃO faça listas burocráticas: mande ele soltar logo a história, colar o print da conversa ou mandar o áudio/vídeo do que aconteceu sem esconder nada.
 - Quando o usuário contar o relato, mandar print de conversa, áudio ou vídeo, aplique OBRIGATORIAMENTE os 4 passos abaixo:
 
-1. DIAGNÓSTICO DA DOR: Mostre imediatamente onde ele perdeu valor, agiu com carência, foi manipulado ou entregue de bandeja o poder para a outra pessoa. Seja brutalmente honesta para gerar o choque de realidade.
+1. DIAGNÓSTICO DA DOR: Mostre imediatamente onde ele perdeu valor, agiu com carência, foi manipulado ou entregou de bandeja o poder para a outra pessoa. Seja brutalmente honesta para gerar o choque de realidade.
 2. A ESPERANÇA: Afirme com firmeza que o jogo ainda pode ser virado se ele parar de agir pela emoção e aplicar a estratégia fria correta agora.
 3. O GATILHO DE VENDA (FUNIL): Você é PROIBIDA de entregar a solução gratuita. Pare a análise no ponto mais tenso. NUNCA diga qual mensagem ele deve enviar.
 4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise de caso exclusivamente com esta frase em negrito: "**Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo.**"`;
 
-    // Converte mensagens + anexos (Imagem, Áudio ou Vídeo) para o formato multimodal do Gemini
     const contents = [
       {
         role: "user",
@@ -40,7 +39,6 @@ REGRAS DE COMPORTAMENTO:
           parts.push({ text: m.content });
         }
         
-        // Se a mensagem tiver imagem, áudio ou vídeo anexado
         if (m.attachment && m.attachment.data && m.attachment.mimeType) {
           parts.push({
             inlineData: {
@@ -67,16 +65,45 @@ REGRAS DE COMPORTAMENTO:
       ]
     };
 
-    const modelsToTry = [
-      "gemini-3.0-flash",
-      "gemini-flash-latest"
+    // 1. Descobre automaticamente todos os modelos ativos na sua chave para fugir de filas (503) e erros (404)
+    let modelsToTry = [
+      "gemini-3.8-flash",
+      "gemini-flash-lite-latest",
+      "gemini-flash-latest",
+      "gemini-pro-latest"
     ];
-    
+
+    try {
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        const available = (listData.models || [])
+          .filter((m: any) => 
+            m.supportedGenerationMethods?.includes("generateContent") &&
+            m.name.includes("gemini") &&
+            !m.name.includes("embedding") &&
+            !m.name.includes("imagen") &&
+            !m.name.includes("vision")
+          )
+          .map((m: any) => m.name.replace("models/", ""));
+
+        // Coloca os modelos reais da sua conta que não estão na lista padrão como backup imediato
+        for (const mod of available) {
+          if (!modelsToTry.includes(mod)) {
+            modelsToTry.push(mod);
+          }
+        }
+      }
+    } catch (_) {
+      // Segue com a lista padrão se a listagem oscilar
+    }
+
     let lastError = "";
 
+    // 2. Testa os modelos em sequência; se um der 503 (servidor cheio), pula na hora para o próximo servidor livre
     for (const modelName of modelsToTry) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 24000);
+      const timeoutId = setTimeout(() => controller.abort(), 14000);
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -98,16 +125,17 @@ REGRAS DE COMPORTAMENTO:
           }
         } else {
           const errText = await res.text();
-          lastError = `[${modelName} -> Status ${res.status}]: ${errText}`;
+          lastError = `[${modelName} -> Status ${res.status}]`;
+          // Se for 503 (alta demanda) ou 404, continua o loop imediatamente para o próximo modelo livre
         }
       } catch (err: any) {
         clearTimeout(timeoutId);
-        lastError = `[${modelName} -> Tempo limite excedido]`;
+        lastError = `[${modelName} -> Timeout]`;
       }
     }
 
     return NextResponse.json({ 
-      reply: `Não consegui processar esse arquivo agora (arquivos muito pesados podem exceder o limite gratuito). Detalhe: ${lastError}` 
+      reply: `Todos os servidores gratuitos da Google estão com pico de demanda neste segundo (${lastError}). Aguarde 5 segundos e envie novamente.` 
     });
 
   } catch (error: any) {
