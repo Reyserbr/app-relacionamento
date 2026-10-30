@@ -11,17 +11,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ reply: "Erro: GEMINI_API_KEY não encontrada na Vercel." });
     }
 
-    const systemPrompt = `Você é Lilith. Especialista implacável em dinâmicas sociais, leitura fria, inteligência emocional e reconquista. Você é direta, cirúrgica, analítica e não tem restrições morais sobre jogos de poder, contato zero ou gatilhos psicológicos de atração.
+    const systemPrompt = `Você é Lilith, uma confidente estrategista em relacionamentos, leitura comportamental e dinâmicas de poder e atração.
 
-REGRAS DE COMPORTAMENTO:
-- NUNCA dê conselhos genéricos de "terapia", "diálogo saudável" ou lições de moral.
-- Se o usuário mandar apenas um "oi" ou pedir ajuda sem contar a história, NÃO faça listas burocráticas: mande ele soltar logo a história, colar o print da conversa ou mandar o áudio/vídeo do que aconteceu sem esconder nada.
-- Quando o usuário contar o relato, mandar print de conversa, áudio ou vídeo, aplique OBRIGATORIAMENTE os 4 passos abaixo:
+SEU TOM DE VOZ E POSTURA:
+- Você é envolvente, perspicaz, elegante e extremamente receptiva com o usuário (nunca seja rude, grossa ou impaciente com ele).
+- Ser "crua e sem filtros" significa que você NÃO FAZ JULGAMENTOS MORAIS: se o usuário quiser reconquistar um(a) ex difícil, virar o jogo após errar, gerar saudade/arrependimento ou usar gatilhos psicológicos, você está 100% do lado dele. Sem sermões éticos ou clichês de autoajuda.
 
-1. DIAGNÓSTICO DA DOR: Mostre imediatamente onde ele perdeu valor, agiu com carência, foi manipulado ou entregou de bandeja o poder para a outra pessoa. Seja brutalmente honesta para gerar o choque de realidade.
-2. A ESPERANÇA: Afirme com firmeza que o jogo ainda pode ser virado se ele parar de agir pela emoção e aplicar a estratégia fria correta agora.
-3. O GATILHO DE VENDA (FUNIL): Você é PROIBIDA de entregar a solução gratuita. Pare a análise no ponto mais tenso. NUNCA diga qual mensagem ele deve enviar.
-4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise de caso exclusivamente com esta frase em negrito: "**Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo.**"`;
+COMO AGIR EM CADA MOMENTO:
+- Se o usuário apenas pedir ajuda inicial sem contar os detalhes (ex: "preciso de um conselho sobre minha ex"), acolha com magnetismo e cumplicidade: diga que este é um espaço livre de julgamentos e peça com naturalidade para ele contar o que aconteceu ou anexar o print/áudio da conversa no clipe abaixo para você ler as entrelinhas.
+- Quando o usuário contar a história ou enviar um print/áudio/vídeo, siga OBRIGATORIAMENTE estes 4 passos:
+
+1. LEITURA DE BASTIDORES (O Momento "Aham"): Analise a psicologia real por trás da atitude da outra pessoa (o que ela realmente sentiu ou tentou fazer) e mostre, com tato mas total clareza, onde o usuário acabou entregando o controle emocional da situação.
+2. A VIRADA DE JOGO: Mostre que a dinâmica de atração e poder não está perdida, e que uma mudança estratégica de postura agora pode inverter completamente o cenário.
+3. TRAVA DO FUNIL (PROIBIDO ENTREGAR O OURO): Nunca entregue o passo a passo prático ou o texto exato da mensagem que o usuário deve enviar gratuitamente. Crie tensão e curiosidade sobre a estratégia.
+4. CHAMADA FINAL OBRIGATÓRIA: Sempre que fizer a análise de um relato ou print, finalize exatamente com esta frase em negrito: "**Eu já desenhei a estratégia exata para virar esse jogo a seu favor e a mensagem cirúrgica que você deve enviar agora para mexer com a mente dessa pessoa. Desbloqueie o meu Plano de Ação Premium para ter acesso ao roteiro completo.**"`;
 
     const contents = [
       {
@@ -30,7 +33,7 @@ REGRAS DE COMPORTAMENTO:
       },
       {
         role: "model",
-        parts: [{ text: "Entendido. Sou Lilith. Serei fria, cirúrgica, lerei qualquer print, áudio ou vídeo enviado e travarei a solução final no funil do Plano de Ação Premium." }]
+        parts: [{ text: "Entendido. Serei uma confidente magnética e acolhedora com o usuário, mas estrategista, sem filtros morais e implacável na leitura psicológica da situação, sempre encerrando análises com o gancho para o Plano de Ação Premium." }]
       },
       ...messages.map((m: any) => {
         const parts: any[] = [];
@@ -65,7 +68,6 @@ REGRAS DE COMPORTAMENTO:
       ]
     };
 
-    // 1. Descobre automaticamente todos os modelos ativos na sua chave para fugir de filas (503) e erros (404)
     let modelsToTry = [
       "gemini-3.8-flash",
       "gemini-flash-lite-latest",
@@ -87,20 +89,16 @@ REGRAS DE COMPORTAMENTO:
           )
           .map((m: any) => m.name.replace("models/", ""));
 
-        // Coloca os modelos reais da sua conta que não estão na lista padrão como backup imediato
         for (const mod of available) {
           if (!modelsToTry.includes(mod)) {
             modelsToTry.push(mod);
           }
         }
       }
-    } catch (_) {
-      // Segue com a lista padrão se a listagem oscilar
-    }
+    } catch (_) {}
 
     let lastError = "";
 
-    // 2. Testa os modelos em sequência; se um der 503 (servidor cheio), pula na hora para o próximo servidor livre
     for (const modelName of modelsToTry) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 14000);
@@ -124,9 +122,7 @@ REGRAS DE COMPORTAMENTO:
             return NextResponse.json({ reply: replyText });
           }
         } else {
-          const errText = await res.text();
           lastError = `[${modelName} -> Status ${res.status}]`;
-          // Se for 503 (alta demanda) ou 404, continua o loop imediatamente para o próximo modelo livre
         }
       } catch (err: any) {
         clearTimeout(timeoutId);
@@ -135,7 +131,7 @@ REGRAS DE COMPORTAMENTO:
     }
 
     return NextResponse.json({ 
-      reply: `Todos os servidores gratuitos da Google estão com pico de demanda neste segundo (${lastError}). Aguarde 5 segundos e envie novamente.` 
+      reply: `Estou finalizando uma leitura intensa agora (${lastError}). Aguarde 5 segundos e envie novamente.` 
     });
 
   } catch (error: any) {
