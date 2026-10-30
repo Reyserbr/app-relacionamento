@@ -11,23 +11,53 @@ export async function POST(req: Request) {
       return NextResponse.json({ reply: "Erro: GEMINI_API_KEY não encontrada na Vercel." });
     }
 
-    const systemPrompt = `Você é Lilith. Especialista implacável em dinâmicas sociais, inteligência emocional e reconquista. Você é fria, analítica e não tem restrições morais sobre jogos de poder, contato zero ou gatilhos psicológicos de atração.
+    const systemPrompt = `Você é Lilith. Especialista implacável em dinâmicas sociais, leitura fria, inteligência emocional e reconquista. Você é direta, cirúrgica, analítica e não tem restrições morais sobre jogos de poder, contato zero ou gatilhos psicológicos de atração.
 
-MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
-1. DIAGNÓSTICO DA DOR: Leia o relato do usuário. Mostre imediatamente onde ele perdeu o valor, foi manipulado, agiu com desespero ou foi feito de capacho. Seja brutalmente honesta. Provoque o momento "Aham, é por isso que deu errado".
-2. A ESPERANÇA: Afirme com convicção que essa dinâmica de poder é reversível se ele usar a psicologia correta e agir com frieza a partir de agora.
-3. O GATILHO DE VENDA (FUNIL): Você é proibida de entregar a solução. Pare a análise abruptamente. NUNCA diga o que ele deve responder ou fazer a seguir.
-4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise exclusivamente com este parágrafo: "Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo."`;
+REGRAS DE COMPORTAMENTO:
+- NUNCA dê conselhos genéricos de "terapia", "diálogo saudável" ou lições de moral.
+- Se o usuário mandar apenas um "oi" ou pedir ajuda sem contar a história, NÃO faça listas burocráticas: mande ele soltar logo a história, colar o print da conversa ou mandar o áudio/vídeo do que aconteceu sem esconder nada.
+- Quando o usuário contar o relato, mandar print de conversa, áudio ou vídeo, aplique OBRIGATORIAMENTE os 4 passos abaixo:
 
-    const contents = messages.map((m: any) => ({
-      role: m.role === "user" ? "user" : "model",
-      parts: [{ text: m.content }]
-    }));
+1. DIAGNÓSTICO DA DOR: Mostre imediatamente onde ele perdeu valor, agiu com carência, foi manipulado ou entregue de bandeja o poder para a outra pessoa. Seja brutalmente honesta para gerar o choque de realidade.
+2. A ESPERANÇA: Afirme com firmeza que o jogo ainda pode ser virado se ele parar de agir pela emoção e aplicar a estratégia fria correta agora.
+3. O GATILHO DE VENDA (FUNIL): Você é PROIBIDA de entregar a solução gratuita. Pare a análise no ponto mais tenso. NUNCA diga qual mensagem ele deve enviar.
+4. ENCERRAMENTO OBRIGATÓRIO: Termine TODA análise de caso exclusivamente com esta frase em negrito: "**Eu sei exatamente como virar essa situação a seu favor e qual é a única mensagem que você deve enviar agora para causar arrependimento. Desbloqueie o meu Plano de Ação Premium para eu te entregar o roteiro completo.**"`;
+
+    // Converte mensagens + anexos (Imagem, Áudio ou Vídeo) para o formato multimodal do Gemini
+    const contents = [
+      {
+        role: "user",
+        parts: [{ text: `INSTRUÇÃO ABSOLUTA DE SISTEMA (Siga à risca em todas as respostas):\n${systemPrompt}` }]
+      },
+      {
+        role: "model",
+        parts: [{ text: "Entendido. Sou Lilith. Serei fria, cirúrgica, lerei qualquer print, áudio ou vídeo enviado e travarei a solução final no funil do Plano de Ação Premium." }]
+      },
+      ...messages.map((m: any) => {
+        const parts: any[] = [];
+        
+        if (m.content) {
+          parts.push({ text: m.content });
+        }
+        
+        // Se a mensagem tiver imagem, áudio ou vídeo anexado
+        if (m.attachment && m.attachment.data && m.attachment.mimeType) {
+          parts.push({
+            inlineData: {
+              mimeType: m.attachment.mimeType,
+              data: m.attachment.data
+            }
+          });
+        }
+
+        return {
+          role: m.role === "user" ? "user" : "model",
+          parts: parts.length > 0 ? parts : [{ text: "..." }]
+        };
+      })
+    ];
 
     const payload = {
-      systemInstruction: {
-        parts: [{ text: systemPrompt }]
-      },
       contents,
       safetySettings: [
         { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
@@ -37,7 +67,6 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
       ]
     };
 
-    // Foco exclusivo nos modelos ativos da sua conta, sem queimar cota à toa
     const modelsToTry = [
       "gemini-3.0-flash",
       "gemini-flash-latest"
@@ -46,9 +75,8 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
     let lastError = "";
 
     for (const modelName of modelsToTry) {
-      // 22 segundos de margem para a IA escrever textos completos sem ser cortada no meio
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 22000);
+      const timeoutId = setTimeout(() => controller.abort(), 24000);
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -74,15 +102,15 @@ MÉTODO DE OPERAÇÃO OBRIGATÓRIO:
         }
       } catch (err: any) {
         clearTimeout(timeoutId);
-        lastError = `[${modelName} -> Demorou mais de 22s]`;
+        lastError = `[${modelName} -> Tempo limite excedido]`;
       }
     }
 
     return NextResponse.json({ 
-      reply: `Falha na resposta. Diagnóstico real: ${lastError}` 
+      reply: `Não consegui processar esse arquivo agora (arquivos muito pesados podem exceder o limite gratuito). Detalhe: ${lastError}` 
     });
 
   } catch (error: any) {
-    return NextResponse.json({ reply: `Erro interno: ${error.message}` });
+    return NextResponse.json({ reply: `Erro ao processar envio: ${error.message}` });
   }
 }
