@@ -412,7 +412,7 @@ export default function ReconquistaChat() {
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "300ms" }}></span>
                 </div>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Calculando estratégia de reversão e contenção...</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Lendo seu relato e analisando a situação...</span>
               </div>
             </div>
           )}

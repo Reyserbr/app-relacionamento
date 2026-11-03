@@ -366,7 +366,7 @@ export default function MisticoChat() {
                   <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "300ms" }}></span>
                 </div>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Consultando os astros e abrindo as cartas...</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Consultando os astros...</span>
               </div>
             </div>
           )}
