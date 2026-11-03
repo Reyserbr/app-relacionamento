@@ -144,3 +144,22 @@ export async function incrementReferrals(clerkId: string): Promise<void> {
     });
   }
 }
+
+// ─── Funções para o painel de administração ──────────────────────────────
+
+/** Lista todos os afiliados cadastrados (uso administrativo) */
+export async function listAllAffiliates(): Promise<Affiliate[]> {
+  const rows = await listRows(AFFILIATES_TABLE_ID);
+  return (rows ?? []) as Affiliate[];
+}
+
+/** Lista todos os usuários (uso administrativo) */
+export async function listAllUsers(): Promise<UserPremium[]> {
+  const rows = await listRows(USERS_TABLE_ID);
+  return (rows ?? []) as UserPremium[];
+}
+
+/** Ativa ou desativa um afiliado pelo id da linha (uso administrativo) */
+export async function setAffiliateActive(rowId: number, isActive: boolean): Promise<any> {
+  return updateRow(AFFILIATES_TABLE_ID, rowId, { is_active: isActive });
+}
