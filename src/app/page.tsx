@@ -28,7 +28,7 @@ export default function Home() {
               Analise conversas, melhore seus relacionamentos e saiba exatamente como agir.
             </p>
 
-            {/* Chips - Ações Rápidas conectadas ao chat */}
+            {/* Chips - Ações Rápidas conectadas ao chat da Lilith (Intacto) */}
             <div className="flex flex-wrap justify-center gap-3 mt-4">
               <Link
                 href="/chat/lilith?action=conselho"
@@ -59,7 +59,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {/* Card 1 */}
+              {/* Card 1 (Lilith) */}
               <Link
                 href="/chat/lilith?action=responder"
                 className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -69,7 +69,7 @@ export default function Home() {
                 <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.</p>
               </Link>
 
-              {/* Card 2 */}
+              {/* Card 2 (Lilith) */}
               <Link
                 href="/chat/lilith?action=analise"
                 className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -79,7 +79,7 @@ export default function Home() {
                 <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.</p>
               </Link>
 
-              {/* Card 3 */}
+              {/* Card 3 (Lilith) */}
               <Link
                 href="/chat/lilith?action=responder"
                 className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -89,9 +89,9 @@ export default function Home() {
                 <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).</p>
               </Link>
 
-              {/* Card 4 - Premium conectado ao chat */}
+              {/* Card 4 - Conectado à IA Especialista em Reconquista */}
               <Link
-                href="/chat/lilith?action=conselho"
+                href="/chat/reconquista"
                 className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/70 dark:to-orange-950/60 p-8 rounded-3xl shadow-sm border border-rose-200 dark:border-rose-400/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
               >
                 <div className="absolute top-6 right-6 bg-rose-900 dark:bg-rose-500 text-rose-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
@@ -99,7 +99,20 @@ export default function Home() {
                 </div>
                 <div className="bg-white/60 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">❤️‍🩹</div>
                 <h3 className="text-xl font-semibold text-rose-900 dark:text-rose-50 mb-3">Reconectar / Reconquistar</h3>
-                <p className="text-rose-800/80 dark:text-rose-100/90 leading-relaxed pr-12">O módulo urgente. Como voltar a falar depois de um tempo, com estratégias de reversão de crise guiadas por IA.</p>
+                <p className="text-rose-800/80 dark:text-rose-100/90 leading-relaxed pr-12">O módulo urgente. Estratégias profundas de reversão de crise, contato zero e reconstrução guiadas pela IA especialista.</p>
+              </Link>
+
+              {/* Card 5 - NOVO: Conectado à IA Mística (Ocupa as 2 colunas no PC) */}
+              <Link
+                href="/chat/mistico"
+                className="md:col-span-2 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-8 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
+              >
+                <div className="absolute top-6 right-6 bg-purple-900 dark:bg-purple-500 text-purple-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                  Astrologia & Tarot
+                </div>
+                <div className="bg-white/60 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">🔮</div>
+                <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-50 mb-3">Oráculo do Amor & Sinastria</h3>
+                <p className="text-purple-800/80 dark:text-purple-100/90 leading-relaxed pr-12">Descubra a compatibilidade astral de vocês, faça tiragens de cartas para revelar o futuro da relação e receba simpatias de conexão.</p>
               </Link>
 
             </div>
@@ -113,7 +126,7 @@ export default function Home() {
             </h2>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/chat/lilith?action=conselho" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">✨ Ame a Si Mesmo Primeiro</Link>
-              <Link href="/chat/lilith?action=conselho" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🛑 Contato Zero na Prática</Link>
+              <Link href="/chat/reconquista" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🛑 Contato Zero na Prática</Link>
               <Link href="/chat/lilith?action=conselho" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🔥 Desperte sua Confiança</Link>
             </div>
           </div>

@@ -1,0 +1,488 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
+
+interface Attachment {
+  name: string;
+  mimeType: string;
+  data: string;
+  previewUrl: string;
+}
+
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  attachment?: Attachment;
+}
+
+interface ChatSession {
+  id: string;
+  title: string;
+  updatedAt: string;
+  messages: Message[];
+  bonusLimit?: number;
+}
+
+const STORAGE_KEY = "lilithlove_mistico_v1";
+const CHECKOUT_URL = "/planos";
+
+export default function MisticoChat() {
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [bonusLimit, setBonusLimit] = useState<number>(0);
+  const [input, setInput] = useState("");
+  const [attachment, setAttachment] = useState<Attachment | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isWatchingAd, setIsWatchingAd] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const BASE_FREE_LIMIT = 5;
+  const totalAllowed = BASE_FREE_LIMIT + bonusLimit;
+  const assistantRepliesCount = messages.filter((m) => m.role === "assistant").length;
+  const isLimitReached = assistantRepliesCount >= totalAllowed;
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed: ChatSession[] = JSON.parse(raw);
+        if (parsed.length > 0) {
+          setSessions(parsed);
+          setActiveSessionId(parsed[0].id);
+          setMessages(parsed[0].messages);
+          setBonusLimit(parsed[0].bonusLimit || 0);
+        } else {
+          createNewSession([]);
+        }
+      } else {
+        createNewSession([]);
+      }
+    } catch (_) {
+      createNewSession([]);
+    }
+  }, []);
+
+  const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
+    setSessions((prev) => {
+      const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Leitura Astral";
+      const cleanTitle = firstUserMsg.slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
+
+      const lightMessages = updatedMsgs.map((m) =>
+        m.attachment ? { ...m, attachment: undefined } : m
+      );
+
+      const updatedSession: ChatSession = {
+        id: activeSessionId || Date.now().toString(),
+        title: updatedMsgs.length > 0 ? cleanTitle : "Leitura Astral",
+        updatedAt: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
+        messages: lightMessages,
+        bonusLimit: newBonus,
+      };
+
+      const exists = prev.some((s) => s.id === updatedSession.id);
+      const nextSessions = exists
+        ? prev.map((s) => (s.id === updatedSession.id ? updatedSession : s))
+        : [updatedSession, ...prev];
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSessions));
+      } catch (_) {}
+
+      return nextSessions;
+    });
+  };
+
+  const createNewSession = (currentList = sessions) => {
+    const newId = Date.now().toString();
+    const newSession: ChatSession = {
+      id: newId,
+      title: "Leitura Astral",
+      updatedAt: "Agora",
+      messages: [],
+      bonusLimit: 0,
+    };
+    const updated = [newSession, ...currentList];
+    setSessions(updated);
+    setActiveSessionId(newId);
+    setMessages([]);
+    setBonusLimit(0);
+    setIsSidebarOpen(false);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (_) {}
+  };
+
+  const selectSession = (session: ChatSession) => {
+    setActiveSessionId(session.id);
+    setMessages(session.messages);
+    setBonusLimit(session.bonusLimit || 0);
+    setIsSidebarOpen(false);
+  };
+
+  const deleteSession = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const filtered = sessions.filter((s) => s.id !== id);
+    setSessions(filtered);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    } catch (_) {}
+
+    if (activeSessionId === id) {
+      if (filtered.length > 0) {
+        selectSession(filtered[0]);
+      } else {
+        createNewSession([]);
+      }
+    }
+  };
+
+  const handleUnlockAdBonus = () => {
+    setIsWatchingAd(true);
+    setTimeout(() => {
+      const nextBonus = bonusLimit + 3;
+      setBonusLimit(nextBonus);
+      saveToHistory(messages, nextBonus);
+      setIsWatchingAd(false);
+      setShowPaywallModal(false);
+    }, 2500);
+  };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
+
+  const formatText = (text: string) => {
+    const tokens = text.split(/(\*\*.*?\*\*|\*[^*\n]+?\*)/g);
+    return tokens.map((token, index) => {
+      if (token.startsWith("**") && token.endsWith("**")) {
+        return (
+          <strong key={index} className="font-semibold text-purple-950 dark:text-purple-300">
+            {token.slice(2, -2)}
+          </strong>
+        );
+      }
+      if (token.startsWith("*") && token.endsWith("*") && token.length > 2) {
+        return (
+          <em key={index} className="italic text-stone-700 dark:text-stone-300 font-medium">
+            {token.slice(1, -1)}
+          </em>
+        );
+      }
+      return token;
+    });
+  };
+
+  const handleSend = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (isLimitReached) {
+      setShowPaywallModal(true);
+      return;
+    }
+    if (!input.trim() || isLoading) return;
+
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+    };
+
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    saveToHistory(updatedMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/chatgpt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: updatedMessages, agent: "mistico" }),
+      });
+
+      const data = await res.json();
+
+      const withReply: Message[] = [
+        ...updatedMessages,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: data.reply || "Não consegui processar a leitura.",
+        },
+      ];
+      setMessages(withReply);
+      saveToHistory(withReply);
+    } catch (err) {
+      const withError: Message[] = [
+        ...updatedMessages,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "Oscilação momentânea na rede. Clique em enviar novamente.",
+        },
+      ];
+      setMessages(withError);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-[82%] max-w-xs lg:w-72 bg-white dark:bg-[#1c1016] border-r border-purple-100 dark:border-purple-400/15 flex flex-col transition-transform duration-200 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <div className="p-4 border-b border-purple-100 dark:border-purple-400/15 flex items-center justify-between">
+          <span className="font-serif font-bold text-stone-800 dark:text-stone-100 text-base">Minhas Leituras</span>
+          <button
+            onClick={() => createNewSession()}
+            className="text-xs font-semibold px-3 py-1.5 rounded-full bg-purple-900 dark:bg-purple-600 text-white hover:bg-purple-800 transition-colors"
+          >
+            + Nova Leitura
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {sessions.map((s) => (
+            <div
+              key={s.id}
+              onClick={() => selectSession(s)}
+              className={`group flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all text-left border ${
+                s.id === activeSessionId
+                  ? "bg-purple-50/80 dark:bg-purple-500/15 border-purple-200 dark:border-purple-400/30 text-purple-950 dark:text-purple-200 font-medium"
+                  : "bg-stone-50/60 dark:bg-white/5 border-transparent hover:bg-stone-100 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300"
+              }`}
+            >
+              <div className="truncate pr-2">
+                <p className="text-xs truncate">{s.title}</p>
+                <span className="text-[10px] text-stone-400 dark:text-stone-500">{s.updatedAt}</span>
+              </div>
+              {sessions.length > 1 && (
+                <button
+                  onClick={(e) => deleteSession(s.id, e)}
+                  className="opacity-60 lg:opacity-0 lg:group-hover:opacity-100 text-stone-400 hover:text-purple-700 text-xs px-1.5"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
+        <header className="flex items-center justify-between gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-white/90 dark:bg-[#1c1016]/90 backdrop-blur-md border-b border-purple-100 dark:border-purple-400/15 shadow-sm shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="lg:hidden text-base px-2.5 py-2 rounded-full bg-purple-50 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300 border border-purple-200 shrink-0"
+            >
+              📂
+            </button>
+            <Link href="/" className="hidden sm:inline-block text-sm font-medium px-3 py-1.5 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-stone-200 transition-colors text-stone-700 dark:text-stone-200">
+              ← Voltar
+            </Link>
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-purple-900 to-indigo-600 flex items-center justify-center text-white font-serif font-bold shadow-sm shrink-0">
+                🔮
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-serif font-bold text-stone-900 dark:text-white leading-tight truncate">Oráculo do Amor</span>
+                <span className="text-[11px] sm:text-xs text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Sinastria, Tarot & Simpatias
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button
+              onClick={() => setShowPaywallModal(true)}
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300 border border-purple-200 hover:bg-purple-100 transition-colors"
+            >
+              <span>✨</span>
+              <span><span className="hidden sm:inline">Leituras: </span>{Math.max(0, totalAllowed - assistantRepliesCount)}/{totalAllowed}</span>
+            </button>
+            <UserButton afterSignOutUrl="/" />
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 max-w-4xl w-full mx-auto">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 space-y-4">
+              <div className="w-20 h-20 bg-gradient-to-tr from-purple-100 to-indigo-50 dark:from-purple-500/20 dark:to-indigo-900/10 border border-purple-200 rounded-full flex items-center justify-center text-4xl shadow-sm mb-2">
+                🔮
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
+                Oráculo Astral & Tarot do Amor
+              </h2>
+              <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm sm:text-base leading-relaxed">
+                Informe o <strong>seu signo e o signo da pessoa amada</strong> (ou datas de nascimento) e conte o que deseja descobrir nas cartas sobre o futuro de vocês.
+              </p>
+            </div>
+          ) : (
+            messages.map((m) => (
+              <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[88%] sm:max-w-[82%] rounded-3xl px-4 py-3 sm:px-6 sm:py-4 shadow-sm whitespace-pre-wrap leading-relaxed text-[15px] ${
+                    m.role === "user"
+                      ? "bg-gradient-to-br from-purple-900 to-indigo-800 text-purple-50 rounded-tr-sm shadow-md"
+                      : "bg-white dark:bg-white/5 text-stone-800 dark:text-stone-200 border border-purple-100/80 dark:border-purple-400/20 border-l-4 border-l-purple-800 dark:border-l-purple-500 rounded-tl-sm shadow-md"
+                  }`}
+                >
+                  {m.role === "assistant" && (
+                    <div className="text-[11px] font-bold uppercase tracking-widest text-purple-800 dark:text-purple-400 mb-2 flex items-center gap-1.5">
+                      <span>✦</span> REVELAÇÃO DO ORÁCULO
+                    </div>
+                  )}
+                  <div>{formatText(m.content)}</div>
+                </div>
+              </div>
+            ))
+          )}
+          
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-white dark:bg-white/5 border border-purple-100 border-l-4 border-l-purple-800 rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm flex items-center gap-3">
+                <div className="flex gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                  <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                  <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                </div>
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Consultando os astros e abrindo as cartas...</span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </main>
+
+        <footer className="p-3 sm:p-4 bg-white dark:bg-[#1c1016] border-t border-purple-100 dark:border-purple-400/15 shrink-0">
+          <div className="max-w-4xl mx-auto">
+            {isLimitReached ? (
+              <div className="bg-purple-950 text-white p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+                <div className="text-center sm:text-left">
+                  <p className="font-serif font-bold text-sm sm:text-base text-amber-300">
+                    Limite de {totalAllowed} leituras gratuitas atingido.
+                  </p>
+                  <p className="text-xs text-purple-100">
+                    Desbloqueie o Acesso Premium para revelar a 3ª Carta do Destino e o passo a passo das Simpatias.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPaywallModal(true)}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs sm:text-sm rounded-xl shadow transition-colors shrink-0"
+                >
+                  🔓 Revelar Destino Agora
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSend} className="relative flex items-end gap-2">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  rows={Math.min(5, Math.max(1, input.split("\n").length))}
+                  placeholder="Digite os signos (ou datas de nascimento) de vocês e sua dúvida..."
+                  className="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 rounded-3xl pl-5 pr-14 py-3 sm:py-3.5 focus:outline-none focus:ring-2 focus:ring-purple-200 text-sm sm:text-base resize-none max-h-40 overflow-y-auto"
+                />
+
+                <button 
+                  type="submit" 
+                  disabled={isLoading || !input.trim()}
+                  className="absolute right-2 bottom-1.5 p-3 bg-purple-900 dark:bg-purple-600 text-white rounded-full hover:bg-purple-800 disabled:opacity-40 transition-colors shadow-sm"
+                >
+                  ➤
+                </button>
+              </form>
+            )}
+          </div>
+        </footer>
+      </div>
+
+      {showPaywallModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1c1016] border border-purple-100 dark:border-purple-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+            <button
+              onClick={() => setShowPaywallModal(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
+            >
+              ✕
+            </button>
+
+            <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300 flex items-center justify-center text-2xl mb-4">
+              🔮
+            </div>
+
+            <span className="text-[11px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+              Oráculo VIP • LilithLove
+            </span>
+            <h3 className="text-2xl font-serif font-bold text-stone-900 dark:text-white mt-1 mb-2">
+              Revele a 3ª Carta e o Ritual Secreto
+            </h3>
+            <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-5">
+              Desbloqueie a resposta final do Tarot sobre o futuro de vocês e receba a simpatia exata de alinhamento:
+            </p>
+
+            <ul className="space-y-2.5 text-sm text-stone-700 dark:text-stone-300 mb-6">
+              <li className="flex items-start gap-2.5">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span><strong>A 3ª Carta do Destino:</strong> O desfecho real que as cartas mostram para a relação.</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span><strong>Simpatias e Rituais:</strong> O passo a passo seguro para adoçar e reconectar a pessoa amada.</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span><strong>Sinastria Completa:</strong> Leituras astrais e tiragens ilimitadas sempre que precisar.</span>
+              </li>
+            </ul>
+
+            <a
+              href={CHECKOUT_URL}
+              className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-900 to-indigo-700 text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3"
+            >
+              Desbloquear Oráculo Completo →
+            </a>
+
+            <button
+              type="button"
+              onClick={handleUnlockAdBonus}
+              disabled={isWatchingAd}
+              className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10"
+            >
+              {isWatchingAd ? (
+                <span>⏳ Carregando patrocinador... Aguarde 2s</span>
+              ) : (
+                <span>📺 Assistir 1 Anúncio para liberar +3 Leituras Grátis</span>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
