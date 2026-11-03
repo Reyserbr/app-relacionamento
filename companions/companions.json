@@ -3,5 +3,15 @@
     "name": "lilith",
     "description": "Sua conselheira amorosa e guia de inteligência emocional.",
     "llm": "chatgpt"
+  },
+  {
+    "name": "reconquista",
+    "description": "Especialista em reverter términos, contato zero e reconstrução de alto valor.",
+    "llm": "chatgpt"
+  },
+  {
+    "name": "mistico",
+    "description": "Oráculo do amor: Sinastria astral, leitura de Tarot e simpatias de conexão.",
+    "llm": "chatgpt"
   }
 ]
