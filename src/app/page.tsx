@@ -32,19 +32,19 @@ export default function Home() {
             <div className="flex flex-wrap justify-center gap-3 mt-4">
               <Link
                 href="/chat/lilith?action=conselho"
-                className="px-6 py-3 bg-rose-100 dark:bg-rose-500/15 hover:bg-rose-200 dark:hover:bg-rose-500/25 text-rose-900 dark:text-rose-200 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2"
+                className="px-6 py-3 bg-rose-100 dark:bg-rose-950/70 hover:bg-rose-200 dark:hover:bg-rose-900/80 text-rose-900 dark:text-rose-50 border border-transparent dark:border-rose-400/25 rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2"
               >
                 <span className="text-xl">💬</span> Preciso de um conselho
               </Link>
               <Link
                 href="/chat/lilith?action=analise"
-                className="px-6 py-3 bg-orange-100 dark:bg-orange-500/15 hover:bg-orange-200 dark:hover:bg-orange-500/25 text-orange-900 dark:text-orange-200 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2"
+                className="px-6 py-3 bg-orange-100 dark:bg-orange-950/70 hover:bg-orange-200 dark:hover:bg-orange-900/80 text-orange-900 dark:text-orange-50 border border-transparent dark:border-orange-400/25 rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2"
               >
                 <span className="text-xl">🔍</span> Analisar uma conversa
               </Link>
               <Link
                 href="/chat/lilith?action=responder"
-                className="px-6 py-3 bg-white dark:bg-white/5 hover:bg-stone-100 dark:hover:bg-white/10 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 rounded-full font-medium transition-colors shadow-sm flex items-center gap-2"
+                className="px-6 py-3 bg-white dark:bg-white/10 hover:bg-stone-100 dark:hover:bg-white/20 border border-stone-200 dark:border-white/20 text-stone-800 dark:text-white rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2"
               >
                 <span className="text-xl">✍️</span> O que respondo agora?
               </Link>
@@ -66,7 +66,7 @@ export default function Home() {
               >
                 <div className="bg-stone-50 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">👋</div>
                 <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Primeiro Contato</h3>
-                <p className="text-stone-500 dark:text-stone-400 leading-relaxed">Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.</p>
+                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.</p>
               </Link>
 
               {/* Card 2 */}
@@ -76,7 +76,7 @@ export default function Home() {
               >
                 <div className="bg-stone-50 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">🚩</div>
                 <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Detector de Red Flags</h3>
-                <p className="text-stone-500 dark:text-stone-400 leading-relaxed">Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.</p>
+                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.</p>
               </Link>
 
               {/* Card 3 */}
@@ -86,20 +86,20 @@ export default function Home() {
               >
                 <div className="bg-stone-50 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">🥂</div>
                 <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Pós-Encontro</h3>
-                <p className="text-stone-500 dark:text-stone-400 leading-relaxed">Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).</p>
+                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).</p>
               </Link>
 
               {/* Card 4 - Premium conectado ao chat */}
               <Link
                 href="/chat/lilith?action=conselho"
-                className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-500/15 dark:to-orange-500/10 p-8 rounded-3xl shadow-sm border border-rose-200 dark:border-rose-400/20 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
+                className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/70 dark:to-orange-950/60 p-8 rounded-3xl shadow-sm border border-rose-200 dark:border-rose-400/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
               >
                 <div className="absolute top-6 right-6 bg-rose-900 dark:bg-rose-500 text-rose-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
                   Alta Eficácia
                 </div>
                 <div className="bg-white/60 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">❤️‍🩹</div>
-                <h3 className="text-xl font-semibold text-rose-900 dark:text-rose-200 mb-3">Reconectar / Reconquistar</h3>
-                <p className="text-rose-800/80 dark:text-rose-200/80 leading-relaxed pr-12">O módulo urgente. Como voltar a falar depois de um tempo, com estratégias de reversão de crise guiadas por IA.</p>
+                <h3 className="text-xl font-semibold text-rose-900 dark:text-rose-50 mb-3">Reconectar / Reconquistar</h3>
+                <p className="text-rose-800/80 dark:text-rose-100/90 leading-relaxed pr-12">O módulo urgente. Como voltar a falar depois de um tempo, com estratégias de reversão de crise guiadas por IA.</p>
               </Link>
 
             </div>
