@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     if (!userId) return NextResponse.json({ sessions: null });
 
     const key = req.nextUrl.searchParams.get("key") || "lilith";
-    const client = await clerkClient();
+    const client = typeof clerkClient === "function" ? await (clerkClient as any)() : clerkClient;
     const user = await client.users.getUser(userId);
     const allHistory = (user.unsafeMetadata?.chatHistory as Record<string, any>) || {};
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       })),
     }));
 
-    const client = await clerkClient();
+    const client = typeof clerkClient === "function" ? await (clerkClient as any)() : clerkClient;
     const user = await client.users.getUser(userId);
     const currentHistory = (user.unsafeMetadata?.chatHistory as Record<string, any>) || {};
 
