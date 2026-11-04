@@ -27,6 +27,7 @@ interface ChatSession {
 }
 
 const STORAGE_KEY = "lilithlove_sessions_v1";
+const CLOUD_KEY = "lilith";
 const CHECKOUT_URL = "/planos";
 
 export default function LilithChat() {
@@ -41,35 +42,58 @@ export default function LilithChat() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Estados do Gravador de Áudio
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Limite de 5 respostas da Lilith por caso (+ bônus se assistir anúncio)
   const BASE_FREE_LIMIT = 5;
   const totalAllowed = BASE_FREE_LIMIT + bonusLimit;
   const assistantRepliesCount = messages.filter((m) => m.role === "assistant").length;
   const isLimitReached = !isPremium && assistantRepliesCount >= totalAllowed;
 
   useEffect(() => {
+    let localSessions: ChatSession[] = [];
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed: ChatSession[] = JSON.parse(raw);
-        if (parsed.length > 0) {
-          setSessions(parsed);
-          setActiveSessionId(parsed[0].id);
-          setMessages(parsed[0].messages);
-          setBonusLimit(parsed[0].bonusLimit || 0);
-        } else {
-          createNewSession([]);
-        }
-      } else {
-        createNewSession([]);
-      }
-    } catch (_) {
+      if (raw) localSessions = JSON.parse(raw);
+    } catch (_) {}
+
+    if (localSessions.length > 0) {
+      setSessions(localSessions);
+      setActiveSessionId(localSessions[0].id);
+      setMessages(localSessions[0].messages);
+      setBonusLimit(localSessions[0].bonusLimit || 0);
+    } else {
       createNewSession([]);
     }
+
+    // Sincroniza casos da nuvem (PC <-> Celular)
+    fetch(`/api/history?key=${CLOUD_KEY}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d.sessions) && d.sessions.length > 0) {
+          const hasCloudMessages = d.sessions.some((s: ChatSession) => s.messages?.length > 0);
+          const hasLocalMessages = localSessions.some((s) => s.messages?.length > 0);
+          if (hasCloudMessages && (!hasLocalMessages || d.sessions.length >= localSessions.length)) {
+            setSessions(d.sessions);
+            setActiveSessionId(d.sessions[0].id);
+            setMessages(d.sessions[0].messages || []);
+            setBonusLimit(d.sessions[0].bonusLimit || 0);
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(d.sessions));
+            } catch (_) {}
+          }
+        }
+      })
+      .catch(() => {});
 
     const params = new URLSearchParams(window.location.search);
     const action = params.get("action");
@@ -90,6 +114,14 @@ export default function LilithChat() {
       })
       .catch(() => {});
   }, []);
+
+  const syncToCloud = (nextSessions: ChatSession[]) => {
+    fetch("/api/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: CLOUD_KEY, sessions: nextSessions }),
+    }).catch(() => {});
+  };
 
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
     setSessions((prev) => {
@@ -117,6 +149,7 @@ export default function LilithChat() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSessions));
       } catch (_) {}
 
+      syncToCloud(nextSessions);
       return nextSessions;
     });
   };
@@ -139,6 +172,7 @@ export default function LilithChat() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     } catch (_) {}
+    syncToCloud(updated);
   };
 
   const selectSession = (session: ChatSession) => {
@@ -155,6 +189,7 @@ export default function LilithChat() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     } catch (_) {}
+    syncToCloud(filtered);
 
     if (activeSessionId === id) {
       if (filtered.length > 0) {
@@ -180,28 +215,88 @@ export default function LilithChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = (file: File) => {
     if (file.size > 4 * 1024 * 1024) {
       alert("O arquivo é muito grande! Envie um print, áudio ou vídeo curto de até 4MB.");
       return;
     }
-
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
       const base64Data = result.split(",")[1];
       setAttachment({
-        name: file.name,
-        mimeType: file.type,
+        name: file.name || `print-${Date.now()}.png`,
+        mimeType: file.type || "image/png",
         data: base64Data,
         previewUrl: result,
       });
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processFile(file);
     e.target.value = "";
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith("image/") || items[i].type.startsWith("audio/")) {
+        const file = items[i].getAsFile();
+        if (file) {
+          e.preventDefault();
+          processFile(file);
+          return;
+        }
+      }
+    }
+  };
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        stream.getTracks().forEach((track) => track.stop());
+        const mimeType = recorder.mimeType || "audio/webm";
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        const file = new File([audioBlob], `desabafo-voz.webm`, { type: mimeType });
+        processFile(file);
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+      setRecordingSeconds(0);
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((s) => s + 1);
+      }, 1000);
+    } catch (err) {
+      alert("Permita o acesso ao microfone no navegador para gravar seu áudio.");
+    }
+  };
+
+  const copyMessage = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const formatText = (text: string) => {
@@ -226,19 +321,18 @@ export default function LilithChat() {
     });
   };
 
-  const handleSend = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const sendRawMessage = async (textToSend: string, attachToSend: Attachment | null = null) => {
     if (isLimitReached) {
       setShowPaywallModal(true);
       return;
     }
-    if ((!input.trim() && !attachment) || isLoading) return;
+    if ((!textToSend.trim() && !attachToSend) || isLoading) return;
 
     const userMsg: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input.trim() || (attachment ? "Analise este arquivo que estou enviando." : ""),
-      attachment: attachment || undefined,
+      content: textToSend.trim() || (attachToSend ? "Analise este arquivo que estou enviando." : ""),
+      attachment: attachToSend || undefined,
     };
 
     const updatedMessages = [...messages, userMsg];
@@ -273,7 +367,7 @@ export default function LilithChat() {
         {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: "Oscilação momentânea na rede. Clique em enviar novamente.",
+          content: "Oscilação momentânea na rede. Use o botão Reenviar logo abaixo da sua mensagem.",
         },
       ];
       setMessages(withError);
@@ -282,18 +376,22 @@ export default function LilithChat() {
     }
   };
 
+  const handleSend = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    await sendRawMessage(input, attachment);
+  };
+
   return (
     <div className="flex h-screen bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
-      {/* BARRA LATERAL DE HISTÓRICO DE CASOS */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-[82%] max-w-xs lg:w-72 bg-white dark:bg-[#1c1016] border-r border-rose-100 dark:border-rose-400/15 flex flex-col transition-transform duration-200 ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-[84%] max-w-xs lg:w-72 bg-white dark:bg-[#1c1016] border-r border-rose-100 dark:border-rose-400/15 flex flex-col transition-transform duration-200 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -301,7 +399,7 @@ export default function LilithChat() {
           <span className="font-serif font-bold text-stone-800 dark:text-stone-100 text-base">Meus Casos</span>
           <button
             onClick={() => createNewSession()}
-            className="text-xs font-semibold px-3 py-1.5 rounded-full bg-rose-900 dark:bg-rose-600 text-white hover:bg-rose-800 dark:hover:bg-rose-500 transition-colors"
+            className="text-xs font-semibold px-3 py-1.5 rounded-full bg-rose-900 dark:bg-rose-600 text-white hover:bg-rose-800 transition-colors"
           >
             + Novo Caso
           </button>
@@ -325,7 +423,7 @@ export default function LilithChat() {
               {sessions.length > 1 && (
                 <button
                   onClick={(e) => deleteSession(s.id, e)}
-                  className="opacity-60 lg:opacity-0 lg:group-hover:opacity-100 text-stone-400 hover:text-rose-700 dark:hover:text-rose-400 text-xs px-1.5"
+                  className="opacity-60 lg:opacity-0 lg:group-hover:opacity-100 text-stone-400 hover:text-rose-700 text-xs px-1.5"
                   title="Excluir caso"
                 >
                   ✕
@@ -336,40 +434,38 @@ export default function LilithChat() {
         </div>
 
         <div className="p-4 border-t border-stone-100 dark:border-rose-400/15 text-[11px] text-stone-400 dark:text-stone-500 text-center">
-          Seus relatos ficam salvos neste dispositivo para consulta rápida.
+          Sincronizado na sua conta (PC e Celular).
         </div>
       </aside>
 
-      {/* ÁREA PRINCIPAL DO CHAT */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         <header className="flex items-center justify-between gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-white/90 dark:bg-[#1c1016]/90 backdrop-blur-md border-b border-rose-100 dark:border-rose-400/15 shadow-sm shrink-0">
-          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden text-base px-2.5 py-2 rounded-full bg-rose-50 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border border-rose-200 dark:border-rose-400/30 shrink-0"
-              title="Meus Casos"
+              className="lg:hidden flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-900 dark:text-rose-200 border border-rose-200 dark:border-rose-400/30 shrink-0"
             >
-              📂
+              <span>📂</span>
+              <span>Casos ({sessions.length})</span>
             </button>
-            <Link href="/" className="hidden sm:inline-block text-sm font-medium px-3 py-1.5 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-stone-200 dark:hover:bg-white/20 transition-colors text-stone-700 dark:text-stone-200">
-              ← Voltar
+            <Link href="/" className="text-xs sm:text-sm font-medium px-2.5 py-1.5 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-stone-200 transition-colors text-stone-700 dark:text-stone-200 shrink-0">
+              ← Início
             </Link>
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-rose-900 to-rose-600 flex items-center justify-center text-white font-serif font-bold shadow-sm shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-rose-900 to-rose-600 flex items-center justify-center text-white font-serif font-bold shadow-sm shrink-0">
                 L
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="font-serif font-bold text-stone-900 dark:text-white leading-tight truncate">Lilith</span>
-                <span className="text-[11px] sm:text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Especialista Online
+                <span className="font-serif font-bold text-stone-900 dark:text-white leading-tight truncate text-sm sm:text-base">Lilith</span>
+                <span className="text-[10px] sm:text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Online
                 </span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* BOTÃO CORRIGIDO: SE FOR PREMIUM, MOSTRA VIP ILIMITADO E NÃO ABRE O MODAL */}
             <button
               onClick={() => {
                 if (!isPremium) setShowPaywallModal(true);
@@ -377,7 +473,7 @@ export default function LilithChat() {
               className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full border transition-colors ${
                 isPremium
                   ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
-                  : "bg-rose-50 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border-rose-200 dark:border-rose-400/30 hover:bg-rose-100 dark:hover:bg-rose-500/25"
+                  : "bg-rose-50 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border-rose-200 dark:border-rose-400/30 hover:bg-rose-100"
               }`}
             >
               <span>{isPremium ? "👑" : "✨"}</span>
@@ -396,7 +492,6 @@ export default function LilithChat() {
           </div>
         </header>
 
-        {/* Mensagens */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 max-w-4xl w-full mx-auto">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-4 space-y-4">
@@ -407,12 +502,12 @@ export default function LilithChat() {
                 Me mostre a verdade.
               </h2>
               <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm sm:text-base leading-relaxed">
-                Desabafe sem filtros, cole o histórico do WhatsApp ou clique no clipe abaixo para enviar o <strong>print da conversa, áudio ou vídeo</strong>.
+                Desabafe sem filtros, grave um áudio no microfone abaixo ou aperte <strong>Ctrl+V para colar o print</strong> da conversa diretamente aqui.
               </p>
             </div>
           ) : (
             messages.map((m) => (
-              <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div key={m.id} className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
                 <div
                   className={`max-w-[88%] sm:max-w-[82%] rounded-3xl px-4 py-3 sm:px-6 sm:py-4 shadow-sm whitespace-pre-wrap leading-relaxed text-[15px] ${
                     m.role === "user"
@@ -442,10 +537,31 @@ export default function LilithChat() {
 
                   <div>{formatText(m.content)}</div>
                 </div>
+
+                {/* BOTÕES DE COPIAR E REENVIAR */}
+                <div className="flex items-center gap-3 mt-1.5 px-2 text-[11px] text-stone-400 dark:text-stone-500">
+                  <button
+                    type="button"
+                    onClick={() => copyMessage(m.id, m.content)}
+                    className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
+                  >
+                    {copiedId === m.id ? "✓ Copiado" : "📋 Copiar texto"}
+                  </button>
+                  {m.role === "user" && (
+                    <button
+                      type="button"
+                      onClick={() => sendRawMessage(m.content)}
+                      disabled={isLoading}
+                      className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
+                    >
+                      🔄 Reenviar
+                    </button>
+                  )}
+                </div>
               </div>
             ))
           )}
-          
+
           {isLoading && (
             <div className="flex justify-start">
               <div className="bg-white dark:bg-white/5 border border-rose-100 dark:border-rose-400/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm flex items-center gap-3">
@@ -454,27 +570,29 @@ export default function LilithChat() {
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "300ms" }}></span>
                 </div>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Lilith está analisando as entrelinhas...</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Lilith está lendo as entrelinhas do seu relato...</span>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </main>
 
-        {/* Rodapé de Digitação: Enter envia, Shift + Enter pula linha */}
         <footer className="p-3 sm:p-4 bg-white dark:bg-[#1c1016] border-t border-rose-100 dark:border-rose-400/15 shrink-0">
           <div className="max-w-4xl mx-auto">
             {attachment && (
               <div className="mb-3 flex items-center justify-between bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-400/30 px-4 py-2 rounded-2xl text-xs text-rose-900 dark:text-rose-200">
-                <div className="flex items-center gap-2 truncate">
-                  <span className="text-base">📎</span>
-                  <span className="font-medium truncate">{attachment.name}</span>
-                  <span className="text-rose-600 dark:text-rose-400 hidden sm:inline">(Pronto para análise)</span>
+                <div className="flex items-center gap-3 truncate">
+                  {attachment.mimeType.startsWith("image/") ? (
+                    <img src={attachment.previewUrl} alt="Preview" className="w-10 h-10 rounded-lg object-cover border border-rose-300" />
+                  ) : (
+                    <span className="text-lg">🎙️</span>
+                  )}
+                  <span className="font-medium truncate">{attachment.name} (Pronto para análise)</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setAttachment(null)}
-                  className="ml-3 text-rose-800 dark:text-rose-300 hover:text-rose-950 font-bold px-2 py-0.5 rounded-full hover:bg-rose-200/50 dark:hover:bg-rose-500/20"
+                  className="ml-3 text-rose-800 dark:text-rose-300 hover:text-rose-950 font-bold px-2 py-0.5 rounded-full"
                 >
                   ✕
                 </button>
@@ -515,16 +633,29 @@ export default function LilithChat() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   title="Enviar Print, Áudio ou Vídeo"
-                  className="p-3 sm:p-3.5 bg-stone-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 hover:text-rose-900 rounded-full transition-colors shrink-0 border border-stone-200 dark:border-white/10 mb-0.5"
+                  className="p-3 sm:p-3.5 bg-stone-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 rounded-full transition-colors shrink-0 border border-stone-200 dark:border-white/10 mb-0.5"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                  </svg>
+                  📎
+                </button>
+
+                <button
+                  type="button"
+                  onClick={toggleRecording}
+                  title={isRecording ? "Parar gravação" : "Gravar desabafo em áudio"}
+                  className={`p-3 sm:p-3.5 rounded-full transition-all shrink-0 border mb-0.5 flex items-center gap-1 ${
+                    isRecording
+                      ? "bg-red-600 text-white border-red-500 animate-pulse px-4"
+                      : "bg-stone-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-white/10"
+                  }`}
+                >
+                  <span>🎙️</span>
+                  {isRecording && <span className="text-xs font-bold">{recordingSeconds}s ■</span>}
                 </button>
 
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onPaste={handlePaste}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -532,18 +663,16 @@ export default function LilithChat() {
                     }
                   }}
                   rows={Math.min(5, Math.max(1, input.split("\n").length))}
-                  placeholder="Conte o caso ou cole a conversa..."
-                  className="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 dark:placeholder-stone-500 rounded-3xl pl-5 pr-14 py-3 sm:py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-500/40 focus:border-rose-400 transition-all shadow-inner text-sm sm:text-base resize-none max-h-40 overflow-y-auto"
+                  placeholder="Conte o caso, grave um áudio ou cole o print (Ctrl+V)..."
+                  className="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 dark:placeholder-stone-500 rounded-3xl pl-4 pr-12 py-3 sm:py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-500/40 focus:border-rose-400 transition-all shadow-inner text-sm sm:text-base resize-none max-h-40 overflow-y-auto"
                 />
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isLoading || (!input.trim() && !attachment)}
-                  className="absolute right-2 bottom-1.5 p-3 bg-rose-900 dark:bg-rose-600 text-white rounded-full hover:bg-rose-800 dark:hover:bg-rose-500 disabled:opacity-40 transition-colors shadow-sm"
+                  className="absolute right-2 bottom-1.5 p-3 bg-rose-900 dark:bg-rose-600 text-white rounded-full hover:bg-rose-800 disabled:opacity-40 transition-colors shadow-sm"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                  </svg>
+                  ➤
                 </button>
               </form>
             )}
@@ -551,13 +680,12 @@ export default function LilithChat() {
         </footer>
       </div>
 
-      {/* MODAL DE PAYWALL QUANDO ATINGE O LIMITE DE 5 MENSAGENS */}
       {showPaywallModal && !isPremium && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1c1016] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <button
               onClick={() => setShowPaywallModal(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-stone-200 dark:hover:bg-white/20 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
             >
               ✕
             </button>
@@ -593,7 +721,7 @@ export default function LilithChat() {
 
             <a
               href={CHECKOUT_URL}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600 text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3"
+              className="w-full py-3.5 px-6 bg-gradient-to-r from-rose-900 to-rose-700 text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3"
             >
               Desbloquear Acesso Premium Ilimitado →
             </a>
@@ -602,7 +730,7 @@ export default function LilithChat() {
               type="button"
               onClick={handleUnlockAdBonus}
               disabled={isWatchingAd}
-              className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 hover:bg-stone-200 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10"
+              className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10"
             >
               {isWatchingAd ? (
                 <span>⏳ Carregando patrocinador... Aguarde 2s</span>
