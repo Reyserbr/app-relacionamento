@@ -40,14 +40,15 @@ export default function ReconquistaChat() {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
-
+  const [isPremium, setIsPremium] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const BASE_FREE_LIMIT = 5;
   const totalAllowed = BASE_FREE_LIMIT + bonusLimit;
   const assistantRepliesCount = messages.filter((m) => m.role === "assistant").length;
-  const isLimitReached = assistantRepliesCount >= totalAllowed;
+  const isLimitReached = !isPremium && assistantRepliesCount >= totalAllowed;
 
   useEffect(() => {
     try {
@@ -68,6 +69,13 @@ export default function ReconquistaChat() {
     } catch (_) {
       createNewSession([]);
     }
+    if (localStorage.getItem("lilith_vip_test") === "true") {
+  setIsPremium(true);
+}
+fetch("/api/status")
+  .then((r) => r.json())
+  .then((d) => { if (d.isPremium) setIsPremium(true); })
+  .catch(() => {});
   }, []);
 
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
@@ -230,7 +238,7 @@ export default function ReconquistaChat() {
       const res = await fetch("/api/chatgpt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMessages, agent: "reconquista" }),
+        body: JSON.stringify({ messages: updatedMessages, agent: "reconquista", isPremium }),
       });
 
       const data = await res.json();

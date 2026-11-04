@@ -40,6 +40,7 @@ export default function LilithChat() {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,7 +49,7 @@ export default function LilithChat() {
   const BASE_FREE_LIMIT = 5;
   const totalAllowed = BASE_FREE_LIMIT + bonusLimit;
   const assistantRepliesCount = messages.filter((m) => m.role === "assistant").length;
-  const isLimitReached = assistantRepliesCount >= totalAllowed;
+  const isLimitReached = !isPremium && assistantRepliesCount >= totalAllowed;
 
   useEffect(() => {
     try {
@@ -77,7 +78,14 @@ export default function LilithChat() {
     if (action === "responder") setInput("A pessoa me mandou isso. O que eu respondo agora para virar o jogo? ");
     if (action) {
       window.history.replaceState(null, "", "/chat/lilith");
-    }
+    } 
+    if (localStorage.getItem("lilith_vip_test") === "true") {
+  setIsPremium(true);
+}
+fetch("/api/status")
+  .then((r) => r.json())
+  .then((d) => { if (d.isPremium) setIsPremium(true); })
+  .catch(() => {});
   }, []);
 
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
@@ -240,7 +248,7 @@ export default function LilithChat() {
       const res = await fetch("/api/chatgpt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMessages }),
+        body: JSON.stringify({ messages: updatedMessages, isPremium }),
       });
 
       const data = await res.json();

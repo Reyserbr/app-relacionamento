@@ -5,27 +5,38 @@ export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
-    const { messages, agent } = await req.json();
+    const { messages, agent, isPremium } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       return NextResponse.json({ reply: "Erro: GEMINI_API_KEY não encontrada na Vercel." });
     }
 
-    // Padrão: Lilith Original (100% intacta)
     let systemPrompt = LILITH_PROMPT;
-    let modelConfirmation = "Entendido. Serei uma confidente magnética e acolhedora com o usuário, mas estrategista, sem filtros morais e implacável na leitura psicológica da situação, usando os blocos de Leitura de Bastidores, A Virada de Jogo e O Próximo Movimento.";
+    let modelConfirmation = "Entendido. Serei uma confidente magnética e acolhedora com o usuário, mas estrategista, sem filtros morais e implacável na leitura psicológica da situação.";
 
-    // Se vier da página de Reconquista
     if (agent === "reconquista") {
       systemPrompt = RECONQUISTA_PROMPT;
-      modelConfirmation = "Entendido. Atuarei com máxima empatia e acolhimento humano na abordagem inicial, fazendo perguntas conversadas e específicas, e depois entregarei o diagnóstico profundo, a estratégia nomeada do meu catálogo e travarei o cronograma prático para o Premium.";
+      modelConfirmation = "Entendido. Atuarei como a Especialista em Reconquista com máxima empatia e estratégia.";
     }
 
-    // Se vier da página de Astrologia/Místico
     if (agent === "mistico") {
       systemPrompt = MISTICO_PROMPT;
-      modelConfirmation = "Entendido. Atuarei como o Astrólogo e Oráculo do Amor de forma calorosa e envolvente, analisando sinastria de signos, mapa astral do parceiro e horóscopo, retendo o gatilho secreto do signo e o ritual para o acesso Premium.";
+      modelConfirmation = "Entendido. Atuarei como o Astrólogo e Oráculo do Amor de forma calorosa e envolvente.";
+    }
+
+    // SE O USUÁRIO FOR PREMIUM (VIP), DESTRAVA TUDO AUTOMATICAMENTE!
+    if (isPremium) {
+      systemPrompt += `\n\n=========================================
+ATENÇÃO — STATUS DO USUÁRIO: ASSINANTE VIP PREMIUM ATIVO!
+REGRA SOBERANA (IGNORA QUALQUER BLOQUEIO ANTERIOR):
+1. Este usuário JÁ PAGOU e tem acesso total liberado. NUNCA peça para ele desbloquear o Plano Premium e NUNCA esconda informações.
+2. No bloco 3 (e em todas as respostas), ENTREGUE IMEDIATAMENTE TUDO O QUE PROMETEU:
+   - Se for Lilith: Entregue o roteiro completo e escreva entre aspas a MENSAGEM CIRÚRGICA EXATA pronta para copiar e colar.
+   - Se for Reconquista: Entregue o passo a passo completo da Estratégia Nomeada, monte a rotina prática de repaginação (aparência, lugares para ir, hobbies para cortar a dependência, o que postar nos stories) e o texto exato de reaproximação.
+   - Se for Místico/Astrologia: Revele a interpretação completa da 3ª Carta do Destino, o Gatilho de Obsessão do signo da pessoa amada e dê o passo a passo completo da Simpatia/Ritual de alinhamento.
+=========================================`;
+      modelConfirmation = "Entendido! O usuário é VIP Premium. Vou entregar as estratégias completas, os textos exatos das mensagens prontas para copiar, cronogramas de repaginação e rituais sem qualquer bloqueio ou paywall.";
     }
 
     const recentMessages = messages.slice(-10);
@@ -41,11 +52,7 @@ export async function POST(req: Request) {
       },
       ...recentMessages.map((m: any) => {
         const parts: any[] = [];
-        
-        if (m.content) {
-          parts.push({ text: m.content });
-        }
-        
+        if (m.content) parts.push({ text: m.content });
         if (m.attachment && m.attachment.data && m.attachment.mimeType) {
           parts.push({
             inlineData: {
@@ -54,7 +61,6 @@ export async function POST(req: Request) {
             }
           });
         }
-
         return {
           role: m.role === "user" ? "user" : "model",
           parts: parts.length > 0 ? parts : [{ text: "..." }]
@@ -87,7 +93,6 @@ export async function POST(req: Request) {
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-        
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,9 +105,7 @@ export async function POST(req: Request) {
         if (res.ok) {
           const data = await res.json();
           const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (replyText) {
-            return NextResponse.json({ reply: replyText });
-          }
+          if (replyText) return NextResponse.json({ reply: replyText });
         } else {
           lastError = `[${modelName} -> Status ${res.status}]`;
         }
