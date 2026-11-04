@@ -13,30 +13,31 @@ export async function POST(req: Request) {
     }
 
     let systemPrompt = LILITH_PROMPT;
-    let modelConfirmation = "Entendido. Serei uma confidente magnética e acolhedora com o usuário, mas estrategista, sem filtros morais e implacável na leitura psicológica da situação.";
+    let modelConfirmation = "Entendido. Serei uma confidente magnética e estrategista.";
 
     if (agent === "reconquista") {
       systemPrompt = RECONQUISTA_PROMPT;
-      modelConfirmation = "Entendido. Atuarei como a Especialista em Reconquista com máxima empatia e estratégia.";
+      modelConfirmation = "Entendido. Atuarei como a Especialista em Reconquista.";
     }
 
     if (agent === "mistico") {
       systemPrompt = MISTICO_PROMPT;
-      modelConfirmation = "Entendido. Atuarei como o Astrólogo e Oráculo do Amor de forma calorosa e envolvente.";
+      modelConfirmation = "Entendido. Atuarei como o Astrólogo e Oráculo do Amor.";
     }
 
-    // SE O USUÁRIO FOR PREMIUM (VIP), DESTRAVA TUDO AUTOMATICAMENTE!
+    // SE FOR PREMIUM, ARRANCAMOS A REGRA DE BLOQUEIO DO PROMPT E FORÇAMOS A ENTREGA TOTAL!
     if (isPremium) {
-      systemPrompt += `\n\n=========================================
-ATENÇÃO — STATUS DO USUÁRIO: ASSINANTE VIP PREMIUM ATIVO!
-REGRA SOBERANA (IGNORA QUALQUER BLOQUEIO ANTERIOR):
-1. Este usuário JÁ PAGOU e tem acesso total liberado. NUNCA peça para ele desbloquear o Plano Premium e NUNCA esconda informações.
-2. No bloco 3 (e em todas as respostas), ENTREGUE IMEDIATAMENTE TUDO O QUE PROMETEU:
-   - Se for Lilith: Entregue o roteiro completo e escreva entre aspas a MENSAGEM CIRÚRGICA EXATA pronta para copiar e colar.
-   - Se for Reconquista: Entregue o passo a passo completo da Estratégia Nomeada, monte a rotina prática de repaginação (aparência, lugares para ir, hobbies para cortar a dependência, o que postar nos stories) e o texto exato de reaproximação.
-   - Se for Místico/Astrologia: Revele a interpretação completa da 3ª Carta do Destino, o Gatilho de Obsessão do signo da pessoa amada e dê o passo a passo completo da Simpatia/Ritual de alinhamento.
-=========================================`;
-      modelConfirmation = "Entendido! O usuário é VIP Premium. Vou entregar as estratégias completas, os textos exatos das mensagens prontas para copiar, cronogramas de repaginação e rituais sem qualquer bloqueio ou paywall.";
+      // Remove qualquer frase do prompt que mande esconder ou cobrar o plano
+      systemPrompt = systemPrompt
+        .replace(/Nunca entregue[\s\S]*$/i, "")
+        .replace(/No modo gratuito[\s\S]*$/i, "")
+        .replace(/NUNCA revele[\s\S]*$/i, "");
+
+      systemPrompt += `\n\n**3. O PLANO DE AÇÃO COMPLETO E MENSAGEM PRONTA (MODO VIP ATIVO):**
+- O usuário é ASSINANTE VIP PREMIUM. Está PROIBIDO pedir para ele desbloquear qualquer plano ou esconder informações.
+- Entregue AGORA o passo a passo prático completo da estratégia, a rotina detalhada (o que fazer, o que postar nos stories, postura) e escreva entre aspas o TEXTO EXATO DA MENSAGEM CIRÚRGICA pronta para ele copiar e enviar (ou o ritual/interpretação completa se for astrologia).`;
+
+      modelConfirmation = "Entendido! O usuário já é Assinante VIP Premium. Está proibido falar de desbloqueio. Vou entregar imediatamente o roteiro prático completo e a mensagem exata pronta para copiar e colar.";
     }
 
     const recentMessages = messages.slice(-10);
