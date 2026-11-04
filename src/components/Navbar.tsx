@@ -1,9 +1,27 @@
-import { UserButton, auth } from "@clerk/nextjs";
+"use client";
+
+import { useEffect, useState } from "react";
+import { UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Navbar() {
-  const { userId } = auth();
+  const { userId } = useAuth();
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("lilith_vip_test") === "true") {
+      setIsPremium(true);
+    }
+    if (userId) {
+      fetch("/api/status")
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.isPremium) setIsPremium(true);
+        })
+        .catch(() => {});
+    }
+  }, [userId]);
 
   return (
     <header className="w-full bg-stone-50/90 dark:bg-[#140a0f]/80 backdrop-blur-md border-b border-stone-200 dark:border-white/10 sticky top-0 z-50">
@@ -26,12 +44,18 @@ export default function Navbar() {
             Como Funciona
           </Link>
 
-          <Link
-            href="/planos"
-            className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
-          >
-            Planos
-          </Link>
+          {isPremium ? (
+            <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold px-3 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-400/40 shadow-sm">
+              <span>👑</span> Premium
+            </span>
+          ) : (
+            <Link
+              href="/planos"
+              className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
+            >
+              Planos
+            </Link>
+          )}
 
           {userId && (
             <Link
