@@ -41,7 +41,7 @@ export default function ReconquistaChat() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,13 +69,16 @@ export default function ReconquistaChat() {
     } catch (_) {
       createNewSession([]);
     }
+
     if (localStorage.getItem("lilith_vip_test") === "true") {
-  setIsPremium(true);
-}
-fetch("/api/status")
-  .then((r) => r.json())
-  .then((d) => { if (d.isPremium) setIsPremium(true); })
-  .catch(() => {});
+      setIsPremium(true);
+    }
+    fetch("/api/status")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.isPremium) setIsPremium(true);
+      })
+      .catch(() => {});
   }, []);
 
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
@@ -192,7 +195,8 @@ fetch("/api/status")
   };
 
   const formatText = (text: string) => {
-    const tokens = text.split(/(\*\*.*?\*\*|\*[^*\n]+?\*)/g);
+    const cleanText = text.replace(/^#{1,4}\s*/gm, "");
+    const tokens = cleanText.split(/(\*\*.*?\*\*|\*[^*\n]+?\*)/g);
     return tokens.map((token, index) => {
       if (token.startsWith("**") && token.endsWith("**")) {
         return (
@@ -352,12 +356,28 @@ fetch("/api/status")
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* BOTÃO CORRIGIDO: SE FOR PREMIUM, MOSTRA VIP ILIMITADO E NÃO ABRE O MODAL */}
             <button
-              onClick={() => setShowPaywallModal(true)}
-              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full bg-rose-50 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border border-rose-200 dark:border-rose-400/30 hover:bg-rose-100 dark:hover:bg-rose-500/25 transition-colors"
+              onClick={() => {
+                if (!isPremium) setShowPaywallModal(true);
+              }}
+              className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full border transition-colors ${
+                isPremium
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
+                  : "bg-rose-50 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border-rose-200 dark:border-rose-400/30 hover:bg-rose-100 dark:hover:bg-rose-500/25"
+              }`}
             >
-              <span>✨</span>
-              <span><span className="hidden sm:inline">Mensagens: </span>{Math.max(0, totalAllowed - assistantRepliesCount)}/{totalAllowed}</span>
+              <span>{isPremium ? "👑" : "✨"}</span>
+              <span>
+                {isPremium ? (
+                  "VIP Ilimitado"
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Mensagens: </span>
+                    {Math.max(0, totalAllowed - assistantRepliesCount)}/{totalAllowed}
+                  </>
+                )}
+              </span>
             </button>
             <UserButton afterSignOutUrl="/" />
           </div>
@@ -508,7 +528,7 @@ fetch("/api/status")
         </footer>
       </div>
 
-      {showPaywallModal && (
+      {showPaywallModal && !isPremium && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1c1016] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <button

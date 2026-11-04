@@ -40,7 +40,7 @@ export default function MisticoChat() {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
-  const [isPremium, setIsPremium] = useState(false); 
+  const [isPremium, setIsPremium] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,13 +69,16 @@ export default function MisticoChat() {
     } catch (_) {
       createNewSession([]);
     }
+
     if (localStorage.getItem("lilith_vip_test") === "true") {
-  setIsPremium(true);
-}
-fetch("/api/status")
-  .then((r) => r.json())
-  .then((d) => { if (d.isPremium) setIsPremium(true); })
-  .catch(() => {});
+      setIsPremium(true);
+    }
+    fetch("/api/status")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.isPremium) setIsPremium(true);
+      })
+      .catch(() => {});
   }, []);
 
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
@@ -168,7 +171,8 @@ fetch("/api/status")
   }, [messages, isLoading]);
 
   const formatText = (text: string) => {
-    const tokens = text.split(/(\*\*.*?\*\*|\*[^*\n]+?\*)/g);
+    const cleanText = text.replace(/^#{1,4}\s*/gm, "");
+    const tokens = cleanText.split(/(\*\*.*?\*\*|\*[^*\n]+?\*)/g);
     return tokens.map((token, index) => {
       if (token.startsWith("**") && token.endsWith("**")) {
         return (
@@ -321,12 +325,28 @@ fetch("/api/status")
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* BOTÃO CORRIGIDO: SE FOR PREMIUM, MOSTRA VIP ILIMITADO E NÃO ABRE O MODAL */}
             <button
-              onClick={() => setShowPaywallModal(true)}
-              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300 border border-purple-200 hover:bg-purple-100 transition-colors"
+              onClick={() => {
+                if (!isPremium) setShowPaywallModal(true);
+              }}
+              className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full border transition-colors ${
+                isPremium
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
+                  : "bg-purple-50 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300 border-purple-200 hover:bg-purple-100"
+              }`}
             >
-              <span>✨</span>
-              <span><span className="hidden sm:inline">Leituras: </span>{Math.max(0, totalAllowed - assistantRepliesCount)}/{totalAllowed}</span>
+              <span>{isPremium ? "👑" : "✨"}</span>
+              <span>
+                {isPremium ? (
+                  "VIP Ilimitado"
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Leituras: </span>
+                    {Math.max(0, totalAllowed - assistantRepliesCount)}/{totalAllowed}
+                  </>
+                )}
+              </span>
             </button>
             <UserButton afterSignOutUrl="/" />
           </div>
@@ -374,7 +394,7 @@ fetch("/api/status")
                   <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "300ms" }}></span>
                 </div>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Consultando os astros...</span>
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Sintonizando a energia de vocês e lendo os sinais...</span>
               </div>
             </div>
           )}
@@ -430,7 +450,7 @@ fetch("/api/status")
         </footer>
       </div>
 
-      {showPaywallModal && (
+      {showPaywallModal && !isPremium && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1c1016] border border-purple-100 dark:border-purple-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <button
