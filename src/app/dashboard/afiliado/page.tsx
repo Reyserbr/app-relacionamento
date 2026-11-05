@@ -9,9 +9,13 @@ interface AffiliateStatus {
   premium_since: string | null;
   is_affiliate: boolean;
   cakto_affiliate_link: string | null;
+  pending_link?: string | null;
   total_referrals: number;
   referral_link: string;
 }
+
+// Caso tenha o link direto de convite de afiliação do produto na Cakto, cole aqui:
+const CAKTO_AFFILIATE_INVITE_URL = 'https://app.cakto.com.br';
 
 function Icon({ path, className = 'w-5 h-5', fill = 'none' }: { path: string; className?: string; fill?: string }) {
   return (
@@ -62,7 +66,9 @@ export default function AfiliadoPage() {
       if (!resStatus.ok) throw new Error('Erro ao buscar status');
       const data = await resStatus.json();
       setStatus(data);
-      if (data?.cakto_affiliate_link) {
+      if (data?.pending_link) {
+        setAffiliateLink(data.pending_link);
+      } else if (data?.cakto_affiliate_link) {
         setAffiliateLink(data.cakto_affiliate_link);
       }
       if (resConfig && resConfig.ok) {
@@ -91,7 +97,7 @@ export default function AfiliadoPage() {
         setSaveMsg(data?.error ?? 'Erro ao salvar');
         return;
       }
-      setSaveMsg('Link de afiliado salvo com sucesso!');
+      setSaveMsg(data?.message ?? 'Link enviado para análise com sucesso!');
       fetchStatus();
     } catch (err: any) {
       setSaveMsg(err?.message ?? 'Erro ao salvar');
@@ -123,8 +129,7 @@ export default function AfiliadoPage() {
     );
   }
 
-  // Se o Admin fechou as vagas e o usuário ainda NÃO é afiliado cadastrado, mostra aviso de vagas encerradas
-  const isExistingAffiliate = Boolean(status?.is_affiliate || status?.cakto_affiliate_link);
+  const isExistingAffiliate = Boolean(status?.is_affiliate || status?.cakto_affiliate_link || status?.pending_link);
   if (!programOpen && !isExistingAffiliate) {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
@@ -147,6 +152,17 @@ export default function AfiliadoPage() {
     );
   }
 
+  // Define o rótulo claro do status do afiliado
+  let statusBadgeText = 'Inativo';
+  let statusBadgeColor = 'text-stone-500 dark:text-stone-400';
+  if (status?.is_affiliate && status?.cakto_affiliate_link) {
+    statusBadgeText = 'Ativo & Aprovado';
+    statusBadgeColor = 'text-emerald-600 dark:text-emerald-400';
+  } else if (status?.pending_link) {
+    statusBadgeText = 'Em Análise';
+    statusBadgeColor = 'text-amber-600 dark:text-amber-300';
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="mb-6">
@@ -160,7 +176,7 @@ export default function AfiliadoPage() {
         Painel de Afiliado
       </h1>
       <p className="text-stone-500 dark:text-stone-300 mb-8">
-        Indique a LilithLove, divulgue para a sua audiência e ganhe comissão todos os meses.
+        Indique a LilithLove, divulgue para a sua audiência e ganhe comissão automática todos os meses.
       </p>
 
       {/* Bloco de destaque: 30% de comissão recorrente */}
@@ -168,41 +184,209 @@ export default function AfiliadoPage() {
         <div className="absolute -right-6 -top-6 opacity-20"><HeartIcon className="w-32 h-32" /></div>
         <div className="relative">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest mb-4">
-            <MoneyIcon className="w-4 h-4" /> Programa de Afiliados
+            <MoneyIcon className="w-4 h-4" /> Programa de Afiliados Oficial
           </span>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-3 leading-tight">
             Ganhe <span className="text-amber-300">30% de comissão recorrente</span> indicando a LilithLove
           </h2>
-          <p className="text-white/90 leading-relaxed mb-5">
-            Você já vive de relacionamentos, autoestima e conexão — agora pode transformar a sua influência em
-            renda. A cada pessoa que assina pelo seu link, você recebe <strong>30% do valor</strong>. E o melhor:
-            <strong> todo mês que ela continuar assinante, você continua ganhando.</strong> É renda que se acumula.
+          <p className="text-white/90 leading-relaxed mb-5 text-sm sm:text-base">
+            A cada pessoa que entra pelo seu link de divulgação e assina o plano Premium, a plataforma de pagamentos <strong>Cakto divide o valor automaticamente</strong> e envia <strong>30% direto para a sua conta</strong> todos os meses enquanto a assinatura estiver ativa.
           </p>
-          <ul className="space-y-2.5">
+          <ul className="space-y-2.5 text-sm">
             <li className="flex items-start gap-3">
               <span className="mt-0.5 text-amber-300"><RepeatIcon className="w-5 h-5" /></span>
-              <span className="text-white/90"><strong>Comissão recorrente:</strong> ganhe mês após mês, não só na primeira venda.</span>
+              <span className="text-white/90"><strong>Renda Recorrente:</strong> Você ganha na primeira assinatura e em todas as renovações mensais.</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="mt-0.5 text-amber-300"><MoneyIcon className="w-5 h-5" /></span>
-              <span className="text-white/90"><strong>30% de cada assinatura</strong> que vier da sua indicação.</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="mt-0.5 text-amber-300"><HeartIcon className="w-5 h-5" /></span>
-              <span className="text-white/90">Divulgue algo em que você <strong>realmente acredita</strong> e que ajuda pessoas de verdade.</span>
+              <span className="text-white/90"><strong>Saque direto via Pix:</strong> A comissão cai direto na sua carteira da Cakto sem intermediários.</span>
             </li>
           </ul>
         </div>
       </div>
 
-      {/* Link de referência */}
+      {/* GUIA PASSO A PASSO: REQUISITOS, COMO CRIAR CONTA NA CAKTO E ONDE PEGAR O LINK */}
+      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-100 dark:border-white/10 p-6 mb-6">
+        <h2 className="text-lg font-serif font-bold text-stone-800 dark:text-stone-100 mb-2 flex items-center gap-2">
+          <span>📋</span> Como Funciona e Requisitos para se Afiliar
+        </h2>
+        <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-300 mb-5 leading-relaxed">
+          Para garantir que suas comissões caiam automaticamente no seu Pix ou conta bancária a cada venda, siga estes <strong>4 passos simples</strong>:
+        </p>
+
+        <div className="space-y-4 text-xs sm:text-sm">
+          {/* Passo 1 */}
+          <div className="p-4 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/70 dark:border-white/10">
+            <p className="font-bold text-rose-800 dark:text-rose-300 mb-1">
+              1º Passo: Requisito Obrigatório — Ser Assinante Premium
+            </p>
+            <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
+              O programa de parceiros é exclusivo para membros com assinatura <strong>Premium ativa</strong> na LilithLove. Assim você conhece a ferramenta por dentro e divulga com autoridade.
+            </p>
+          </div>
+
+          {/* Passo 2 */}
+          <div className="p-4 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/70 dark:border-white/10">
+            <p className="font-bold text-rose-800 dark:text-rose-300 mb-1">
+              2º Passo: Criar sua Conta Gratuita na Cakto (O que você precisa)
+            </p>
+            <p className="text-stone-600 dark:text-stone-300 leading-relaxed mb-2">
+              A <strong>Cakto</strong> é a processadora oficial de pagamentos da LilithLove. Para criar sua conta gratuita lá, você só precisa de:
+            </p>
+            <ul className="list-disc list-inside text-stone-600 dark:text-stone-300 space-y-1 ml-1">
+              <li>Seu <strong>Nome completo</strong>, <strong>E-mail</strong> e <strong>Celular (WhatsApp)</strong>;</li>
+              <li>Seu <strong>CPF</strong> (Pessoa Física) ou <strong>CNPJ</strong>;</li>
+              <li>Uma <strong>Chave Pix ou Conta Bancária</strong> da mesma titularidade para receber seus saques.</li>
+            </ul>
+          </div>
+
+          {/* Passo 3 */}
+          <div className="p-4 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/70 dark:border-white/10">
+            <p className="font-bold text-rose-800 dark:text-rose-300 mb-1">
+              3º Passo: Solicitar Afiliação e Encontrar seu Link Correto na Cakto
+            </p>
+            <p className="text-stone-600 dark:text-stone-300 leading-relaxed mb-3">
+              Com a conta criada na Cakto, clique no botão abaixo para acessar a plataforma/vitrine, solicite a afiliação ao produto <strong>LilithLove</strong> e depois siga este caminho no menu lateral da Cakto:
+            </p>
+            <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 rounded-lg p-3 text-amber-950 dark:text-amber-200 text-xs mb-3 leading-relaxed">
+              📍 <strong>Onde encontrar o link correto na Cakto:</strong><br />
+              No painel da Cakto, vá no menu esquerdo em <strong>Produtos</strong> &rarr; clique na aba <strong>Minhas Afiliações</strong> &rarr; clique em <strong>LilithLove</strong> &rarr; vá em <strong>Links de Divulgação (Checkout)</strong> e copie o seu link que começa com <code className="font-mono font-bold">https://pay.cakto.com.br/...</code>
+            </div>
+            <a
+              href={CAKTO_AFFILIATE_INVITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-rose-900 hover:bg-rose-800 dark:bg-rose-600 dark:hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl font-semibold text-xs shadow transition-colors"
+            >
+              <ExternalIcon className="w-4 h-4" /> Criar Conta / Solicitar Afiliação na Cakto
+            </a>
+          </div>
+
+          {/* Passo 4 */}
+          <div className="p-4 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/70 dark:border-white/10">
+            <p className="font-bold text-rose-800 dark:text-rose-300 mb-1">
+              4º Passo: Colar o Link da Cakto abaixo e Divulgar seu Link de Indicação!
+            </p>
+            <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
+              Cole o seu link <code className="font-mono">https://pay.cakto.com.br/...</code> no campo de validação lá embaixo para nossa equipe aprovar. Depois de aprovado, <strong>divulgue nas suas redes sociais o seu Link de Indicação da LilithLove</strong> (exibido logo abaixo). Assim a pessoa usa o chat gratuitamente e, quando clicar em assinar, o sistema abre automaticamente o seu checkout da Cakto!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Premium */}
       <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6 mb-6">
-        <h2 className="font-semibold text-stone-700 dark:text-stone-100 mb-3 flex items-center gap-2">
+        <div className="flex items-center gap-3 mb-2">
+          <div className={`w-3 h-3 rounded-full ${status?.is_premium ? 'bg-emerald-500' : 'bg-stone-300 dark:bg-stone-600'}`} />
+          <span className="font-semibold text-stone-700 dark:text-stone-100">
+            {status?.is_premium ? 'Assinante Premium Ativo' : 'Plano Gratuito'}
+          </span>
+        </div>
+        {!status?.is_premium && (
+          <div className="mt-3">
+            <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">
+              Para liberar o envio do seu link de afiliado da Cakto e começar a receber comissões, ative sua assinatura Premium:
+            </p>
+            <Link
+              href="/planos"
+              className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-lg transition-colors text-sm font-semibold"
+            >
+              <CrownIcon className="w-4 h-4" /> Quero ser Premium e liberar minha Afiliação
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Estatísticas */}
+      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6 mb-6">
+        <h2 className="font-semibold text-stone-700 dark:text-stone-100 mb-4">Suas Indicações e Status</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-rose-50 dark:bg-rose-950/50 rounded-xl p-4 text-center">
+            <p className="text-3xl font-bold text-rose-600 dark:text-rose-300">{status?.total_referrals ?? 0}</p>
+            <p className="text-sm text-stone-500 dark:text-stone-300 mt-1">Pessoas indicadas</p>
+          </div>
+          <div className="bg-amber-50 dark:bg-amber-950/50 rounded-xl p-4 text-center flex flex-col justify-center">
+            <p className={`text-xl sm:text-2xl font-bold ${statusBadgeColor}`}>{statusBadgeText}</p>
+            <p className="text-sm text-stone-500 dark:text-stone-300 mt-1">Status do link</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cadastrar Link de Afiliado Cakto (Com fila de aprovação!) */}
+      {status?.is_premium && (
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6 mb-6">
+          <h2 className="font-semibold text-stone-700 dark:text-stone-100 mb-2 flex items-center gap-2">
+            <span className="text-rose-500 dark:text-rose-300"><LinkIcon /></span>
+            Seu Link de Checkout de Afiliado Cakto
+          </h2>
+          <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">
+            Cole abaixo o link de afiliado gerado pela Cakto (<code className="font-mono text-xs">https://pay.cakto.com.br/...</code>). Por segurança, todo link passa por uma rápida validação do administrador antes de entrar no ar.
+          </p>
+
+          {/* Mostra o Link Aprovado Atual (que está valendo no sistema) */}
+          {status?.cakto_affiliate_link && (
+            <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/30 text-xs sm:text-sm">
+              <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300 mb-1">
+                <span>✅</span>
+                <span>Link Aprovado e Ativo no Checkout:</span>
+              </div>
+              <p className="font-mono text-emerald-700 dark:text-emerald-200 break-all">
+                {status.cakto_affiliate_link}
+              </p>
+            </div>
+          )}
+
+          {/* Mostra o Link em Análise (se houver) */}
+          {status?.pending_link && (
+            <div className="mb-4 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-500/30 text-xs sm:text-sm">
+              <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300 mb-1">
+                <span>⏳</span>
+                <span>
+                  {status?.cakto_affiliate_link
+                    ? 'Novo Link em Análise (Seu link aprovado acima continua valendo até a aprovação deste):'
+                    : 'Link em Análise pelo Administrador:'}
+                </span>
+              </div>
+              <p className="font-mono text-amber-700 dark:text-amber-200 break-all">
+                {status.pending_link}
+              </p>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <input
+              type="url"
+              placeholder="https://pay.cakto.com.br/seu-codigo"
+              value={affiliateLink}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAffiliateLink(e.target.value)}
+              className="flex-1 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 rounded-lg px-4 py-2.5 text-sm text-stone-700 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-rose-300 dark:focus:ring-rose-500"
+            />
+            <button
+              onClick={handleSaveLink}
+              disabled={saving || !affiliateLink?.trim()}
+              className="flex items-center justify-center gap-1 bg-stone-800 hover:bg-stone-900 dark:bg-rose-600 dark:hover:bg-rose-700 text-white px-5 py-2.5 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 shrink-0"
+            >
+              {saving ? <Spinner className="w-4 h-4" /> : <ExternalIcon className="w-4 h-4" />}
+              {status?.cakto_affiliate_link ? 'Solicitar Troca de Link' : 'Enviar para Análise'}
+            </button>
+          </div>
+
+          {saveMsg && (
+            <p className={`text-xs sm:text-sm mt-3 font-medium ${saveMsg.includes('Erro') || saveMsg.includes('insira') ? 'text-red-500 dark:text-red-400' : 'text-amber-600 dark:text-amber-300'}`}>
+              {saveMsg}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Link de referência pessoal */}
+      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6">
+        <h2 className="font-semibold text-stone-700 dark:text-stone-100 mb-2 flex items-center gap-2">
           <span className="text-rose-500 dark:text-rose-300"><UsersIcon /></span>
-          Seu Link de Indicação
+          Seu Link de Divulgação da LilithLove
         </h2>
         <p className="text-sm text-stone-500 dark:text-stone-300 mb-3">
-          Este é o seu link pessoal. Compartilhe com a sua audiência — quem criar conta por ele fica vinculado a você.
+          Assim que seu link da Cakto acima estiver <strong>Aprovado</strong>, divulgue este link abaixo na sua bio, stories e vídeos. Quem entrar por ele será vinculado a você:
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <input
@@ -220,80 +404,6 @@ export default function AfiliadoPage() {
           </button>
         </div>
       </div>
-
-      {/* Status Premium */}
-      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6 mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className={`w-3 h-3 rounded-full ${status?.is_premium ? 'bg-emerald-500' : 'bg-stone-300 dark:bg-stone-600'}`} />
-          <span className="font-semibold text-stone-700 dark:text-stone-100">
-            {status?.is_premium ? 'Assinante Premium' : 'Plano Gratuito'}
-          </span>
-        </div>
-        {!status?.is_premium && (
-          <div>
-            <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">
-              Para começar a ganhar comissões, você precisa ser assinante premium. Assim você divulga uma
-              ferramenta que você mesmo usa e confia.
-            </p>
-            <Link
-              href="/planos"
-              className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-lg transition-colors text-sm font-semibold"
-            >
-              <CrownIcon className="w-4 h-4" /> Quero ser Premium e ganhar comissões
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Estatísticas */}
-      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6 mb-6">
-        <h2 className="font-semibold text-stone-700 dark:text-stone-100 mb-4">Suas Indicações</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-rose-50 dark:bg-rose-950/50 rounded-xl p-4 text-center">
-            <p className="text-3xl font-bold text-rose-600 dark:text-rose-300">{status?.total_referrals ?? 0}</p>
-            <p className="text-sm text-stone-500 dark:text-stone-300 mt-1">Pessoas indicadas</p>
-          </div>
-          <div className="bg-amber-50 dark:bg-amber-950/50 rounded-xl p-4 text-center">
-            <p className="text-3xl font-bold text-amber-600 dark:text-amber-300">{status?.is_affiliate ? 'Ativo' : 'Inativo'}</p>
-            <p className="text-sm text-stone-500 dark:text-stone-300 mt-1">Status do afiliado</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Cadastrar Link de Afiliado Cakto */}
-      {status?.is_premium && (
-        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6">
-          <h2 className="font-semibold text-stone-700 dark:text-stone-100 mb-3 flex items-center gap-2">
-            <span className="text-rose-500 dark:text-rose-300"><LinkIcon /></span>
-            Link de Afiliado Cakto
-          </h2>
-          <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">
-            Cole aqui o link de afiliado que a Cakto gerou para você. Quando alguém que você indicou comprar por esse link, você receberá comissão.
-          </p>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <input
-              type="url"
-              placeholder="https://pay.cakto.com.br/seu-link"
-              value={affiliateLink}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAffiliateLink(e.target.value)}
-              className="flex-1 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 rounded-lg px-4 py-2.5 text-sm text-stone-700 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-rose-300 dark:focus:ring-rose-500"
-            />
-            <button
-              onClick={handleSaveLink}
-              disabled={saving || !affiliateLink?.trim()}
-              className="flex items-center justify-center gap-1 bg-stone-800 hover:bg-stone-900 dark:bg-rose-600 dark:hover:bg-rose-700 text-white px-5 py-2.5 rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
-            >
-              {saving ? <Spinner className="w-4 h-4" /> : <ExternalIcon className="w-4 h-4" />}
-              Salvar
-            </button>
-          </div>
-          {saveMsg && (
-            <p className={`text-sm mt-3 ${saveMsg.includes('sucesso') ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
-              {saveMsg}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }

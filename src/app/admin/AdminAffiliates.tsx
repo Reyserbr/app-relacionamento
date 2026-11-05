@@ -37,6 +37,19 @@ function StatCard({ label, value, tint }: { label: string; value: number | strin
   );
 }
 
+// Separa o link aprovado atual do novo link pendente (se houver)
+function parseAffiliateLinks(rawLink: string) {
+  const raw = String(rawLink ?? '').trim();
+  if (raw.includes('||PENDING::')) {
+    const [approved, pending] = raw.split('||PENDING::');
+    return { approved: approved.trim(), pending: pending.trim() };
+  }
+  if (raw.startsWith('PENDING::')) {
+    return { approved: '', pending: raw.replace('PENDING::', '').trim() };
+  }
+  return { approved: raw, pending: '' };
+}
+
 export default function AdminAffiliates() {
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -44,7 +57,6 @@ export default function AdminAffiliates() {
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  // Estado da Alavanca Global do Programa de Afiliados
   const [programOpen, setProgramOpen] = useState(true);
   const [togglingProgram, setTogglingProgram] = useState(false);
 
@@ -68,7 +80,6 @@ export default function AdminAffiliates() {
         setError(data?.error ?? 'Erro ao carregar');
         return;
       }
-      // Filtra a linha interna de configuração para não aparecer como se fosse uma pessoa
       const realAffiliates = (data?.affiliates ?? []).filter(
         (a: Affiliate) => a.clerk_user_id !== '__SYSTEM_CONFIG__'
       );
@@ -98,18 +109,35 @@ export default function AdminAffiliates() {
     }
   }
 
-  async function toggleActive(aff: Affiliate) {
+  async function handleAction(aff: Affiliate, action: 'approve_pending' | 'reject_pending' | 'toggle_active') {
     if (!aff?.id) return;
     setUpdatingId(aff.id);
     try {
+      const payload =
+        action === 'toggle_active'
+          ? { rowId: aff.id, is_active: !aff.is_active }
+          : { rowId: aff.id, action, rawLink: aff.cakto_affiliate_link };
+
       const res = await fetch('/api/admin/affiliates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rowId: aff.id, is_active: !aff.is_active }),
+        body: JSON.stringify(payload),
       });
+      const data = await res.json();
       if (res.ok) {
         setAffiliates((prev) =>
-          prev.map((a) => (a.id === aff.id ? { ...a, is_active: !a.is_active } : a))
+          prev.map((a) =>
+            a.id === aff.id
+              ? {
+                  ...a,
+                  is_active: typeof data.is_active === 'boolean' ? data.is_active : a.is_active,
+                  cakto_affiliate_link:
+                    typeof data.cakto_affiliate_link === 'string'
+                      ? data.cakto_affiliate_link
+                      : a.cakto_affiliate_link,
+                }
+              : a
+          )
         );
       }
     } finally {
@@ -139,10 +167,10 @@ export default function AdminAffiliates() {
         <span>🛡️</span> Painel do Administrador
       </h1>
       <p className="text-stone-500 dark:text-stone-300 mb-6">
-        Acompanhe assinantes, afiliados e controle quando abrir ou fechar novas vagas de afiliação.
+        Acompanhe assinantes, aprove novos links de afiliados e controle a abertura de vagas.
       </p>
 
-      {/* ALAVANCA GLOBAL: EXIBIR / OCULTAR PROGRAMA DE AFILIADOS PARA USUÁRIOS */}
+      {/* ALAVANCA GLOBAL */}
       <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
@@ -193,7 +221,7 @@ export default function AdminAffiliates() {
             Afiliados cadastrados ({affiliates.length})
           </h2>
           <p className="text-xs text-stone-400 dark:text-stone-400 mt-1">
-            Pause um afiliado individualmente se o link parecer fraudulento. Links pausados não recebem novas indicações.
+            Links enviados ficam em análise até você aprovar. Se um afiliado trocar o link, o antigo continua ativo até você aprovar o novo.
           </p>
         </div>
 
@@ -203,48 +231,110 @@ export default function AdminAffiliates() {
           </div>
         ) : (
           <ul className="divide-y divide-stone-100 dark:divide-white/10">
-            {affiliates.map((aff) => (
-              <li key={aff.id ?? aff.clerk_user_id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-stone-800 dark:text-stone-100 truncate">
-                    {aff.email || '(sem e-mail)'}
-                  </p>
-                  <a
-                    href={aff.cakto_affiliate_link || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-rose-600 dark:text-rose-300 hover:underline break-all font-mono"
-                  >
-                    {aff.cakto_affiliate_link || '(sem link)'}
-                  </a>
-                  <p className="text-xs text-stone-400 dark:text-stone-400 mt-1">
-                    {aff.total_referrals ?? 0} indicações
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                      aff.is_active
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
-                        : 'bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400'
-                    }`}
-                  >
-                    {aff.is_active ? 'Ativo' : 'Pausado'}
-                  </span>
-                  <button
-                    onClick={() => toggleActive(aff)}
-                    disabled={updatingId === aff.id}
-                    className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
-                      aff.is_active
-                        ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-stone-100'
-                        : 'bg-rose-600 hover:bg-rose-700 text-white'
-                    }`}
-                  >
-                    {updatingId === aff.id ? <Spinner className="w-4 h-4" /> : aff.is_active ? 'Pausar' : 'Ativar'}
-                  </button>
-                </div>
-              </li>
-            ))}
+            {affiliates.map((aff) => {
+              const { approved, pending } = parseAffiliateLinks(aff.cakto_affiliate_link);
+              return (
+                <li key={aff.id ?? aff.clerk_user_id} className="px-6 py-5 flex flex-col gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold text-stone-800 dark:text-stone-100 truncate">
+                          {aff.email || '(sem e-mail)'}
+                        </p>
+                        <span
+                          className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            pending
+                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                              : aff.is_active && approved
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                              : 'bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400'
+                          }`}
+                        >
+                          {pending ? '⏳ Aguardando Aprovação' : aff.is_active && approved ? 'Ativo' : 'Pausado'}
+                        </span>
+                      </div>
+
+                      {/* Link Aprovado Atual */}
+                      {approved ? (
+                        <div className="text-xs mt-1">
+                          <span className="text-stone-400 dark:text-stone-400 mr-1.5">Link Ativo no Ar:</span>
+                          <a
+                            href={approved}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-600 dark:text-emerald-400 hover:underline break-all font-mono font-medium"
+                          >
+                            {approved}
+                          </a>
+                        </div>
+                      ) : (
+                        !pending && <p className="text-xs text-stone-400 font-mono">(sem link aprovado)</p>
+                      )}
+
+                      <p className="text-xs text-stone-400 dark:text-stone-400 mt-1">
+                        {aff.total_referrals ?? 0} indicações registradas
+                      </p>
+                    </div>
+
+                    {/* Botão de Pausar/Ativar link já aprovado */}
+                    {approved && (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => handleAction(aff, 'toggle_active')}
+                          disabled={updatingId === aff.id}
+                          className={`text-xs font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
+                            aff.is_active
+                              ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-stone-100'
+                              : 'bg-rose-600 hover:bg-rose-700 text-white'
+                          }`}
+                        >
+                          {updatingId === aff.id ? <Spinner className="w-4 h-4" /> : aff.is_active ? 'Pausar Link Atual' : 'Reativar Link'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* CAIXA DE ANÁLISE DE NOVO LINK PENDENTE */}
+                  {pending && (
+                    <div className="mt-1 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-amber-900 dark:text-amber-300 mb-0.5">
+                          {approved
+                            ? '⚠️ Solicitação de Troca de Link (O link antigo acima segue valendo até você aprovar este):'
+                            : '🆕 Novo Link Enviado para Aprovação:'}
+                        </p>
+                        <a
+                          href={pending}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono text-amber-800 dark:text-amber-200 underline break-all"
+                        >
+                          {pending}
+                        </a>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleAction(aff, 'approve_pending')}
+                          disabled={updatingId === aff.id}
+                          className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-colors disabled:opacity-50"
+                        >
+                          ✓ Aprovar Link
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAction(aff, 'reject_pending')}
+                          disabled={updatingId === aff.id}
+                          className="px-3 py-2 rounded-lg bg-stone-200 hover:bg-stone-300 dark:bg-white/10 dark:hover:bg-white/20 text-stone-700 dark:text-stone-200 text-xs font-semibold transition-colors disabled:opacity-50"
+                        >
+                          ✕ Recusar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

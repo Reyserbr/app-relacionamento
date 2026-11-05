@@ -129,10 +129,22 @@ export async function updateAffiliate(rowId: number, fields: Partial<Affiliate>)
   return updateRow(AFFILIATES_TABLE_ID, rowId, fields);
 }
 
-/** Busca afiliado pelo clerk_user_id (para encontrar o link de checkout) */
+/** Busca afiliado pelo clerk_user_id (retorna APENAS o link já aprovado pelo Admin) */
 export async function findAffiliateLink(referrerClerkId: string): Promise<string | null> {
   const affiliate = await findAffiliateByClerkId(referrerClerkId);
-  return affiliate?.cakto_affiliate_link ?? null;
+  if (!affiliate || !affiliate.is_active || !affiliate.cakto_affiliate_link) return null;
+
+  const raw = String(affiliate.cakto_affiliate_link).trim();
+  // Se estiver pendente na primeira vez, não usa no checkout
+  if (raw.startsWith('PENDING::') || raw === 'SYSTEM_CONFIG') return null;
+
+  // Se tiver um link aprovado e um novo pendente (APROVADO||PENDING::NOVO), usa o APROVADO!
+  if (raw.includes('||PENDING::')) {
+    const approvedUrl = raw.split('||PENDING::')[0].trim();
+    return approvedUrl || null;
+  }
+
+  return raw;
 }
 
 /** Incrementa o total_referrals de um afiliado */
