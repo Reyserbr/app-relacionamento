@@ -30,6 +30,7 @@ interface ToolConfig {
   key: string;
   badge: string;
   title: string;
+  desc: string;
   icon: string;
   warning: string;
   buttonLabel: string;
@@ -41,12 +42,12 @@ interface ToolConfig {
   }[];
 }
 
-// CONFIGURAÇÃO ESPECÍFICA PARA CADA BOTÃO E CARD DA PÁGINA INICIAL
 const TOOL_CONFIGS: Record<string, ToolConfig> = {
   primeiro_contato: {
     key: "primeiro_contato",
     badge: "Ferramenta Tática • Abertura Magnética",
     title: "Primeiro Contato Irresistível",
+    desc: "Puxar assunto e gerar interesse imediato sem parecer óbvio.",
     icon: "👋",
     warning:
       "Mensagens comuns como 'Oi, tudo bem?' são ignoradas. Preencha os detalhes abaixo (opcional) para a Lilith criar um abridor com provocação leve e curiosidade impossível de ignorar.",
@@ -65,7 +66,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       {
         id: "f3",
         label: "3. O que chama atenção no perfil, bio ou último Story dessa pessoa?",
-        placeholder: "Ex: Postou foto na academia, viagem, música, pet, bebida, trabalho (ou cole o print com Ctrl+V)...",
+        placeholder: "Ex: Postou foto na academia, viagem, música, pet, bebida (ou cole o print com Ctrl+V)...",
       },
       {
         id: "f4",
@@ -77,7 +78,8 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
   red_flags: {
     key: "red_flags",
     badge: "Scanner Comportamental • Prevenção",
-    title: "Detector de Red Flags e Manipulação",
+    title: "Detector de Red Flags",
+    desc: "Identificar joguinhos, mentiras ou manipulação nas mensagens.",
     icon: "🚩",
     warning:
       "Pessoas manipuladoras ou indisponíveis dão sinais sutis logo nas primeiras conversas. Informe os dados abaixo para a Lilith escanear as entrelinhas.",
@@ -95,7 +97,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f3",
-        label: "3. Como ela reage quando você estabelece um limite ou faz uma pergunta direta?",
+        label: "3. Como ela reage quando você faz uma pergunta direta?",
         placeholder: "Ex: Muda de assunto, se faz de vítima, diz que sou inseguro(a)...",
       },
       {
@@ -110,6 +112,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
     key: "pos_encontro",
     badge: "Estratégia Pós-Date • Alta Atração",
     title: "O Jogo do Pós-Encontro",
+    desc: "O que mandar depois de sair para manter a química lá no alto.",
     icon: "🥂",
     warning:
       "As primeiras 24h após o encontro definem se a pessoa vai viciar em você ou esfriar achando que já te ganhou. Dê o contexto abaixo para acertarmos o timing e a mensagem.",
@@ -118,16 +121,16 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       {
         id: "f1",
         label: "1. Quando foi o encontro e como terminou?",
-        placeholder: "Ex: Foi ontem à noite, rolou beijo/química incrível / Foi hoje e ficou um clima de dúvida...",
+        placeholder: "Ex: Foi ontem à noite, rolou beijo/química incrível / Foi hoje e ficou dúvida...",
       },
       {
         id: "f2",
         label: "2. Alguém já mandou mensagem depois que se despediram?",
-        placeholder: "Ex: Ainda ninguém mandou nada / Ele(a) mandou 'cheguei bem' / Eu mandei e respondeu seco...",
+        placeholder: "Ex: Ainda ninguém mandou nada / Ele(a) mandou 'cheguei bem'...",
       },
       {
         id: "f3",
-        label: "3. Teve algum assunto engraçado, piada interna ou detalhe marcante no encontro?",
+        label: "3. Teve algum assunto engraçado ou piada interna no encontro?",
         placeholder: "Ex: Rimos do garçom, apostamos quem ganhava no jogo, falamos sobre um filme...",
       },
       {
@@ -141,6 +144,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
     key: "responder",
     badge: "Resposta Cirúrgica • Inversão de Poder",
     title: "O Que Eu Respondo Agora?",
+    desc: "Resposta exata para virar o jogo e deixar a pessoa pensando em você.",
     icon: "✍️",
     warning:
       "Não responda no impulso! Informe exatamente o que a pessoa mandou para a Lilith calcular uma resposta que gera tensão e coloca você no comando.",
@@ -164,7 +168,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f4",
-        label: "4. Que efeito você quer causar na cabeça dessa pessoa com a sua resposta?",
+        label: "4. Que efeito você quer causar na cabeça dessa pessoa?",
         placeholder: "Ex: Deixar com pulga atrás da orelha, cortar o orgulho dele(a), gerar desejo...",
       },
     ],
@@ -173,6 +177,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
     key: "analise",
     badge: "Raio-X Psicológico • Leitura Fria",
     title: "Analisar Conversa e Subtexto",
+    desc: "Traduza o que a pessoa realmente quis dizer nas entrelinhas.",
     icon: "🔍",
     warning:
       "As pessoas raramente dizem o que pensam de forma direta. Cole a conversa ou o print abaixo para a Lilith traduzir o que está nas entrelinhas.",
@@ -186,7 +191,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       {
         id: "f2",
         label: "2. Qual é a sua maior dúvida sobre essa conversa?",
-        placeholder: "Ex: Quero saber se perdeu o interesse, se está fazendo joguinho ou se está sendo sincero(a)...",
+        placeholder: "Ex: Quero saber se perdeu o interesse, se está fazendo joguinho...",
       },
       {
         id: "f3",
@@ -205,6 +210,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
     key: "conselho",
     badge: "Consultoria Estratégica • Sem Julgamentos",
     title: "Diagnóstico & Conselho Amoroso",
+    desc: "Desabafe sobre sua situação e receba um plano de ação estratégico.",
     icon: "💬",
     warning:
       "Conte a verdade sem filtros. Quanto mais claro for o contexto abaixo, mais certeiro será o plano de ação da Lilith para o seu caso.",
@@ -213,7 +219,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       {
         id: "f1",
         label: "1. Qual é a situação atual entre vocês?",
-        placeholder: "Ex: Estamos ficando mas esfriou / Namoramos e estamos em crise / Gosto de alguém difícil...",
+        placeholder: "Ex: Estamos ficando mas esfriou / Namoramos e estamos em crise...",
       },
       {
         id: "f2",
@@ -253,7 +259,8 @@ export default function LilithChat() {
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Estados do Modal de Ferramenta Específica
+  // Modal de Seleção de Novo Caso e Modal do Questionário da Ferramenta
+  const [showCaseSelector, setShowCaseSelector] = useState(false);
   const [activeTool, setActiveTool] = useState<ToolConfig | null>(null);
   const [toolForm, setToolForm] = useState({ f1: "", f2: "", f3: "", f4: "" });
 
@@ -279,12 +286,10 @@ export default function LilithChat() {
       if (raw) localSessions = JSON.parse(raw);
     } catch (_) {}
 
-    // Verifica se o usuário clicou em uma ferramenta específica na Home
     const params = new URLSearchParams(window.location.search);
     const action = params.get("action");
 
     if (action) {
-      // Cria uma nova sessão limpa para a ferramenta escolhida e abre a ficha correspondente
       const newId = Date.now().toString();
       const toolPicked = TOOL_CONFIGS[action] || TOOL_CONFIGS.conselho;
       const newSession: ChatSession = {
@@ -311,10 +316,9 @@ export default function LilithChat() {
       setMessages(localSessions[0].messages);
       setBonusLimit(localSessions[0].bonusLimit || 0);
     } else {
-      createNewSession([]);
+      createNewSession([], null);
     }
 
-    // Sincroniza casos da nuvem (PC <-> Celular)
     fetch(`/api/history?key=${CLOUD_KEY}`)
       .then((r) => r.json())
       .then((d) => {
@@ -388,11 +392,12 @@ export default function LilithChat() {
     });
   };
 
-  const createNewSession = (currentList = sessions) => {
+  // Cria uma nova sessão já vinculada à ferramenta escolhida pelo usuário
+  const createNewSession = (currentList = sessions, pickedTool: ToolConfig | null = null) => {
     const newId = Date.now().toString();
     const newSession: ChatSession = {
       id: newId,
-      title: "Novo Caso",
+      title: pickedTool ? `${pickedTool.icon} ${pickedTool.title}` : "Novo Caso",
       updatedAt: "Agora",
       messages: [],
       bonusLimit: 0,
@@ -403,6 +408,13 @@ export default function LilithChat() {
     setMessages([]);
     setBonusLimit(0);
     setIsSidebarOpen(false);
+    setShowCaseSelector(false);
+
+    if (pickedTool) {
+      setToolForm({ f1: "", f2: "", f3: "", f4: "" });
+      setActiveTool(pickedTool);
+    }
+
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     } catch (_) {}
@@ -429,7 +441,7 @@ export default function LilithChat() {
       if (filtered.length > 0) {
         selectSession(filtered[0]);
       } else {
-        createNewSession([]);
+        createNewSession([], null);
       }
     }
   };
@@ -655,8 +667,9 @@ export default function LilithChat() {
       >
         <div className="p-4 border-b border-rose-100 dark:border-rose-400/15 flex items-center justify-between">
           <span className="font-serif font-bold text-stone-800 dark:text-stone-100 text-base">Meus Casos</span>
+          {/* Botão + Novo Caso agora abre o seletor de ferramentas para direcionar o caso */}
           <button
-            onClick={() => createNewSession()}
+            onClick={() => setShowCaseSelector(true)}
             className="text-xs font-semibold px-3 py-1.5 rounded-full bg-rose-900 dark:bg-rose-600 text-white hover:bg-rose-800 transition-colors"
           >
             + Novo Caso
@@ -725,13 +738,10 @@ export default function LilithChat() {
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
-              onClick={() => {
-                setToolForm({ f1: "", f2: "", f3: "", f4: "" });
-                setActiveTool(TOOL_CONFIGS.primeiro_contato);
-              }}
+              onClick={() => setShowCaseSelector(true)}
               className="hidden md:inline-flex text-xs font-semibold px-3 py-1.5 rounded-full bg-stone-100 dark:bg-white/10 text-stone-700 dark:text-stone-200 hover:bg-rose-100 transition-colors"
             >
-              ⚡ Ferramentas Táticas
+              ⚡ Escolher Ferramenta
             </button>
             <button
               onClick={() => {
@@ -769,10 +779,9 @@ export default function LilithChat() {
                 Me mostre a verdade.
               </h2>
               <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm sm:text-base leading-relaxed">
-                Escolha uma ferramenta tática abaixo para calibrar a análise, grave um áudio ou aperte <strong>Ctrl+V para colar o print</strong> da conversa.
+                Selecione abaixo qual situação vamos analisar, grave um áudio ou aperte <strong>Ctrl+V para colar o print</strong> da conversa.
               </p>
 
-              {/* Atalhos rápidos dentro do próprio chat vazio */}
               <div className="flex flex-wrap justify-center gap-2 max-w-xl pt-2">
                 {Object.values(TOOL_CONFIGS).map((t) => (
                   <button
@@ -964,11 +973,86 @@ export default function LilithChat() {
         </footer>
       </div>
 
-      {/* MODAL ESPECÍFICO DE CADA FERRAMENTA DA HOME (PRIMEIRO CONTATO, RED FLAGS, PÓS-ENCONTRO, ETC.) */}
+      {/* NOVO MODAL QUANDO CLICA EM "+ NOVO CASO": ESCOLHA QUAL CASO ANALISAR */}
+      {showCaseSelector && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#1c1016] border border-rose-200 dark:border-rose-400/25 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 block">
+                  Novo Diagnóstico • LilithLove
+                </span>
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 dark:text-white mt-0.5">
+                  Qual caso vamos analisar agora?
+                </h3>
+                <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+                  Escolha o objetivo abaixo para abrirmos a ficha tática ideal para a sua situação:
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCaseSelector(false)}
+                className="w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300 flex items-center justify-center font-bold shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+              {Object.values(TOOL_CONFIGS).map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => createNewSession(sessions, t)}
+                  className="flex items-start gap-3 p-4 rounded-2xl bg-stone-50 dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/15 border border-stone-200/80 dark:border-white/10 hover:border-rose-300 dark:hover:border-rose-400/40 text-left transition-all group"
+                >
+                  <span className="text-2xl p-2 rounded-xl bg-white dark:bg-white/10 shadow-sm group-hover:scale-110 transition-transform">
+                    {t.icon}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm text-stone-800 dark:text-stone-100 mb-0.5">
+                      {t.title}
+                    </p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 leading-snug">
+                      {t.desc}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-3 border-t border-stone-100 dark:border-white/10 text-xs">
+              <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                <Link
+                  href="/chat/reconquista"
+                  className="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 font-semibold border border-rose-200 dark:border-rose-400/25"
+                >
+                  ❤️‍🩹 Ir para Módulo de Reconquista
+                </Link>
+                <Link
+                  href="/chat/mistico"
+                  className="px-3.5 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-200 font-semibold border border-purple-200 dark:border-purple-400/25"
+                >
+                  🔮 Ir para Astrologia & Tarot
+                </Link>
+              </div>
+              <button
+                type="button"
+                onClick={() => createNewSession(sessions, null)}
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300 font-semibold hover:bg-stone-200"
+              >
+                Abrir Chat Livre sem Ficha →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DO QUESTIONÁRIO DA FERRAMENTA (SEM A BARRA DE SCROLL E SEM AS TAGS) */}
       {activeTool && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-white dark:bg-[#1c1016] border border-rose-200 dark:border-rose-400/25 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
-            <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center text-2xl shrink-0">
                   {activeTool.icon}
@@ -989,24 +1073,6 @@ export default function LilithChat() {
               >
                 Pular →
               </button>
-            </div>
-
-            {/* Seletor para trocar de ferramenta caso o usuário queira outra */}
-            <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3">
-              {Object.values(TOOL_CONFIGS).map((t) => (
-                <button
-                  key={t.key}
-                  type="button"
-                  onClick={() => setActiveTool(t)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-colors ${
-                    activeTool.key === t.key
-                      ? "bg-rose-900 text-white"
-                      : "bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-stone-400 hover:bg-rose-50"
-                  }`}
-                >
-                  {t.icon} {t.title}
-                </button>
-              ))}
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 rounded-2xl p-3 mb-5 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">

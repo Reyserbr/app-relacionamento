@@ -23,7 +23,6 @@ export default function Navbar() {
         })
         .catch(() => {});
 
-      // Verifica se a alavanca de afiliados está aberta OU se o usuário já é um afiliado antigo
       Promise.all([
         fetch("/api/affiliate/config").then((r) => r.json()).catch(() => ({ isOpen: true })),
         fetch("/api/affiliate/status").then((r) => r.json()).catch(() => ({})),
@@ -41,14 +40,13 @@ export default function Navbar() {
     <header className="w-full bg-stone-50/90 dark:bg-[#140a0f]/80 backdrop-blur-md border-b border-stone-200 dark:border-white/10 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
 
-        {/* Logo Oficial (Salve o arquivo como public/logo.png) */}
+        {/* Logo Oficial */}
         <Link href="/" className="flex items-center gap-2.5">
           <img
             src="/logo.png"
             alt="LilithLove Logo"
             className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-xl"
             onError={(e) => {
-              // Se ainda não tiver subido o logo.png, esconde a imagem quebrada
               (e.target as HTMLImageElement).style.display = "none";
             }}
           />
@@ -58,10 +56,21 @@ export default function Navbar() {
         </Link>
 
         {/* Menu e Autenticação */}
-        <div className="flex items-center gap-3 sm:gap-6">
+        <div className="flex items-center gap-2.5 sm:gap-5">
+          {userId && (
+            <Link
+              href="/chat/lilith"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full bg-stone-200/60 dark:bg-white/5 text-stone-700 dark:text-stone-300 hover:bg-rose-100 dark:hover:bg-white/10 hover:text-rose-700 dark:hover:text-rose-300 border border-stone-300/50 dark:border-white/10 transition-colors"
+              title="Acessar meus chats abertos"
+            >
+              <span className="text-xs opacity-80">💬</span>
+              <span>Meus Casos</span>
+            </Link>
+          )}
+
           <Link
             href="/sobre"
-            className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors hidden sm:block"
+            className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors hidden md:block"
           >
             Como Funciona
           </Link>
@@ -82,7 +91,7 @@ export default function Navbar() {
           {userId && showAffiliateMenu && (
             <Link
               href="/dashboard/afiliado"
-              className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
+              className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors hidden sm:block"
             >
               Afiliados
             </Link>
@@ -91,7 +100,7 @@ export default function Navbar() {
           <ThemeToggle />
 
           {/* Divisor e Botão de Login/Perfil do Clerk */}
-          <div className="pl-3 sm:pl-4 border-l border-stone-200 dark:border-white/10 flex items-center">
+          <div className="pl-2.5 sm:pl-4 border-l border-stone-200 dark:border-white/10 flex items-center">
             {userId ? (
               <UserButton afterSignOutUrl="/" />
             ) : (
