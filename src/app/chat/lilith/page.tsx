@@ -26,6 +26,215 @@ interface ChatSession {
   bonusLimit?: number;
 }
 
+interface ToolConfig {
+  key: string;
+  badge: string;
+  title: string;
+  icon: string;
+  warning: string;
+  buttonLabel: string;
+  fields: {
+    id: "f1" | "f2" | "f3" | "f4";
+    label: string;
+    placeholder: string;
+    multiline?: boolean;
+  }[];
+}
+
+// CONFIGURAÇÃO ESPECÍFICA PARA CADA BOTÃO E CARD DA PÁGINA INICIAL
+const TOOL_CONFIGS: Record<string, ToolConfig> = {
+  primeiro_contato: {
+    key: "primeiro_contato",
+    badge: "Ferramenta Tática • Abertura Magnética",
+    title: "Primeiro Contato Irresistível",
+    icon: "👋",
+    warning:
+      "Mensagens comuns como 'Oi, tudo bem?' são ignoradas. Preencha os detalhes abaixo (opcional) para a Lilith criar um abridor com provocação leve e curiosidade impossível de ignorar.",
+    buttonLabel: "🔥 Gerar Abordagem de Primeiro Contato",
+    fields: [
+      {
+        id: "f1",
+        label: "1. Onde você vai mandar mensagem?",
+        placeholder: "Ex: Direct do Instagram, WhatsApp, Tinder/Bumble, respondeu meu Story...",
+      },
+      {
+        id: "f2",
+        label: "2. Vocês já se conhecem ou nunca se falaram?",
+        placeholder: "Ex: Nunca nos falamos / Nos vimos numa festa / Já ficamos no passado...",
+      },
+      {
+        id: "f3",
+        label: "3. O que chama atenção no perfil, bio ou último Story dessa pessoa?",
+        placeholder: "Ex: Postou foto na academia, viagem, música, pet, bebida, trabalho (ou cole o print com Ctrl+V)...",
+      },
+      {
+        id: "f4",
+        label: "4. Qual vibe você quer passar nessa primeira mensagem?",
+        placeholder: "Ex: Misterioso(a) e provocante, divertido(a) e debochado(a), direto(a) ao ponto...",
+      },
+    ],
+  },
+  red_flags: {
+    key: "red_flags",
+    badge: "Scanner Comportamental • Prevenção",
+    title: "Detector de Red Flags e Manipulação",
+    icon: "🚩",
+    warning:
+      "Pessoas manipuladoras ou indisponíveis dão sinais sutis logo nas primeiras conversas. Informe os dados abaixo para a Lilith escanear as entrelinhas.",
+    buttonLabel: "🚩 Escanear Red Flags Agora",
+    fields: [
+      {
+        id: "f1",
+        label: "1. Há quanto tempo vocês estão conversando ou saindo?",
+        placeholder: "Ex: 2 semanas / 3 meses / Acabamos de nos conhecer...",
+      },
+      {
+        id: "f2",
+        label: "2. Qual atitude ou frase dessa pessoa acendeu seu alerta?",
+        placeholder: "Ex: Some no fim de semana, fala muito de ex, promete demais e cumpre pouco...",
+      },
+      {
+        id: "f3",
+        label: "3. Como ela reage quando você estabelece um limite ou faz uma pergunta direta?",
+        placeholder: "Ex: Muda de assunto, se faz de vítima, diz que sou inseguro(a)...",
+      },
+      {
+        id: "f4",
+        label: "4. Cole aqui as mensagens suspeitas (ou aperte Ctrl+V para colar o print):",
+        placeholder: "Cole o trecho da conversa para leitura fria...",
+        multiline: true,
+      },
+    ],
+  },
+  pos_encontro: {
+    key: "pos_encontro",
+    badge: "Estratégia Pós-Date • Alta Atração",
+    title: "O Jogo do Pós-Encontro",
+    icon: "🥂",
+    warning:
+      "As primeiras 24h após o encontro definem se a pessoa vai viciar em você ou esfriar achando que já te ganhou. Dê o contexto abaixo para acertarmos o timing e a mensagem.",
+    buttonLabel: "🥂 Traçar Estratégia Pós-Encontro",
+    fields: [
+      {
+        id: "f1",
+        label: "1. Quando foi o encontro e como terminou?",
+        placeholder: "Ex: Foi ontem à noite, rolou beijo/química incrível / Foi hoje e ficou um clima de dúvida...",
+      },
+      {
+        id: "f2",
+        label: "2. Alguém já mandou mensagem depois que se despediram?",
+        placeholder: "Ex: Ainda ninguém mandou nada / Ele(a) mandou 'cheguei bem' / Eu mandei e respondeu seco...",
+      },
+      {
+        id: "f3",
+        label: "3. Teve algum assunto engraçado, piada interna ou detalhe marcante no encontro?",
+        placeholder: "Ex: Rimos do garçom, apostamos quem ganhava no jogo, falamos sobre um filme...",
+      },
+      {
+        id: "f4",
+        label: "4. Qual é o seu objetivo agora?",
+        placeholder: "Ex: Fazer ele(a) sentir saudade e me chamar de novo / Quebrar o gelo sem parecer carente...",
+      },
+    ],
+  },
+  responder: {
+    key: "responder",
+    badge: "Resposta Cirúrgica • Inversão de Poder",
+    title: "O Que Eu Respondo Agora?",
+    icon: "✍️",
+    warning:
+      "Não responda no impulso! Informe exatamente o que a pessoa mandou para a Lilith calcular uma resposta que gera tensão e coloca você no comando.",
+    buttonLabel: "✍️ Gerar Minha Resposta Agora",
+    fields: [
+      {
+        id: "f1",
+        label: "1. Qual é a relação de vocês hoje?",
+        placeholder: "Ex: Ficante, namorado(a), ex, contatinho novo...",
+      },
+      {
+        id: "f2",
+        label: "2. O que exatamente a pessoa acabou de te mandar? (Texto ou Ctrl+V no print)",
+        placeholder: "Cole a mensagem exata que você recebeu...",
+        multiline: true,
+      },
+      {
+        id: "f3",
+        label: "3. Qual o contexto antes dessa mensagem?",
+        placeholder: "Ex: Estava sumido(a) há 3 dias e apareceu do nada / Estamos no meio de uma discussão...",
+      },
+      {
+        id: "f4",
+        label: "4. Que efeito você quer causar na cabeça dessa pessoa com a sua resposta?",
+        placeholder: "Ex: Deixar com pulga atrás da orelha, cortar o orgulho dele(a), gerar desejo...",
+      },
+    ],
+  },
+  analise: {
+    key: "analise",
+    badge: "Raio-X Psicológico • Leitura Fria",
+    title: "Analisar Conversa e Subtexto",
+    icon: "🔍",
+    warning:
+      "As pessoas raramente dizem o que pensam de forma direta. Cole a conversa ou o print abaixo para a Lilith traduzir o que está nas entrelinhas.",
+    buttonLabel: "🔍 Decifrar Conversa Agora",
+    fields: [
+      {
+        id: "f1",
+        label: "1. Quem é essa pessoa para você e há quanto tempo se falam?",
+        placeholder: "Ex: Ficante há 1 mês / Namorado(a) / Alguém que estou conhecendo...",
+      },
+      {
+        id: "f2",
+        label: "2. Qual é a sua maior dúvida sobre essa conversa?",
+        placeholder: "Ex: Quero saber se perdeu o interesse, se está fazendo joguinho ou se está sendo sincero(a)...",
+      },
+      {
+        id: "f3",
+        label: "3. Cole o histórico da conversa abaixo (ou aperte Ctrl+V para colar o print):",
+        placeholder: "Cole as mensagens aqui...",
+        multiline: true,
+      },
+      {
+        id: "f4",
+        label: "4. Algum detalhe extra de comportamento fora do chat?",
+        placeholder: "Ex: Pessoalmente é carinhoso(a), mas no WhatsApp demora horas...",
+      },
+    ],
+  },
+  conselho: {
+    key: "conselho",
+    badge: "Consultoria Estratégica • Sem Julgamentos",
+    title: "Diagnóstico & Conselho Amoroso",
+    icon: "💬",
+    warning:
+      "Conte a verdade sem filtros. Quanto mais claro for o contexto abaixo, mais certeiro será o plano de ação da Lilith para o seu caso.",
+    buttonLabel: "💬 Receber Diagnóstico da Lilith",
+    fields: [
+      {
+        id: "f1",
+        label: "1. Qual é a situação atual entre vocês?",
+        placeholder: "Ex: Estamos ficando mas esfriou / Namoramos e estamos em crise / Gosto de alguém difícil...",
+      },
+      {
+        id: "f2",
+        label: "2. O que aconteceu recentemente que te deixou assim?",
+        placeholder: "Desabafe livremente sobre o que houve...",
+        multiline: true,
+      },
+      {
+        id: "f3",
+        label: "3. Qual foi a sua última atitude em relação a essa pessoa?",
+        placeholder: "Ex: Cobrei atenção, me afastei em silêncio, tentei conversar...",
+      },
+      {
+        id: "f4",
+        label: "4. Qual resultado você mais quer alcançar?",
+        placeholder: "Ex: Virar o jogo e fazer a pessoa correr atrás / Saber se vale a pena insistir...",
+      },
+    ],
+  },
+};
+
 const STORAGE_KEY = "lilithlove_sessions_v1";
 const CLOUD_KEY = "lilith";
 const CHECKOUT_URL = "/planos";
@@ -43,6 +252,10 @@ export default function LilithChat() {
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Estados do Modal de Ferramenta Específica
+  const [activeTool, setActiveTool] = useState<ToolConfig | null>(null);
+  const [toolForm, setToolForm] = useState({ f1: "", f2: "", f3: "", f4: "" });
 
   // Estados do Gravador de Áudio
   const [isRecording, setIsRecording] = useState(false);
@@ -66,7 +279,33 @@ export default function LilithChat() {
       if (raw) localSessions = JSON.parse(raw);
     } catch (_) {}
 
-    if (localSessions.length > 0) {
+    // Verifica se o usuário clicou em uma ferramenta específica na Home
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get("action");
+
+    if (action) {
+      // Cria uma nova sessão limpa para a ferramenta escolhida e abre a ficha correspondente
+      const newId = Date.now().toString();
+      const toolPicked = TOOL_CONFIGS[action] || TOOL_CONFIGS.conselho;
+      const newSession: ChatSession = {
+        id: newId,
+        title: `${toolPicked.icon} ${toolPicked.title}`,
+        updatedAt: "Agora",
+        messages: [],
+        bonusLimit: 0,
+      };
+      const updated = [newSession, ...localSessions];
+      setSessions(updated);
+      setActiveSessionId(newId);
+      setMessages([]);
+      setBonusLimit(0);
+      setActiveTool(toolPicked);
+      setToolForm({ f1: "", f2: "", f3: "", f4: "" });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch (_) {}
+      window.history.replaceState(null, "", "/chat/lilith");
+    } else if (localSessions.length > 0) {
       setSessions(localSessions);
       setActiveSessionId(localSessions[0].id);
       setMessages(localSessions[0].messages);
@@ -79,7 +318,7 @@ export default function LilithChat() {
     fetch(`/api/history?key=${CLOUD_KEY}`)
       .then((r) => r.json())
       .then((d) => {
-        if (Array.isArray(d.sessions) && d.sessions.length > 0) {
+        if (!action && Array.isArray(d.sessions) && d.sessions.length > 0) {
           const hasCloudMessages = d.sessions.some((s: ChatSession) => s.messages?.length > 0);
           const hasLocalMessages = localSessions.some((s) => s.messages?.length > 0);
           if (hasCloudMessages && (!hasLocalMessages || d.sessions.length >= localSessions.length)) {
@@ -94,15 +333,6 @@ export default function LilithChat() {
         }
       })
       .catch(() => {});
-
-    const params = new URLSearchParams(window.location.search);
-    const action = params.get("action");
-    if (action === "conselho") setInput("Preciso de um conselho. A situação é a seguinte: ");
-    if (action === "analise") setInput("Analise esta conversa para mim: ");
-    if (action === "responder") setInput("A pessoa me mandou isso. O que eu respondo agora para virar o jogo? ");
-    if (action) {
-      window.history.replaceState(null, "", "/chat/lilith");
-    }
 
     if (localStorage.getItem("lilith_vip_test") === "true") {
       setIsPremium(true);
@@ -126,7 +356,11 @@ export default function LilithChat() {
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
     setSessions((prev) => {
       const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Novo Caso";
-      const cleanTitle = firstUserMsg.slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
+      const cleanTitle =
+        firstUserMsg
+          .replace(/^[^\wÀ-ÿ]+/, "")
+          .replace(/^FERRAMENTA ATIVADA:\s*/i, "")
+          .slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
 
       const lightMessages = updatedMsgs.map((m) =>
         m.attachment ? { ...m, attachment: undefined } : m
@@ -381,6 +615,30 @@ export default function LilithChat() {
     await sendRawMessage(input, attachment);
   };
 
+  const handleToolSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeTool) return;
+
+    const partes: string[] = [];
+    activeTool.fields.forEach((f) => {
+      const val = toolForm[f.id]?.trim();
+      if (val) partes.push(`• ${f.label.replace(/^\d+\.\s*/, "")} ${val}`);
+    });
+
+    const currentTool = activeTool;
+    setActiveTool(null);
+
+    if (partes.length === 0 && !attachment) return;
+
+    const promptMontado = `${currentTool.icon} FERRAMENTA ATIVADA: ${currentTool.title.toUpperCase()}\n${partes.join(
+      "\n"
+    )}\n\nAplique sua leitura comportamental avançada especificamente para este módulo (${
+      currentTool.title
+    }), fugindo de abordagens mornas ou clichês.`;
+
+    await sendRawMessage(promptMontado, attachment);
+  };
+
   return (
     <div className="flex h-screen bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
       {isSidebarOpen && (
@@ -468,6 +726,15 @@ export default function LilithChat() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={() => {
+                setToolForm({ f1: "", f2: "", f3: "", f4: "" });
+                setActiveTool(TOOL_CONFIGS.primeiro_contato);
+              }}
+              className="hidden md:inline-flex text-xs font-semibold px-3 py-1.5 rounded-full bg-stone-100 dark:bg-white/10 text-stone-700 dark:text-stone-200 hover:bg-rose-100 transition-colors"
+            >
+              ⚡ Ferramentas Táticas
+            </button>
+            <button
+              onClick={() => {
                 if (!isPremium) setShowPaywallModal(true);
               }}
               className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-full border transition-colors ${
@@ -494,16 +761,34 @@ export default function LilithChat() {
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 max-w-4xl w-full mx-auto">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center px-4 space-y-4">
-              <div className="w-20 h-20 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-rose-500/20 dark:to-rose-900/10 border border-rose-200 dark:border-rose-400/20 rounded-full flex items-center justify-center text-4xl shadow-sm mb-2">
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 space-y-5">
+              <div className="w-20 h-20 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-rose-500/20 dark:to-rose-900/10 border border-rose-200 dark:border-rose-400/20 rounded-full flex items-center justify-center text-4xl shadow-sm">
                 🔮
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
                 Me mostre a verdade.
               </h2>
               <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm sm:text-base leading-relaxed">
-                Desabafe sem filtros, grave um áudio no microfone abaixo ou aperte <strong>Ctrl+V para colar o print</strong> da conversa diretamente aqui.
+                Escolha uma ferramenta tática abaixo para calibrar a análise, grave um áudio ou aperte <strong>Ctrl+V para colar o print</strong> da conversa.
               </p>
+
+              {/* Atalhos rápidos dentro do próprio chat vazio */}
+              <div className="flex flex-wrap justify-center gap-2 max-w-xl pt-2">
+                {Object.values(TOOL_CONFIGS).map((t) => (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() => {
+                      setToolForm({ f1: "", f2: "", f3: "", f4: "" });
+                      setActiveTool(t);
+                    }}
+                    className="px-3.5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/15 border border-stone-200 dark:border-white/10 text-xs font-semibold text-stone-700 dark:text-stone-200 shadow-sm transition-all flex items-center gap-1.5"
+                  >
+                    <span>{t.icon}</span>
+                    <span>{t.title}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             messages.map((m) => (
@@ -538,7 +823,6 @@ export default function LilithChat() {
                   <div>{formatText(m.content)}</div>
                 </div>
 
-                {/* BOTÕES DE COPIAR E REENVIAR */}
                 <div className="flex items-center gap-3 mt-1.5 px-2 text-[11px] text-stone-400 dark:text-stone-500">
                   <button
                     type="button"
@@ -679,6 +963,116 @@ export default function LilithChat() {
           </div>
         </footer>
       </div>
+
+      {/* MODAL ESPECÍFICO DE CADA FERRAMENTA DA HOME (PRIMEIRO CONTATO, RED FLAGS, PÓS-ENCONTRO, ETC.) */}
+      {activeTool && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#1c1016] border border-rose-200 dark:border-rose-400/25 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center text-2xl shrink-0">
+                  {activeTool.icon}
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 block">
+                    {activeTool.badge}
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 dark:text-white">
+                    {activeTool.title}
+                  </h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTool(null)}
+                className="text-xs font-semibold px-3 py-1.5 rounded-full bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300 hover:bg-stone-200 shrink-0"
+              >
+                Pular →
+              </button>
+            </div>
+
+            {/* Seletor para trocar de ferramenta caso o usuário queira outra */}
+            <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3">
+              {Object.values(TOOL_CONFIGS).map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setActiveTool(t)}
+                  className={`px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-colors ${
+                    activeTool.key === t.key
+                      ? "bg-rose-900 text-white"
+                      : "bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-stone-400 hover:bg-rose-50"
+                  }`}
+                >
+                  {t.icon} {t.title}
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 rounded-2xl p-3 mb-5 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
+              ⚡ <strong>Calibragem de Precisão:</strong> {activeTool.warning}
+            </div>
+
+            <form onSubmit={handleToolSubmit} className="space-y-3.5 text-xs sm:text-sm">
+              {activeTool.fields.map((field) => (
+                <div key={field.id}>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1">
+                    {field.label}
+                  </label>
+                  {field.multiline ? (
+                    <textarea
+                      rows={3}
+                      onPaste={handlePaste}
+                      placeholder={field.placeholder}
+                      value={toolForm[field.id]}
+                      onChange={(e) => setToolForm({ ...toolForm, [field.id]: e.target.value })}
+                      className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      onPaste={handlePaste}
+                      placeholder={field.placeholder}
+                      value={toolForm[field.id]}
+                      onChange={(e) => setToolForm({ ...toolForm, [field.id]: e.target.value })}
+                      className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    />
+                  )}
+                </div>
+              ))}
+
+              {attachment && (
+                <div className="flex items-center justify-between bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-xl text-xs text-rose-900 dark:text-rose-200">
+                  <span className="truncate">📎 Print/Arquivo anexado: {attachment.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAttachment(null)}
+                    className="font-bold ml-2"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+                <button
+                  type="submit"
+                  className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600 text-white font-bold rounded-2xl shadow-lg transition-all"
+                >
+                  {activeTool.buttonLabel}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTool(null)}
+                  className="w-full sm:w-auto py-3 px-4 bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-stone-300 font-semibold rounded-2xl border border-stone-200 dark:border-white/10"
+                >
+                  Ignorar e ir ao Chat
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {showPaywallModal && !isPremium && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
