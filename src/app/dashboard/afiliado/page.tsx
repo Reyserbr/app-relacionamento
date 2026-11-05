@@ -13,7 +13,6 @@ interface AffiliateStatus {
   referral_link: string;
 }
 
-// ─── Ícones embutidos (sem dependência externa) ─────────────
 function Icon({ path, className = 'w-5 h-5', fill = 'none' }: { path: string; className?: string; fill?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -42,6 +41,7 @@ function Spinner({ className = 'w-5 h-5' }: { className?: string }) {
 
 export default function AfiliadoPage() {
   const [status, setStatus] = useState<AffiliateStatus | null>(null);
+  const [programOpen, setProgramOpen] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [affiliateLink, setAffiliateLink] = useState('');
@@ -55,12 +55,19 @@ export default function AfiliadoPage() {
 
   async function fetchStatus() {
     try {
-      const res = await fetch('/api/affiliate/status');
-      if (!res.ok) throw new Error('Erro ao buscar status');
-      const data = await res.json();
+      const [resStatus, resConfig] = await Promise.all([
+        fetch('/api/affiliate/status'),
+        fetch('/api/affiliate/config').catch(() => null),
+      ]);
+      if (!resStatus.ok) throw new Error('Erro ao buscar status');
+      const data = await resStatus.json();
       setStatus(data);
       if (data?.cakto_affiliate_link) {
         setAffiliateLink(data.cakto_affiliate_link);
+      }
+      if (resConfig && resConfig.ok) {
+        const cfg = await resConfig.json();
+        if (typeof cfg.isOpen === 'boolean') setProgramOpen(cfg.isOpen);
       }
     } catch (err: any) {
       setError(err?.message ?? 'Erro desconhecido');
@@ -116,8 +123,38 @@ export default function AfiliadoPage() {
     );
   }
 
+  // Se o Admin fechou as vagas e o usuário ainda NÃO é afiliado cadastrado, mostra aviso de vagas encerradas
+  const isExistingAffiliate = Boolean(status?.is_affiliate || status?.cakto_affiliate_link);
+  if (!programOpen && !isExistingAffiliate) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-20 text-center">
+        <div className="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 flex items-center justify-center mx-auto mb-5 text-3xl">
+          🔒
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-50 mb-3">
+          Vagas para Afiliados Temporariamente Encerradas
+        </h1>
+        <p className="text-stone-500 dark:text-stone-300 leading-relaxed mb-8 text-sm sm:text-base">
+          Atingimos o limite atual de parceiros oficiais da LilithLove. Novas vagas serão reabertas em breve.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 bg-rose-900 hover:bg-rose-800 text-white px-6 py-3 rounded-full transition-colors text-sm font-semibold shadow"
+        >
+          ← Voltar para a Página Inicial
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="mb-6">
+        <Link href="/" className="text-xs sm:text-sm font-medium text-stone-500 hover:text-rose-600">
+          ← Voltar ao Início
+        </Link>
+      </div>
+
       <h1 className="text-3xl font-bold text-stone-800 dark:text-stone-50 mb-2 flex items-center gap-3">
         <span className="text-amber-500 dark:text-amber-400"><CrownIcon className="w-8 h-8" /></span>
         Painel de Afiliado
@@ -126,7 +163,7 @@ export default function AfiliadoPage() {
         Indique a LilithLove, divulgue para a sua audiência e ganhe comissão todos os meses.
       </p>
 
-      {/* ─── Bloco de destaque: 30% de comissão recorrente ─── */}
+      {/* Bloco de destaque: 30% de comissão recorrente */}
       <div className="rounded-3xl p-7 mb-6 bg-gradient-to-br from-rose-600 to-rose-800 dark:from-rose-700 dark:to-rose-950 text-white shadow-lg relative overflow-hidden">
         <div className="absolute -right-6 -top-6 opacity-20"><HeartIcon className="w-32 h-32" /></div>
         <div className="relative">
@@ -158,7 +195,7 @@ export default function AfiliadoPage() {
         </div>
       </div>
 
-      {/* ─── Link de referência: logo de cara ─── */}
+      {/* Link de referência */}
       <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md dark:border dark:border-white/10 p-6 mb-6">
         <h2 className="font-semibold text-stone-700 dark:text-stone-100 mb-3 flex items-center gap-2">
           <span className="text-rose-500 dark:text-rose-300"><UsersIcon /></span>

@@ -8,11 +8,13 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export default function Navbar() {
   const { userId } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
+  const [showAffiliateMenu, setShowAffiliateMenu] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem("lilith_vip_test") === "true") {
       setIsPremium(true);
     }
+
     if (userId) {
       fetch("/api/status")
         .then((r) => r.json())
@@ -20,6 +22,18 @@ export default function Navbar() {
           if (d.isPremium) setIsPremium(true);
         })
         .catch(() => {});
+
+      // Verifica se a alavanca de afiliados está aberta OU se o usuário já é um afiliado antigo
+      Promise.all([
+        fetch("/api/affiliate/config").then((r) => r.json()).catch(() => ({ isOpen: true })),
+        fetch("/api/affiliate/status").then((r) => r.json()).catch(() => ({})),
+      ]).then(([configData, affStatus]) => {
+        if (configData?.isOpen || affStatus?.is_affiliate || affStatus?.cakto_affiliate_link) {
+          setShowAffiliateMenu(true);
+        } else {
+          setShowAffiliateMenu(false);
+        }
+      });
     }
   }, [userId]);
 
@@ -27,9 +41,17 @@ export default function Navbar() {
     <header className="w-full bg-stone-50/90 dark:bg-[#140a0f]/80 backdrop-blur-md border-b border-stone-200 dark:border-white/10 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
 
-        {/* Logo / Nome da Marca */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">✨</span>
+        {/* Logo Oficial (Salve o arquivo como public/logo.png) */}
+        <Link href="/" className="flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="LilithLove Logo"
+            className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-xl"
+            onError={(e) => {
+              // Se ainda não tiver subido o logo.png, esconde a imagem quebrada
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
           <span className="text-lg sm:text-xl font-serif font-bold text-stone-900 dark:text-stone-50 tracking-tight">
             LilithLove
           </span>
@@ -57,10 +79,10 @@ export default function Navbar() {
             </Link>
           )}
 
-          {userId && (
+          {userId && showAffiliateMenu && (
             <Link
               href="/dashboard/afiliado"
-              className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors hidden sm:block"
+              className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
             >
               Afiliados
             </Link>
