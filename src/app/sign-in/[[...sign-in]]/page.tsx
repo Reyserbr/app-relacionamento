@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function SignInPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#faf7f5] dark:bg-[#140a0f] text-stone-800 dark:text-stone-100 font-sans transition-colors">
-      {/* LADO ESQUERDO — APRESENTAÇÃO (Intacto, com suporte suave ao escuro) */}
+      {/* LADO ESQUERDO — APRESENTAÇÃO */}
       <div className="lg:w-1/2 bg-gradient-to-br from-[#6b1229] via-[#4c0d1f] to-[#2b0712] dark:from-[#260710] dark:via-[#1a050c] dark:to-[#110308] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-rose-900/30">
         <div className="relative z-10">
           <Link href="/" className="inline-flex items-center gap-3 mb-10 group">
@@ -51,7 +51,7 @@ export default function SignInPage() {
         </div>
       </div>
 
-      {/* LADO DIREITO — FORMULÁRIO DE LOGIN (Fiel ao Modo Claro + Acompanha o Modo Noturno) */}
+      {/* LADO DIREITO — FORMULÁRIO DE LOGIN */}
       <div className="lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 bg-[#faf7f5] dark:bg-[#140a0f] transition-colors">
         <div className="w-full max-w-md flex flex-col items-center">
           <div className="text-center mb-6">
@@ -63,14 +63,13 @@ export default function SignInPage() {
             </p>
           </div>
 
-          {/* Redireciona sempre para "/" (Página Inicial de Ferramentas) após entrar ou criar conta */}
+          {/* Parâmetros compatíveis com a versão do Clerk instalada */}
           <SignIn
             routing="path"
             path="/sign-in"
-            fallbackRedirectUrl="/"
-            forceRedirectUrl="/"
-            signUpFallbackRedirectUrl="/"
-            signUpForceRedirectUrl="/"
+            redirectUrl="/"
+            afterSignInUrl="/"
+            afterSignUpUrl="/"
             appearance={{
               elements: {
                 rootBox: "w-full flex justify-center",
