@@ -19,6 +19,17 @@ interface Stats {
   totalReferrals: number;
 }
 
+interface PlanItem {
+  id: string;
+  name: string;
+  badge: string;
+  price: string;
+  period: string;
+  checkoutUrl: string;
+  benefits: string[];
+  buttonText: string;
+}
+
 function Spinner({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg className={`${className} animate-spin`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +48,6 @@ function StatCard({ label, value, tint }: { label: string; value: number | strin
   );
 }
 
-// Separa o link aprovado atual do novo link pendente (se houver)
 function parseAffiliateLinks(rawLink: string) {
   const raw = String(rawLink ?? '').trim();
   if (raw.includes('||PENDING::')) {
@@ -60,12 +70,18 @@ export default function AdminAffiliates() {
   const [programOpen, setProgramOpen] = useState(true);
   const [togglingProgram, setTogglingProgram] = useState(false);
 
+  // Estados do Gerenciador de Planos e Link Oficial Cakto
+  const [plans, setPlans] = useState<PlanItem[]>([]);
+  const [savingPlans, setSavingPlans] = useState(false);
+  const [plansSavedMsg, setPlansSavedMsg] = useState('');
+
   useEffect(() => {
     load();
     fetch('/api/affiliate/config')
       .then((r) => r.json())
       .then((d) => {
         if (typeof d.isOpen === 'boolean') setProgramOpen(d.isOpen);
+        if (Array.isArray(d.plans) && d.plans.length > 0) setPlans(d.plans);
       })
       .catch(() => {});
   }, []);
@@ -99,13 +115,68 @@ export default function AdminAffiliates() {
       const res = await fetch('/api/affiliate/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isOpen: nextState }),
+        body: JSON.stringify({ isOpen: nextState, plans }),
       });
       if (res.ok) {
         setProgramOpen(nextState);
       }
     } finally {
       setTogglingProgram(false);
+    }
+  }
+
+  function handlePlanFieldChange(index: number, field: keyof PlanItem, value: any) {
+    setPlans((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    );
+  }
+
+  function handleAddPlan() {
+    const newPlan: PlanItem = {
+      id: `plan_${Date.now()}`,
+      name: 'Novo Plano VIP',
+      badge: 'OFERTA ESPECIAL',
+      price: 'R$ 97,90',
+      period: '/trimestre',
+      checkoutUrl: plans[0]?.checkoutUrl || 'https://pay.cakto.com.br/seu-link',
+      benefits: [
+        'Conversas ilimitadas com a Lilith',
+        'Análise de conversas e detecção de red flags',
+        'Módulo de Reconquista e reversão de crise',
+        'Acesso a todas as ferramentas e trilhas',
+      ],
+      buttonText: 'Desbloquear Acesso Premium Ilimitado',
+    };
+    setPlans((prev) => [...prev, newPlan]);
+  }
+
+  function handleRemovePlan(index: number) {
+    if (plans.length <= 1) {
+      alert('Você precisa manter pelo menos 1 plano ativo.');
+      return;
+    }
+    setPlans((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function handleSavePlans() {
+    setSavingPlans(true);
+    setPlansSavedMsg('');
+    try {
+      const res = await fetch('/api/affiliate/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isOpen: programOpen, plans }),
+      });
+      if (res.ok) {
+        setPlansSavedMsg('✅ Planos e links da Cakto salvos e atualizados no site!');
+        setTimeout(() => setPlansSavedMsg(''), 4000);
+      } else {
+        setPlansSavedMsg('❌ Erro ao salvar alterações.');
+      }
+    } catch (_) {
+      setPlansSavedMsg('❌ Erro de conexão ao salvar.');
+    } finally {
+      setSavingPlans(false);
     }
   }
 
@@ -167,10 +238,10 @@ export default function AdminAffiliates() {
         <span>🛡️</span> Painel do Administrador
       </h1>
       <p className="text-stone-500 dark:text-stone-300 mb-6">
-        Acompanhe assinantes, aprove novos links de afiliados e controle a abertura de vagas.
+        Gerencie seus planos, links oficiais da Cakto, assinantes e aprovação de afiliados.
       </p>
 
-      {/* ALAVANCA GLOBAL */}
+      {/* ALAVANCA GLOBAL DE AFILIADOS */}
       <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
@@ -204,6 +275,169 @@ export default function AdminAffiliates() {
             '🔴 Reabrir Vagas'
           )}
         </button>
+      </div>
+
+      {/* NOVO: GERENCIADOR DE PLANOS, PREÇOS, BENEFÍCIOS E LINK OFICIAL DA CAKTO */}
+      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-stone-100 dark:border-white/10">
+          <div>
+            <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
+              <span>💳</span> Planos, Preços e Seu Link Oficial da Cakto (Vendas Diretas)
+            </h2>
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+              Configure o link da Cakto para clientes que entram sem indicação de afiliado, edite o valor, benefícios ou adicione novos planos na página <code className="font-mono">/planos</code>.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAddPlan}
+            className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-white/10 dark:hover:bg-white/20 text-stone-800 dark:text-stone-100 text-xs font-bold shrink-0 transition-colors"
+          >
+            + Adicionar Novo Plano
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          {plans.map((plan, idx) => (
+            <div
+              key={plan.id || idx}
+              className="p-5 rounded-2xl bg-stone-50/80 dark:bg-[#140a0f]/60 border border-stone-200 dark:border-rose-400/20 space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                  Plano #{idx + 1} — {plan.name}
+                </span>
+                {plans.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePlan(idx)}
+                    className="text-xs font-semibold text-red-500 hover:underline"
+                  >
+                    🗑️ Remover Plano
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs sm:text-sm">
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Nome do Plano
+                  </label>
+                  <input
+                    type="text"
+                    value={plan.name}
+                    onChange={(e) => handlePlanFieldChange(idx, 'name', e.target.value)}
+                    placeholder="Ex: Premium"
+                    className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Selo de Destaque
+                  </label>
+                  <input
+                    type="text"
+                    value={plan.badge}
+                    onChange={(e) => handlePlanFieldChange(idx, 'badge', e.target.value)}
+                    placeholder="Ex: MAIS POPULAR"
+                    className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Valor Exibido
+                  </label>
+                  <input
+                    type="text"
+                    value={plan.price}
+                    onChange={(e) => handlePlanFieldChange(idx, 'price', e.target.value)}
+                    placeholder="Ex: R$ 69,90"
+                    className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100 font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Período
+                  </label>
+                  <input
+                    type="text"
+                    value={plan.period}
+                    onChange={(e) => handlePlanFieldChange(idx, 'period', e.target.value)}
+                    placeholder="Ex: /mês"
+                    className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    🔗 Seu Link Oficial da Cakto (Para clientes sem indicação)
+                  </label>
+                  <input
+                    type="url"
+                    value={plan.checkoutUrl}
+                    onChange={(e) => handlePlanFieldChange(idx, 'checkoutUrl', e.target.value)}
+                    placeholder="https://pay.cakto.com.br/seu-link"
+                    className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100 font-mono text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Texto do Botão de Compra
+                  </label>
+                  <input
+                    type="text"
+                    value={plan.buttonText}
+                    onChange={(e) => handlePlanFieldChange(idx, 'buttonText', e.target.value)}
+                    placeholder="Desbloquear Acesso Premium Ilimitado"
+                    className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
+                  />
+                </div>
+              </div>
+
+              <div className="text-xs sm:text-sm">
+                <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                  Lista de Benefícios (Digite 1 benefício por linha)
+                </label>
+                <textarea
+                  rows={5}
+                  value={(plan.benefits || []).join('\n')}
+                  onChange={(e) =>
+                    handlePlanFieldChange(
+                      idx,
+                      'benefits',
+                      e.target.value.split('\n').filter((line) => line.trim() !== '')
+                    )
+                  }
+                  className="w-full rounded-xl px-3.5 py-2.5 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100 leading-relaxed"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={handleSavePlans}
+            disabled={savingPlans}
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs sm:text-sm shadow transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {savingPlans ? <Spinner className="w-4 h-4" /> : <span>💾</span>}
+            <span>Salvar Planos e Link Oficial da Cakto</span>
+          </button>
+
+          {plansSavedMsg && (
+            <span className="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              {plansSavedMsg}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Estatísticas gerais */}
@@ -254,7 +488,6 @@ export default function AdminAffiliates() {
                         </span>
                       </div>
 
-                      {/* Link Aprovado Atual */}
                       {approved ? (
                         <div className="text-xs mt-1">
                           <span className="text-stone-400 dark:text-stone-400 mr-1.5">Link Ativo no Ar:</span>
@@ -276,7 +509,6 @@ export default function AdminAffiliates() {
                       </p>
                     </div>
 
-                    {/* Botão de Pausar/Ativar link já aprovado */}
                     {approved && (
                       <div className="flex items-center gap-2 shrink-0">
                         <button
@@ -294,7 +526,6 @@ export default function AdminAffiliates() {
                     )}
                   </div>
 
-                  {/* CAIXA DE ANÁLISE DE NOVO LINK PENDENTE */}
                   {pending && (
                     <div className="mt-1 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="min-w-0">
