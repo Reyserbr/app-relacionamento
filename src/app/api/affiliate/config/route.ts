@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 const CONFIG_KEY = '__SYSTEM_CONFIG__';
 
-export interface PlanItem {
+interface PlanItem {
   id: string;
   name: string;
   badge: string;
@@ -21,7 +21,7 @@ export interface PlanItem {
   buttonText: string;
 }
 
-export const DEFAULT_PLANS: PlanItem[] = [
+const DEFAULT_PLANS: PlanItem[] = [
   {
     id: 'default',
     name: 'Premium',
