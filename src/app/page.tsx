@@ -223,6 +223,27 @@ export default function Home() {
 
         </div>
       </div>
+      {/* RODAPÉ INSTITUCIONAL & AVISO LEGAL DE IA (CONFORMIDADE ADSENSE / LGPD) */}
+      <footer className="w-full border-t border-stone-200 dark:border-white/10 bg-white/60 dark:bg-[#10070b] mt-20 py-10 px-6 text-center text-xs text-stone-500 dark:text-stone-400">
+        <div className="max-w-5xl mx-auto space-y-4">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 font-semibold text-stone-700 dark:text-stone-300">
+            <Link href="/sobre" className="hover:text-rose-600 transition-colors">Como Funciona</Link>
+            <Link href="/planos" className="hover:text-rose-600 transition-colors">Planos VIP</Link>
+            <Link href="/trilhas" className="hover:text-rose-600 transition-colors">Aulas & Guias</Link>
+            <Link href="/termos" className="hover:text-rose-600 transition-colors">Termos de Uso</Link>
+            <Link href="/privacidade" className="hover:text-rose-600 transition-colors">Política de Privacidade</Link>
+            <Link href="/contato" className="hover:text-rose-600 transition-colors">Contato</Link>
+          </div>
+
+          <p className="max-w-3xl mx-auto leading-relaxed text-[11px] opacity-80">
+            <strong>Aviso Legal e Isenção de Responsabilidade:</strong> A LilithLove utiliza inteligência artificial para fornecer análises comportamentais, sugestões estratégicas e entretenimento. As orientações não substituem acompanhamento psicológico ou médico profissional. Como relacionamentos dependem da vontade e livre-arbítrio de terceiros, não garantimos 100% de eficácia ou resultados específicos. Plataforma exclusiva para maiores de 18 anos.
+          </p>
+
+          <p className="text-[11px] opacity-60">
+            © {new Date().getFullYear()} LilithLove. Todos os direitos reservados.
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }

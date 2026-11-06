@@ -652,7 +652,7 @@ export default function LilithChat() {
   };
 
   return (
-    <div className="flex h-screen bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
+    <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden"
@@ -709,8 +709,8 @@ export default function LilithChat() {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-        <header className="flex items-center justify-between gap-2 px-3 sm:px-6 py-3 sm:py-4 bg-white/90 dark:bg-[#1c1016]/90 backdrop-blur-md border-b border-rose-100 dark:border-rose-400/15 shadow-sm shrink-0">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+        <header className="relative z-20 flex items-center justify-between gap-1.5 px-2.5 sm:px-6 py-2.5 sm:py-3.5 bg-white/95 dark:bg-[#1c1016]/95 backdrop-blur-md border-b border-rose-100 dark:border-rose-400/15 shadow-sm shrink-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -870,7 +870,7 @@ export default function LilithChat() {
           <div ref={messagesEndRef} />
         </main>
 
-        <footer className="p-3 sm:p-4 bg-white dark:bg-[#1c1016] border-t border-rose-100 dark:border-rose-400/15 shrink-0">
+        <footer className="relative z-20 p-2.5 sm:p-4 pb-[max(0.65rem,env(safe-area-inset-bottom))] bg-white dark:bg-[#1c1016] border-t border-rose-100 dark:border-rose-400/15 shrink-0">
           <div className="max-w-4xl mx-auto">
             {attachment && (
               <div className="mb-3 flex items-center justify-between bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-400/30 px-4 py-2 rounded-2xl text-xs text-rose-900 dark:text-rose-200">
