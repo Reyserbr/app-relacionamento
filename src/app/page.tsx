@@ -1,6 +1,57 @@
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
+const DEPOIMENTOS = [
+  {
+    nome: "M. F., 29 anos",
+    cidade: "São Paulo, SP",
+    modulo: "Módulo de Reconquista",
+    texto:
+      "A gente estava há 11 dias sem se falar e eu já ia mandar um textão implorando. A IA leu o print da nossa última briga, me proibiu de mandar mensagem naquele dia e me deu uma frase curta de quebra de padrão 4 dias depois. Ele me respondeu em 3 minutos e ontem saímos juntos de novo.",
+    estrelas: 5,
+  },
+  {
+    nome: "R. S., 34 anos",
+    cidade: "Belo Horizonte, MG",
+    modulo: "Leitura de Conversa & Subtexto",
+    texto:
+      "Eu achava que ela estava só ocupada no trabalho, mas o Detector de Red Flags me mostrou na hora que ela estava me mantendo em banho-maria enquanto testava outra pessoa. Mudei minha postura com a mensagem cirúrgica da Lilith e o jogo virou completamente.",
+    estrelas: 5,
+  },
+  {
+    nome: "C. A., 26 anos",
+    cidade: "Curitiba, PR",
+    modulo: "Pós-Encontro & Atração",
+    texto:
+      "Sempre fui muito ansiosa depois de sair com alguém e acabava sufocando. Usei a ficha de Pós-Encontro e mandei exatamente a provocação leve que a Lilith escreveu. O cara ficou obcecado querendo marcar o segundo encontro logo na manhã seguinte!",
+    estrelas: 5,
+  },
+  {
+    nome: "L. G., 31 anos",
+    cidade: "Fortaleza, CE",
+    modulo: "Oráculo & Mapa Mental do Signo",
+    texto:
+      "A análise do Mapa Astral psicológico da minha ex de Escorpião me deu até arrepio de tão precisa. Entendi por que ela se fechava quando eu cobrava definição e usei o gatilho certo para destravar a conversa sem gerar defesa.",
+    estrelas: 5,
+  },
+  {
+    nome: "B. T., 27 anos",
+    cidade: "Rio de Janeiro, RJ",
+    modulo: "Trilha Contato Zero",
+    texto:
+      "Só a aula de Desintoxicação de Dopamina e o guia do que postar nos stories já valeram cada centavo. Parei de passar vergonha postando indireta e em menos de duas semanas quem terminou comigo veio puxar assunto perguntando da minha vida.",
+    estrelas: 5,
+  },
+  {
+    nome: "F. M., 36 anos",
+    cidade: "Porto Alegre, RS",
+    modulo: "Primeiro Contato",
+    texto:
+      "Eu travava na hora de chamar alguém interessante no Instagram sem parecer mais um elogiando foto. Coloquei os detalhes do story dela na ferramenta de Primeiro Contato e a abertura que a Lilith criou rendeu horas de conversa logo de cara.",
+    estrelas: 5,
+  },
+];
+
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-stone-50 text-stone-800 dark:bg-[#140a0f] dark:text-stone-200 font-sans selection:bg-rose-200 selection:text-rose-900">
@@ -28,7 +79,7 @@ export default function Home() {
               Analise conversas, melhore seus relacionamentos e saiba exatamente como agir.
             </p>
 
-            {/* Chips - Ações Rápidas com Fichas Personalizadas */}
+            {/* Chips - Ações Rápidas */}
             <div className="flex flex-wrap justify-center gap-3 mt-4">
               <Link
                 href="/chat/lilith?action=conselho"
@@ -58,8 +109,6 @@ export default function Home() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              {/* Card 1 - Primeiro Contato */}
               <Link
                 href="/chat/lilith?action=primeiro_contato"
                 className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -69,7 +118,6 @@ export default function Home() {
                 <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.</p>
               </Link>
 
-              {/* Card 2 - Detector de Red Flags */}
               <Link
                 href="/chat/lilith?action=red_flags"
                 className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -79,7 +127,6 @@ export default function Home() {
                 <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.</p>
               </Link>
 
-              {/* Card 3 - Pós-Encontro */}
               <Link
                 href="/chat/lilith?action=pos_encontro"
                 className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -89,7 +136,6 @@ export default function Home() {
                 <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).</p>
               </Link>
 
-              {/* Card 4 - IA Especialista em Reconquista */}
               <Link
                 href="/chat/reconquista"
                 className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/70 dark:to-orange-950/60 p-8 rounded-3xl shadow-sm border border-rose-200 dark:border-rose-400/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
@@ -102,7 +148,6 @@ export default function Home() {
                 <p className="text-rose-800/80 dark:text-rose-100/90 leading-relaxed pr-12">O módulo urgente. Estratégias profundas de reversão de crise, contato zero e reconstrução guiadas pela IA especialista.</p>
               </Link>
 
-              {/* Card 5 - IA Mística / Astrologia */}
               <Link
                 href="/chat/mistico"
                 className="md:col-span-2 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-8 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
@@ -114,12 +159,11 @@ export default function Home() {
                 <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-50 mb-3">Oráculo do Amor & Sinastria</h3>
                 <p className="text-purple-800/80 dark:text-purple-100/90 leading-relaxed pr-12">Descubra a compatibilidade astral de vocês, faça tiragens de cartas para revelar o futuro da relação e receba simpatias de conexão.</p>
               </Link>
-
             </div>
           </div>
 
-{/* Trilhas de Aprendizado conectadas à nova Academia (/trilhas) */}
-          <div className="w-full mt-24 pt-16 border-t border-stone-200 dark:border-white/10 text-center">
+          {/* Trilhas de Aprendizado */}
+          <div className="w-full mt-20 pt-16 border-t border-stone-200 dark:border-white/10 text-center">
             <span className="text-rose-600 dark:text-rose-300 font-semibold tracking-wider uppercase text-sm mb-4 block">Exclusivo Assinantes • Aulas & Guias</span>
             <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8">
               Trilhas de Desenvolvimento
@@ -128,6 +172,52 @@ export default function Home() {
               <Link href="/trilhas?track=amor_proprio" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">✨ Ame a Si Mesmo Primeiro</Link>
               <Link href="/trilhas?track=contato_zero" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🛑 Contato Zero na Prática</Link>
               <Link href="/trilhas?track=confianca" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🔥 Desperte sua Confiança</Link>
+            </div>
+          </div>
+
+          {/* NOVA SEÇÃO: DEPOIMENTOS DE QUEM VIROU O JOGO */}
+          <div className="w-full mt-20 pt-16 border-t border-stone-200 dark:border-white/10">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <span className="text-amber-600 dark:text-amber-400 font-semibold tracking-wider uppercase text-xs sm:text-sm mb-2 block">
+                Histórias Reais • Sigilo Total
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 dark:text-white mb-3">
+                Quem seguiu a estratégia, virou o jogo
+              </h2>
+              <p className="text-stone-500 dark:text-stone-400 text-sm sm:text-base">
+                Veja o que aconteceu quando nossos assinantes pararam de agir no impulso e aplicaram o diagnóstico da LilithLove.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {DEPOIMENTOS.map((dep, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white dark:bg-white/5 p-6 rounded-3xl border border-stone-100 dark:border-white/10 shadow-sm flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex text-amber-400 text-sm">
+                        {"★★★★★"}
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300">
+                        {dep.modulo}
+                      </span>
+                    </div>
+                    <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed italic mb-5">
+                      &ldquo;{dep.texto}&rdquo;
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-3 border-t border-stone-100 dark:border-white/10 text-xs">
+                    <span className="font-bold text-stone-800 dark:text-stone-100">
+                      {dep.nome}
+                    </span>
+                    <span className="text-stone-400 dark:text-stone-500">
+                      {dep.cidade} • Assinante VIP
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

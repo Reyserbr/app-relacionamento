@@ -30,6 +30,16 @@ interface PlanItem {
   buttonText: string;
 }
 
+const ADMIN_LESSONS_LIST = [
+  { id: 'cz_1', track: '🛑 Contato Zero', title: 'Aula 01 (Grátis): A Neurociência da Ausência' },
+  { id: 'cz_2', track: '🛑 Contato Zero', title: 'Aula 02 (VIP): Guerra Silenciosa nos Stories' },
+  { id: 'cz_3', track: '🛑 Contato Zero', title: 'Aula 03 (VIP): Testes de Migalha (Breadcrumbing)' },
+  { id: 'ap_1', track: '✨ Amor Próprio', title: 'Aula 01 (Grátis): Desintoxicação de Dopamina' },
+  { id: 'ap_2', track: '✨ Amor Próprio', title: 'Aula 02 (VIP): A Síndrome do Salvador e o Fim da Carência' },
+  { id: 'cf_1', track: '🔥 Confiança', title: 'Aula 01 (Grátis): A Lei do Menor Esforço' },
+  { id: 'cf_2', track: '🔥 Confiança', title: 'Aula 02 (VIP): Domínio de Presença no Encontro' },
+];
+
 function Spinner({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg className={`${className} animate-spin`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -67,13 +77,19 @@ export default function AdminAffiliates() {
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
+  // Alavancas Globais
   const [programOpen, setProgramOpen] = useState(true);
-  const [togglingProgram, setTogglingProgram] = useState(false);
+  const [communityOpen, setCommunityOpen] = useState(false);
+  const [salesPopupOpen, setSalesPopupOpen] = useState(true);
+  const [togglingKey, setTogglingKey] = useState<string | null>(null);
 
-  // Estados do Gerenciador de Planos e Link Oficial Cakto
+  // Planos e Vídeos das Aulas
   const [plans, setPlans] = useState<PlanItem[]>([]);
+  const [lessonVideos, setLessonVideos] = useState<Record<string, string>>({});
   const [savingPlans, setSavingPlans] = useState(false);
   const [plansSavedMsg, setPlansSavedMsg] = useState('');
+  const [savingVideos, setSavingVideos] = useState(false);
+  const [videosSavedMsg, setVideosSavedMsg] = useState('');
 
   useEffect(() => {
     load();
@@ -81,7 +97,10 @@ export default function AdminAffiliates() {
       .then((r) => r.json())
       .then((d) => {
         if (typeof d.isOpen === 'boolean') setProgramOpen(d.isOpen);
+        if (typeof d.communityOpen === 'boolean') setCommunityOpen(d.communityOpen);
+        if (typeof d.salesPopupOpen === 'boolean') setSalesPopupOpen(d.salesPopupOpen);
         if (Array.isArray(d.plans) && d.plans.length > 0) setPlans(d.plans);
+        if (d.lessonVideos && typeof d.lessonVideos === 'object') setLessonVideos(d.lessonVideos);
       })
       .catch(() => {});
   }, []);
@@ -108,20 +127,43 @@ export default function AdminAffiliates() {
     }
   }
 
-  async function handleToggleProgram() {
-    setTogglingProgram(true);
-    const nextState = !programOpen;
+  async function saveGlobalConfig(overrides: {
+    isOpen?: boolean;
+    communityOpen?: boolean;
+    salesPopupOpen?: boolean;
+    plans?: PlanItem[];
+    lessonVideos?: Record<string, string>;
+  }) {
+    const payload = {
+      isOpen: overrides.isOpen ?? programOpen,
+      communityOpen: overrides.communityOpen ?? communityOpen,
+      salesPopupOpen: overrides.salesPopupOpen ?? salesPopupOpen,
+      plans: overrides.plans ?? plans,
+      lessonVideos: overrides.lessonVideos ?? lessonVideos,
+    };
+    const res = await fetch('/api/affiliate/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  }
+
+  async function handleToggleSwitch(type: 'affiliates' | 'community' | 'salesPopup') {
+    setTogglingKey(type);
     try {
-      const res = await fetch('/api/affiliate/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isOpen: nextState, plans }),
-      });
-      if (res.ok) {
-        setProgramOpen(nextState);
+      if (type === 'affiliates') {
+        const next = !programOpen;
+        if (await saveGlobalConfig({ isOpen: next })) setProgramOpen(next);
+      } else if (type === 'community') {
+        const next = !communityOpen;
+        if (await saveGlobalConfig({ communityOpen: next })) setCommunityOpen(next);
+      } else if (type === 'salesPopup') {
+        const next = !salesPopupOpen;
+        if (await saveGlobalConfig({ salesPopupOpen: next })) setSalesPopupOpen(next);
       }
     } finally {
-      setTogglingProgram(false);
+      setTogglingKey(null);
     }
   }
 
@@ -162,21 +204,29 @@ export default function AdminAffiliates() {
     setSavingPlans(true);
     setPlansSavedMsg('');
     try {
-      const res = await fetch('/api/affiliate/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isOpen: programOpen, plans }),
-      });
-      if (res.ok) {
-        setPlansSavedMsg('✅ Planos e links da Cakto salvos e atualizados no site!');
+      if (await saveGlobalConfig({ plans })) {
+        setPlansSavedMsg('✅ Planos e links da Cakto salvos no site!');
         setTimeout(() => setPlansSavedMsg(''), 4000);
       } else {
         setPlansSavedMsg('❌ Erro ao salvar alterações.');
       }
-    } catch (_) {
-      setPlansSavedMsg('❌ Erro de conexão ao salvar.');
     } finally {
       setSavingPlans(false);
+    }
+  }
+
+  async function handleSaveVideos() {
+    setSavingVideos(true);
+    setVideosSavedMsg('');
+    try {
+      if (await saveGlobalConfig({ lessonVideos })) {
+        setVideosSavedMsg('✅ Links de vídeo das aulas atualizados com sucesso!');
+        setTimeout(() => setVideosSavedMsg(''), 4000);
+      } else {
+        setVideosSavedMsg('❌ Erro ao salvar vídeos.');
+      }
+    } finally {
+      setSavingVideos(false);
     }
   }
 
@@ -238,46 +288,141 @@ export default function AdminAffiliates() {
         <span>🛡️</span> Painel do Administrador
       </h1>
       <p className="text-stone-500 dark:text-stone-300 mb-6">
-        Gerencie seus planos, links oficiais da Cakto, assinantes e aprovação de afiliados.
+        Controle geral da plataforma: módulos visíveis, vídeos das aulas, planos da Cakto e aprovação de afiliados.
       </p>
 
-      {/* ALAVANCA GLOBAL DE AFILIADOS */}
-      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className={`w-3 h-3 rounded-full ${programOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-            <h2 className="font-bold text-stone-800 dark:text-stone-100 text-lg">
-              Inscrições e Menu de Afiliados: {programOpen ? 'ABERTO (Visível)' : 'FECHADO (Oculto)'}
-            </h2>
+      {/* CENTRAL DE ALAVANCAS GLOBAIS (AFILIADOS, COMUNIDADE E POP-UP DE VENDAS) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {/* Alavanca 1: Afiliados */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-5 flex flex-col justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`w-2.5 h-2.5 rounded-full ${programOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-sm">
+                Vagas de Afiliados: {programOpen ? 'ABERTO' : 'FECHADO'}
+              </h2>
+            </div>
+            <p className="text-xs text-stone-500 dark:text-stone-400">
+              Exibe ou oculta o menu &ldquo;Afiliados&rdquo; e controla a entrada de novos parceiros.
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 max-w-xl">
-            {programOpen
-              ? 'O botão "Afiliados" está visível no menu do topo para todos os usuários logados e novos cadastros estão liberados.'
-              : 'O botão "Afiliados" está oculto para novos usuários e novas inscrições estão bloqueadas. (Afiliados antigos continuam acessando normalmente).'}
+          <button
+            type="button"
+            onClick={() => handleToggleSwitch('affiliates')}
+            disabled={togglingKey === 'affiliates'}
+            className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+              programOpen ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-800 dark:bg-rose-700 text-white'
+            }`}
+          >
+            {togglingKey === 'affiliates' ? 'Salvando...' : programOpen ? '🟢 Fechar Vagas' : '🔴 Reabrir Vagas'}
+          </button>
+        </div>
+
+        {/* Alavanca 2: Comunidade Anônima */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-5 flex flex-col justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`w-2.5 h-2.5 rounded-full ${communityOpen ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-sm">
+                Mural da Comunidade: {communityOpen ? 'ATIVO' : 'OCULTO'}
+              </h2>
+            </div>
+            <p className="text-xs text-stone-500 dark:text-stone-400">
+              Ative quando tiver volume de usuários para liberar a aba &ldquo;Comunidade&rdquo; no topo do site.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleToggleSwitch('community')}
+            disabled={togglingKey === 'community'}
+            className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+              communityOpen ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-700 hover:bg-stone-600 text-white'
+            }`}
+          >
+            {togglingKey === 'community' ? 'Salvando...' : communityOpen ? '🟢 Desativar Comunidade' : '⚪ Ativar Comunidade'}
+          </button>
+        </div>
+
+        {/* Alavanca 3: Pop-up de Notificações de Compra (150+ nomes) */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-5 flex flex-col justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`w-2.5 h-2.5 rounded-full ${salesPopupOpen ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-sm">
+                Notificações de Compra: {salesPopupOpen ? 'ATIVO' : 'DESATIVADO'}
+              </h2>
+            </div>
+            <p className="text-xs text-stone-500 dark:text-stone-400">
+              Exibe pop-ups de prova social (160 nomes aleatórios comprando VIP) apenas para usuários no modo Free.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleToggleSwitch('salesPopup')}
+            disabled={togglingKey === 'salesPopup'}
+            className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+              salesPopupOpen ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-700 hover:bg-stone-600 text-white'
+            }`}
+          >
+            {togglingKey === 'salesPopup' ? 'Salvando...' : salesPopupOpen ? '🟢 Ocultar Pop-ups' : '⚪ Ativar Pop-ups'}
+          </button>
+        </div>
+      </div>
+
+      {/* GERENCIADOR DE VÍDEOS DAS AULAS (/TRILHAS) DIRETO PELO PAINEL ADMIN */}
+      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-10">
+        <div className="pb-4 mb-5 border-b border-stone-100 dark:border-white/10">
+          <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
+            <span>🎬</span> Vídeos das Aulas (Academia & Trilhas)
+          </h2>
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Quando criar seus vídeos, cole aqui o link direto <code className="font-mono">.mp4</code> (ex: Cloudflare R2 / Supabase Storage — abre no player próprio bloqueado contra download e sem anúncios) ou link de embed do Vimeo. Se deixar em branco, a aula mostra o banner elegante + E-book.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleToggleProgram}
-          disabled={togglingProgram}
-          className={`relative inline-flex h-10 w-44 shrink-0 cursor-pointer items-center justify-center rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 ${
-            programOpen
-              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              : 'bg-stone-800 hover:bg-stone-700 dark:bg-rose-700 dark:hover:bg-rose-600 text-white'
-          }`}
-        >
-          {togglingProgram ? (
-            <Spinner className="w-4 h-4" />
-          ) : programOpen ? (
-            '🟢 Fechar Vagas'
-          ) : (
-            '🔴 Reabrir Vagas'
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {ADMIN_LESSONS_LIST.map((item) => (
+            <div
+              key={item.id}
+              className="p-3.5 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/80 dark:border-white/10"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 block">
+                {item.track}
+              </span>
+              <label className="block text-xs font-semibold text-stone-800 dark:text-stone-100 mb-2">
+                {item.title}
+              </label>
+              <input
+                type="url"
+                placeholder="https://.../aula01.mp4 ou https://player.vimeo.com/video/..."
+                value={lessonVideos[item.id] || ''}
+                onChange={(e) =>
+                  setLessonVideos((prev) => ({ ...prev, [item.id]: e.target.value }))
+                }
+                className="w-full rounded-lg px-3 py-2 bg-white dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 text-xs font-mono text-stone-800 dark:text-stone-100"
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={handleSaveVideos}
+            disabled={savingVideos}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-rose-700 dark:hover:bg-rose-600 text-white font-bold text-xs sm:text-sm shadow transition-all disabled:opacity-50"
+          >
+            {savingVideos ? 'Salvando...' : '💾 Salvar Links dos Vídeos'}
+          </button>
+          {videosSavedMsg && (
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              {videosSavedMsg}
+            </span>
           )}
-        </button>
+        </div>
       </div>
 
-      {/* NOVO: GERENCIADOR DE PLANOS, PREÇOS, BENEFÍCIOS E LINK OFICIAL DA CAKTO */}
+      {/* GERENCIADOR DE PLANOS, PREÇOS E LINK OFICIAL DA CAKTO */}
       <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-stone-100 dark:border-white/10">
           <div>
@@ -285,7 +430,7 @@ export default function AdminAffiliates() {
               <span>💳</span> Planos, Preços e Seu Link Oficial da Cakto (Vendas Diretas)
             </h2>
             <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-              Configure o link da Cakto para clientes que entram sem indicação de afiliado, edite o valor, benefícios ou adicione novos planos na página <code className="font-mono">/planos</code>.
+              Configure o link da Cakto para clientes sem indicação, edite o valor, benefícios ou adicione novos planos.
             </p>
           </div>
           <button
@@ -327,7 +472,6 @@ export default function AdminAffiliates() {
                     type="text"
                     value={plan.name}
                     onChange={(e) => handlePlanFieldChange(idx, 'name', e.target.value)}
-                    placeholder="Ex: Premium"
                     className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
@@ -340,7 +484,6 @@ export default function AdminAffiliates() {
                     type="text"
                     value={plan.badge}
                     onChange={(e) => handlePlanFieldChange(idx, 'badge', e.target.value)}
-                    placeholder="Ex: MAIS POPULAR"
                     className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
@@ -353,7 +496,6 @@ export default function AdminAffiliates() {
                     type="text"
                     value={plan.price}
                     onChange={(e) => handlePlanFieldChange(idx, 'price', e.target.value)}
-                    placeholder="Ex: R$ 69,90"
                     className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100 font-bold"
                   />
                 </div>
@@ -366,7 +508,6 @@ export default function AdminAffiliates() {
                     type="text"
                     value={plan.period}
                     onChange={(e) => handlePlanFieldChange(idx, 'period', e.target.value)}
-                    placeholder="Ex: /mês"
                     className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
@@ -381,7 +522,6 @@ export default function AdminAffiliates() {
                     type="url"
                     value={plan.checkoutUrl}
                     onChange={(e) => handlePlanFieldChange(idx, 'checkoutUrl', e.target.value)}
-                    placeholder="https://pay.cakto.com.br/seu-link"
                     className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100 font-mono text-xs"
                   />
                 </div>
@@ -394,7 +534,6 @@ export default function AdminAffiliates() {
                     type="text"
                     value={plan.buttonText}
                     onChange={(e) => handlePlanFieldChange(idx, 'buttonText', e.target.value)}
-                    placeholder="Desbloquear Acesso Premium Ilimitado"
                     className="w-full rounded-xl px-3 py-2 bg-white dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
@@ -402,7 +541,7 @@ export default function AdminAffiliates() {
 
               <div className="text-xs sm:text-sm">
                 <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                  Lista de Benefícios (Digite 1 benefício por linha)
+                  Lista de Benefícios (1 por linha)
                 </label>
                 <textarea
                   rows={5}

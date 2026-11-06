@@ -10,7 +10,6 @@ interface Lesson {
   title: string;
   duration: string;
   isFree: boolean;
-  // Cole aqui o link de embed do Vimeo (ex: "https://player.vimeo.com/video/SEU_ID") ou link direto ".mp4"
   videoUrl: string;
   summary: string;
   ebookChapters: {
@@ -29,7 +28,6 @@ interface Track {
   lessons: Lesson[];
 }
 
-// ACERVO COMPLETO DE TRILHAS (VÍDEOS + E-BOOKS INTERATIVOS NA TELA)
 const TRACKS: Track[] = [
   {
     id: "contato_zero",
@@ -44,7 +42,7 @@ const TRACKS: Track[] = [
         title: "A Neurociência da Ausência: Por que implorar destrói a atração",
         duration: "Aula 01 • Gratuita",
         isFree: true,
-        videoUrl: "", // Basta colar a URL do Vimeo ou .mp4 aqui quando o vídeo estiver pronto
+        videoUrl: "",
         summary:
           "Entenda o que acontece no cérebro da outra pessoa quando você some sem dar explicações e por que o silêncio é a resposta mais barulhenta que existe.",
         ebookChapters: [
@@ -232,6 +230,7 @@ export default function TrilhasPage() {
   const [selectedLessonId, setSelectedLessonId] = useState<string>("cz_1");
   const [isPremium, setIsPremium] = useState<boolean>(false);
   const [showVipModal, setShowVipModal] = useState<boolean>(false);
+  const [customVideos, setCustomVideos] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -253,11 +252,24 @@ export default function TrilhasPage() {
         if (d.isPremium) setIsPremium(true);
       })
       .catch(() => {});
+
+    // Busca os links de vídeo que você configurou lá no Painel Admin
+    fetch("/api/affiliate/config")
+      .then((r) => r.json())
+      .then((cfg) => {
+        if (cfg?.lessonVideos && typeof cfg.lessonVideos === "object") {
+          setCustomVideos(cfg.lessonVideos);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const currentTrack = TRACKS.find((t) => t.id === selectedTrackId) || TRACKS[0];
   const currentLesson =
     currentTrack.lessons.find((l) => l.id === selectedLessonId) || currentTrack.lessons[0];
+
+  // Prioriza o link salvo no Painel Admin; se não tiver, usa o padrão
+  const activeVideoUrl = (customVideos[currentLesson.id] || currentLesson.videoUrl || "").trim();
 
   const handleSelectTrack = (track: Track) => {
     setSelectedTrackId(track.id);
@@ -277,7 +289,6 @@ export default function TrilhasPage() {
       <Navbar />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Cabeçalho da Academia */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-stone-200 dark:border-white/10">
           <div>
             <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-2">
@@ -299,7 +310,6 @@ export default function TrilhasPage() {
           </Link>
         </div>
 
-        {/* Seletor das 3 Trilhas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {TRACKS.map((track) => {
             const isSelected = track.id === currentTrack.id;
@@ -347,9 +357,7 @@ export default function TrilhasPage() {
           })}
         </div>
 
-        {/* Área Principal: Lista de Aulas à esquerda + Player e E-book à direita */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Coluna Esquerda: Menu de Aulas da Trilha */}
           <div className="lg:col-span-4 bg-white dark:bg-[#1c1016] rounded-3xl border border-stone-200/80 dark:border-rose-400/15 p-5 shadow-sm">
             <h3 className="font-serif font-bold text-base text-stone-900 dark:text-white mb-1">
               Módulos da Trilha
@@ -404,14 +412,13 @@ export default function TrilhasPage() {
             </div>
           </div>
 
-          {/* Coluna Direita: Player de Vídeo Protegido + Guia em Formato E-book */}
           <div className="lg:col-span-8 bg-white dark:bg-[#1c1016] rounded-3xl border border-stone-200/80 dark:border-rose-400/15 overflow-hidden shadow-sm">
-            {/* PLAYER DE VÍDEO (Vimeo ou MP4 nativo sem download) */}
+            {/* PLAYER DE VÍDEO PROTEGIDO (Lê link .mp4 direto sem download ou Vimeo configurado no Admin) */}
             <div className="w-full aspect-video bg-gradient-to-br from-[#260710] via-[#18050b] to-[#0f0307] relative flex items-center justify-center border-b border-stone-200 dark:border-white/10">
-              {currentLesson.videoUrl ? (
-                currentLesson.videoUrl.endsWith(".mp4") ? (
+              {activeVideoUrl ? (
+                activeVideoUrl.includes(".mp4") || activeVideoUrl.includes(".webm") ? (
                   <video
-                    src={currentLesson.videoUrl}
+                    src={activeVideoUrl}
                     controls
                     controlsList="nodownload"
                     onContextMenu={(e) => e.preventDefault()}
@@ -419,7 +426,7 @@ export default function TrilhasPage() {
                   />
                 ) : (
                   <iframe
-                    src={currentLesson.videoUrl}
+                    src={activeVideoUrl}
                     className="w-full h-full"
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
@@ -427,13 +434,12 @@ export default function TrilhasPage() {
                   />
                 )
               ) : (
-                /* Tela elegante enquanto você ainda não colou o link do vídeo */
                 <div className="text-center px-6 max-w-lg">
                   <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
                     {currentTrack.icon}
                   </div>
                   <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-rose-500/20 text-rose-200 border border-rose-400/30 mb-2">
-                    Módulo {currentLesson.number} • Guia Interativo & Vídeo
+                    Módulo {currentLesson.number} • Guia Interativo
                   </span>
                   <h3 className="text-lg sm:text-2xl font-serif font-bold text-white leading-snug">
                     {currentLesson.title}
@@ -445,7 +451,6 @@ export default function TrilhasPage() {
               )}
             </div>
 
-            {/* CONTEÚDO DO E-BOOK INTERATIVO DA AULA */}
             <div className="p-6 sm:p-8 space-y-6">
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -486,7 +491,6 @@ export default function TrilhasPage() {
                 ))}
               </div>
 
-              {/* Botão no final da aula para aplicar no caso real do usuário com a IA */}
               <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-rose-950 to-[#2b0712] text-white flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <p className="font-serif font-bold text-base sm:text-lg text-amber-300">
@@ -508,7 +512,6 @@ export default function TrilhasPage() {
         </div>
       </div>
 
-      {/* MODAL QUANDO O USUÁRIO GRATUITO CLICA EM UMA AULA EXCLUSIVA VIP */}
       {showVipModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#1c1016] border border-rose-200 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">

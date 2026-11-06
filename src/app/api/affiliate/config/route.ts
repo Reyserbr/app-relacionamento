@@ -21,6 +21,13 @@ interface PlanItem {
   buttonText: string;
 }
 
+interface SystemSettings {
+  plans: PlanItem[];
+  communityOpen: boolean;
+  salesPopupOpen: boolean;
+  lessonVideos: Record<string, string>;
+}
+
 const DEFAULT_PLANS: PlanItem[] = [
   {
     id: 'default',
@@ -41,26 +48,56 @@ const DEFAULT_PLANS: PlanItem[] = [
   },
 ];
 
-function parsePlansFromRow(rawLink?: string | null): PlanItem[] {
-  if (!rawLink || rawLink === 'SYSTEM_CONFIG') return DEFAULT_PLANS;
+function parseConfigFromRow(rawLink?: string | null): SystemSettings {
+  const defaults: SystemSettings = {
+    plans: DEFAULT_PLANS,
+    communityOpen: false, // Começa desativado até você ligar no Admin
+    salesPopupOpen: true, // Notificações de vendas ativas para Free
+    lessonVideos: {},
+  };
+
+  if (!rawLink || rawLink === 'SYSTEM_CONFIG') return defaults;
+
   try {
     const parsed = JSON.parse(rawLink);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+    // Compatibilidade caso antes estivesse salvo apenas o array de planos
+    if (Array.isArray(parsed)) {
+      return { ...defaults, plans: parsed.length > 0 ? parsed : DEFAULT_PLANS };
+    }
+    if (parsed && typeof parsed === 'object') {
+      return {
+        plans: Array.isArray(parsed.plans) && parsed.plans.length > 0 ? parsed.plans : DEFAULT_PLANS,
+        communityOpen: typeof parsed.communityOpen === 'boolean' ? parsed.communityOpen : false,
+        salesPopupOpen: typeof parsed.salesPopupOpen === 'boolean' ? parsed.salesPopupOpen : true,
+        lessonVideos: parsed.lessonVideos && typeof parsed.lessonVideos === 'object' ? parsed.lessonVideos : {},
+      };
     }
   } catch (_) {}
-  return DEFAULT_PLANS;
+
+  return defaults;
 }
 
 export async function GET() {
   try {
     const configRow = await findAffiliateByClerkId(CONFIG_KEY);
     const isOpen = configRow ? Boolean(configRow.is_active) : true;
-    const plans = parsePlansFromRow(configRow?.cakto_affiliate_link);
+    const settings = parseConfigFromRow(configRow?.cakto_affiliate_link);
 
-    return NextResponse.json({ isOpen, plans });
+    return NextResponse.json({
+      isOpen,
+      plans: settings.plans,
+      communityOpen: settings.communityOpen,
+      salesPopupOpen: settings.salesPopupOpen,
+      lessonVideos: settings.lessonVideos,
+    });
   } catch (e) {
-    return NextResponse.json({ isOpen: true, plans: DEFAULT_PLANS });
+    return NextResponse.json({
+      isOpen: true,
+      plans: DEFAULT_PLANS,
+      communityOpen: false,
+      salesPopupOpen: true,
+      lessonVideos: {},
+    });
   }
 }
 
@@ -73,6 +110,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const existing = await findAffiliateByClerkId(CONFIG_KEY);
+    const currentSettings = parseConfigFromRow(existing?.cakto_affiliate_link);
 
     const nextIsOpen =
       typeof body.isOpen === 'boolean'
@@ -81,26 +119,40 @@ export async function POST(req: NextRequest) {
         ? Boolean(existing.is_active)
         : true;
 
-    const currentPlans = parsePlansFromRow(existing?.cakto_affiliate_link);
-    const nextPlans: PlanItem[] = Array.isArray(body.plans) ? body.plans : currentPlans;
-    const serializedPlans = JSON.stringify(nextPlans);
+    const nextSettings: SystemSettings = {
+      plans: Array.isArray(body.plans) && body.plans.length > 0 ? body.plans : currentSettings.plans,
+      communityOpen:
+        typeof body.communityOpen === 'boolean' ? body.communityOpen : currentSettings.communityOpen,
+      salesPopupOpen:
+        typeof body.salesPopupOpen === 'boolean' ? body.salesPopupOpen : currentSettings.salesPopupOpen,
+      lessonVideos:
+        body.lessonVideos && typeof body.lessonVideos === 'object'
+          ? body.lessonVideos
+          : currentSettings.lessonVideos,
+    };
+
+    const serialized = JSON.stringify(nextSettings);
 
     if (existing?.id) {
       await updateAffiliate(existing.id, {
         is_active: nextIsOpen,
-        cakto_affiliate_link: serializedPlans,
+        cakto_affiliate_link: serialized,
       });
     } else {
       await createAffiliate({
         clerk_user_id: CONFIG_KEY,
         email: 'config@sistema.interno',
-        cakto_affiliate_link: serializedPlans,
+        cakto_affiliate_link: serialized,
         is_active: nextIsOpen,
         total_referrals: 0,
       });
     }
 
-    return NextResponse.json({ ok: true, isOpen: nextIsOpen, plans: nextPlans });
+    return NextResponse.json({
+      ok: true,
+      isOpen: nextIsOpen,
+      ...nextSettings,
+    });
   } catch (e: any) {
     return NextResponse.json(
       { error: e?.message || 'Erro ao salvar configuração' },
