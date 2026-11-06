@@ -545,7 +545,7 @@ export default function ReconquistaChat() {
                 Módulo de Reconquista e Alto Valor
               </h2>
               <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm sm:text-base leading-relaxed">
-                Preencha a ficha de diagnóstico para uma análise cirúrgica, grave um áudio desabafando ou cole o print da conversa (Ctrl+V).
+                Preencha a ficha de diagnóstico para uma análise cirúrgica, grave um áudio desabafando ou cole o print da conversa.
               </p>
               <button
                 onClick={() => setShowQuestionnaire(true)}
@@ -712,7 +712,7 @@ export default function ReconquistaChat() {
                     }
                   }}
                   rows={Math.min(5, Math.max(1, input.split("\n").length))}
-                  placeholder="Conte o caso, grave um áudio ou cole o print aqui (Ctrl+V)..."
+                  placeholder="Pergunte ao Reconquiste"
                   className="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 rounded-3xl pl-4 pr-12 py-3 sm:py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-200 text-sm sm:text-base resize-none max-h-40 overflow-y-auto"
                 />
 
@@ -859,7 +859,7 @@ export default function ReconquistaChat() {
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1">10. Último registro de conversa que tiveram (ou cole o print com Ctrl+V):</label>
+                <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1">10. Último registro de conversa que tiveram ou cole o print:</label>
                 <textarea
                   rows={2}
                   onPaste={handlePaste}

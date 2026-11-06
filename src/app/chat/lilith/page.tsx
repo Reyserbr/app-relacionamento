@@ -66,7 +66,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       {
         id: "f3",
         label: "3. O que chama atenção no perfil, bio ou último Story dessa pessoa?",
-        placeholder: "Ex: Postou foto na academia, viagem, música, pet, bebida (ou cole o print com Ctrl+V)...",
+        placeholder: "Ex: Postou foto na academia, viagem, música, pet, bebida (ou cole o print)...",
       },
       {
         id: "f4",
@@ -102,7 +102,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f4",
-        label: "4. Cole aqui as mensagens suspeitas (ou aperte Ctrl+V para colar o print):",
+        label: "4. Cole aqui as mensagens suspeitas ou colar o print:",
         placeholder: "Cole o trecho da conversa para leitura fria...",
         multiline: true,
       },
@@ -157,7 +157,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f2",
-        label: "2. O que exatamente a pessoa acabou de te mandar? (Texto ou Ctrl+V no print)",
+        label: "2. O que exatamente a pessoa acabou de te mandar? (Texto ou Cole a print)",
         placeholder: "Cole a mensagem exata que você recebeu...",
         multiline: true,
       },
@@ -195,7 +195,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f3",
-        label: "3. Cole o histórico da conversa abaixo (ou aperte Ctrl+V para colar o print):",
+        label: "3. Cole o histórico da conversa abaixo ou cole a print:",
         placeholder: "Cole as mensagens aqui...",
         multiline: true,
       },
@@ -776,7 +776,7 @@ export default function LilithChat() {
                 🔮
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
-                Me mostre a verdade.
+                Por onde quer começar?
               </h2>
               <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm sm:text-base leading-relaxed">
                 Selecione abaixo qual situação vamos analisar, grave um áudio ou aperte <strong>Ctrl+V para colar o print</strong> da conversa.
@@ -956,7 +956,7 @@ export default function LilithChat() {
                     }
                   }}
                   rows={Math.min(5, Math.max(1, input.split("\n").length))}
-                  placeholder="Conte o caso, grave um áudio ou cole o print (Ctrl+V)..."
+                  placeholder="Pergunte a Lilith"
                   className="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 dark:placeholder-stone-500 rounded-3xl pl-4 pr-12 py-3 sm:py-3.5 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-500/40 focus:border-rose-400 transition-all shadow-inner text-sm sm:text-base resize-none max-h-40 overflow-y-auto"
                 />
 

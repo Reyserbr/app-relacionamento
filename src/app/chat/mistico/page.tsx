@@ -405,6 +405,7 @@ export default function MisticoChat() {
     const resumo = `✨ MAPA ASTRAL & SINASTRIA DO CASAL:\n${partes.join("\n")}\n\nFaça a leitura profunda da nossa compatibilidade, revele o mapa da mente dessa pessoa e abra as cartas para o nosso momento.`;
     await sendRawMessage(resumo, attachment);
   };
+  
 
   return (
     <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
@@ -693,7 +694,7 @@ export default function MisticoChat() {
                     }
                   }}
                   rows={Math.min(5, Math.max(1, input.split("\n").length))}
-                  placeholder="Digite os signos, grave um áudio ou cole um print (Ctrl+V)..."
+                  placeholder="Pergunte ao Oráculo"
                   className="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 rounded-3xl pl-4 pr-12 py-3 sm:py-3.5 focus:outline-none focus:ring-2 focus:ring-purple-200 text-sm sm:text-base resize-none max-h-40 overflow-y-auto"
                 />
 
