@@ -542,7 +542,7 @@ export default function ReconquistaChat() {
                 ❤️‍🩹
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
-                Módulo de Reconquista e Alto Valor
+                Módulo de Reconquista
               </h2>
               <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm sm:text-base leading-relaxed">
                 Preencha a ficha de diagnóstico para uma análise cirúrgica, grave um áudio desabafando ou cole o print da conversa.
