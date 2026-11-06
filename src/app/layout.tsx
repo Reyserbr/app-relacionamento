@@ -38,6 +38,9 @@ export default function RootLayout({
       >
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+          <link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#140a0f" />
+<link rel="apple-touch-icon" href="/logo.png" />
         </head>
         <body className="font-sans antialiased">
           {/* Captura o ?ref= (indicação de afiliado) em qualquer página e salva por 30 dias */}

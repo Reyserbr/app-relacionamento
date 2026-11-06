@@ -1,0 +1,24 @@
+{
+  "name": "LilithLove • Inteligência Emocional & Reconquista",
+  "short_name": "LilithLove",
+  "description": "Sua conselheira amorosa, análise de conversas e estratégias de reconquista guiadas por IA.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#140a0f",
+  "theme_color": "#140a0f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

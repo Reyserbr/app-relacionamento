@@ -1,5 +1,5 @@
 "use client";
-
+import InstallPwaButton from "@/components/InstallPwaButton";
 import { useEffect, useState } from "react";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
@@ -115,7 +115,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            <ThemeToggle />
+            <ThemeToggle /> <InstallPwaButton/>
 
             {/* Divisor e Botão de Login/Perfil do Clerk */}
             <div className="pl-2.5 sm:pl-4 border-l border-stone-200 dark:border-white/10 flex items-center">
