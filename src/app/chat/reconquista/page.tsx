@@ -40,7 +40,7 @@ export default function ReconquistaChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -413,7 +413,7 @@ export default function ReconquistaChat() {
   };
 
   return (
-    <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
+    <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#1a0b12] font-sans overflow-hidden transition-colors">
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-30 lg:hidden"
@@ -421,13 +421,13 @@ export default function ReconquistaChat() {
         />
       )}
 
-      {/* SIDEBAR ESTILO GEMINI / GPT */}
+      {/* SIDEBAR RETRÁTIL */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#1a0d13] border-r border-stone-200/80 dark:border-rose-400/15 flex flex-col transition-all duration-200 ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#14080e] border-r border-stone-200/80 dark:border-rose-300/10 flex flex-col transition-all duration-200 ${
           isSidebarOpen ? "translate-x-0 w-[82%] max-w-[300px]" : "-translate-x-full lg:translate-x-0"
         } ${isDesktopCollapsed ? "lg:w-[68px]" : "lg:w-72"}`}
       >
-        <div className="h-14 px-3.5 border-b border-stone-100 dark:border-rose-400/10 flex items-center justify-between shrink-0">
+        <div className="h-14 px-3.5 border-b border-stone-100 dark:border-rose-300/10 flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -446,7 +446,7 @@ export default function ReconquistaChat() {
           </button>
 
           <span className={`font-serif font-bold text-stone-800 dark:text-stone-100 text-base truncate ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
-            Reconquista
+            Reconquiste
           </span>
 
           <button
@@ -458,11 +458,11 @@ export default function ReconquistaChat() {
           </button>
         </div>
 
-        <div className="p-2.5 space-y-1 shrink-0">
+        <div className="p-2.5 space-y-1.5 shrink-0">
           <button
             type="button"
             onClick={() => createNewSession()}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-rose-900 dark:bg-rose-600 hover:bg-rose-800 text-white font-semibold text-xs transition-all shadow-sm ${
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-[#381826] hover:bg-[#4a2033] text-rose-100 border border-rose-300/20 font-semibold text-xs transition-all shadow-sm ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
             title="Novo Caso de Reconquista"
@@ -491,10 +491,10 @@ export default function ReconquistaChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Chat Principal da Lilith"
+            title="Consultoria da Lilith"
           >
-            <span className="text-base leading-none">💬</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Chat da Lilith</span>
+            <span className="text-base leading-none">🔮</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Consultoria da Lilith</span>
           </Link>
 
           <Link
@@ -504,8 +504,8 @@ export default function ReconquistaChat() {
             }`}
             title="Oráculo & Astrologia"
           >
-            <span className="text-base leading-none">🔮</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Astrologia & Oráculo</span>
+            <span className="text-base leading-none">✨</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Oráculo Astral</span>
           </Link>
 
           <Link
@@ -530,7 +530,7 @@ export default function ReconquistaChat() {
               onClick={() => selectSession(s)}
               className={`group flex items-center justify-between px-3 py-2.5 rounded-2xl cursor-pointer transition-all text-left border ${
                 s.id === activeSessionId
-                  ? "bg-rose-50/90 dark:bg-rose-500/15 border-rose-200 dark:border-rose-400/30 text-rose-950 dark:text-rose-200 font-medium"
+                  ? "bg-rose-50/90 dark:bg-[#2a131e] border-rose-200 dark:border-rose-400/30 text-rose-950 dark:text-rose-200 font-medium"
                   : "border-transparent hover:bg-stone-100 dark:hover:bg-white/5 text-stone-700 dark:text-stone-300"
               }`}
             >
@@ -551,37 +551,37 @@ export default function ReconquistaChat() {
           ))}
         </div>
 
-        <div className={`p-3 border-t border-stone-100 dark:border-rose-400/10 flex items-center justify-between text-xs text-stone-500 ${isDesktopCollapsed ? "lg:justify-center" : ""}`}>
+        <div className={`p-3 border-t border-stone-100 dark:border-rose-300/10 flex items-center justify-between text-xs text-stone-500 ${isDesktopCollapsed ? "lg:justify-center" : ""}`}>
           <UserButton afterSignOutUrl="/" />
           <span className={`text-[11px] truncate ml-2 ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
-            Sincronizado na nuvem
+            Sincronizado na conta
           </span>
         </div>
       </aside>
 
       {/* ÁREA PRINCIPAL */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
-        <header className="relative z-20 h-14 flex items-center justify-between gap-2 px-3 sm:px-5 bg-white/95 dark:bg-[#140a0f]/95 backdrop-blur-md border-b border-stone-200/60 dark:border-white/10 shrink-0">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0 bg-[#faf7f5] dark:bg-gradient-to-b dark:from-[#1f0d16] dark:via-[#1a0b12] dark:to-[#14080e]">
+        <header className="relative z-20 h-14 flex items-center justify-between gap-2 px-3 sm:px-5 bg-white/90 dark:bg-[#1a0b12]/90 backdrop-blur-md border-b border-stone-200/60 dark:border-rose-300/10 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 flex items-center justify-center text-stone-700 dark:text-stone-200 shrink-0"
+              className="lg:hidden w-9 h-9 rounded-full bg-stone-100 dark:bg-[#28121d] hover:bg-stone-200 text-stone-700 dark:text-stone-200 flex items-center justify-center shrink-0"
               title="Abrir Menu e Histórico"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
               </svg>
             </button>
 
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl hover:bg-stone-100 dark:hover:bg-white/5 transition-colors min-w-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
             >
               <span className="text-base">❤️‍🩹</span>
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
-                Reconquista
+                Reconquiste
               </span>
               <span className="text-xs text-stone-400">▾</span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
@@ -592,7 +592,7 @@ export default function ReconquistaChat() {
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-rose-100 text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm"
+              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 hover:bg-rose-100 dark:hover:bg-[#381826] text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm transition-colors"
               title="Ficha de Diagnóstico"
             >
               📋
@@ -602,10 +602,10 @@ export default function ReconquistaChat() {
               onClick={() => {
                 if (!isPremium) setShowPaywallModal(true);
               }}
-              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-full border transition-colors ${
+              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                 isPremium
                   ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
-                  : "bg-rose-50 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border-rose-200 dark:border-rose-400/30"
+                  : "bg-rose-50 dark:bg-[#28121d] text-rose-900 dark:text-rose-200 border-rose-200 dark:border-rose-300/20"
               }`}
             >
               <span>{isPremium ? "👑" : "✨"}</span>
@@ -624,21 +624,21 @@ export default function ReconquistaChat() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-3 space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-rose-500/20 dark:to-rose-900/10 border border-rose-200 dark:border-rose-400/20 rounded-full flex items-center justify-center text-3xl shadow-sm">
+              <div className="w-16 h-16 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-[#381826] dark:to-[#240e18] border border-rose-200 dark:border-rose-300/20 rounded-full flex items-center justify-center text-3xl shadow-md">
                 ❤️‍🩹
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
                 Módulo de Reconquista
               </h2>
-              <p className="text-stone-500 dark:text-stone-400 max-w-md text-xs sm:text-sm leading-relaxed">
+              <p className="text-stone-500 dark:text-stone-300/80 max-w-md text-xs sm:text-sm leading-relaxed">
                 Preencha a ficha de diagnóstico para uma análise cirúrgica, grave um áudio desabafando ou cole o print da conversa.
               </p>
               <button
                 onClick={() => setShowQuestionnaire(true)}
-                className="px-5 py-2.5 rounded-full bg-rose-900 dark:bg-rose-600 text-white text-xs sm:text-sm font-semibold shadow hover:bg-rose-800 transition-colors"
+                className="px-5 py-2.5 rounded-full bg-white dark:bg-[#28121d] hover:bg-rose-50 dark:hover:bg-[#381826] border border-stone-200 dark:border-rose-300/25 text-stone-800 dark:text-stone-100 text-xs sm:text-sm font-semibold shadow-sm transition-colors"
               >
                 📋 Abrir Questionário de Diagnóstico
               </button>
@@ -649,13 +649,13 @@ export default function ReconquistaChat() {
                 <div
                   className={`max-w-[90%] sm:max-w-[82%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-sm whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] ${
                     m.role === "user"
-                      ? "bg-gradient-to-br from-rose-900 to-rose-800 text-rose-50 rounded-tr-sm shadow-md"
-                      : "bg-white dark:bg-white/5 text-stone-800 dark:text-stone-200 border border-rose-100/80 dark:border-rose-400/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-tl-sm shadow-md"
+                      ? "bg-gradient-to-br from-[#6b1630] to-[#4a0f21] text-rose-50 rounded-tr-sm shadow-md border border-rose-400/20"
+                      : "bg-white dark:bg-[#24101a] text-stone-800 dark:text-stone-200 border border-rose-100/80 dark:border-rose-300/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-tl-sm shadow-md"
                   }`}
                 >
                   {m.role === "assistant" && (
                     <div className="text-[10px] font-bold uppercase tracking-widest text-rose-800 dark:text-rose-400 mb-1.5 flex items-center gap-1.5">
-                      <span>✦</span> PROTOCOLO DE RECONQUISTA
+                      <span>✦</span> RECONQUISTE • PROTOCOLO DE REVERSÃO
                     </div>
                   )}
 
@@ -701,24 +701,24 @@ export default function ReconquistaChat() {
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-white dark:bg-white/5 border border-rose-100 dark:border-rose-400/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-2xl rounded-tl-sm px-4 py-3.5 shadow-sm flex items-center gap-3">
+              <div className="bg-white dark:bg-[#24101a] border border-rose-100 dark:border-rose-300/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-2xl rounded-tl-sm px-4 py-3.5 shadow-sm flex items-center gap-3">
                 <div className="flex gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "0ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "300ms" }}></span>
                 </div>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Lendo seu relato com atenção e sentindo o momento de vocês...</span>
+                <span className="text-xs text-stone-500 dark:text-stone-300 font-medium">Lendo seu relato com atenção e sentindo o momento de vocês...</span>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </main>
 
-        {/* RODAPÉ EM PÍLULA UNIFICADA ESTILO GEMINI */}
-        <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#faf7f5] dark:bg-[#140a0f] shrink-0">
+        {/* BARRA DE DIGITAÇÃO ESTILO CHATGPT */}
+        <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
             {attachment && (
-              <div className="mb-2 flex items-center justify-between bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-2xl text-xs text-rose-900 dark:text-rose-200">
+              <div className="mb-2 flex items-center justify-between bg-rose-50 dark:bg-[#28121d] border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-2xl text-xs text-rose-900 dark:text-rose-200">
                 <div className="flex items-center gap-2.5 truncate">
                   {attachment.mimeType.startsWith("image/") ? (
                     <img src={attachment.previewUrl} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-rose-300" />
@@ -758,7 +758,7 @@ export default function ReconquistaChat() {
             ) : (
               <form
                 onSubmit={handleSend}
-                className="flex items-end gap-1.5 bg-white dark:bg-[#1e1118] border border-stone-300/80 dark:border-white/15 rounded-3xl px-2.5 py-1.5 shadow-md focus-within:ring-2 focus-within:ring-rose-400/40 transition-all"
+                className="flex items-center gap-2 bg-white dark:bg-[#26121c] border border-stone-300/90 dark:border-rose-300/20 rounded-[28px] px-3 py-1.5 shadow-lg transition-all"
               >
                 <input
                   type="file"
@@ -771,10 +771,12 @@ export default function ReconquistaChat() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  title="Enviar Print, Áudio ou Vídeo"
+                  title="Adicionar Print, Foto ou Áudio"
                   className="w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 flex items-center justify-center shrink-0 transition-colors"
                 >
-                  <span className="text-lg leading-none">＋</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
                 </button>
 
                 <textarea
@@ -789,7 +791,8 @@ export default function ReconquistaChat() {
                   }}
                   rows={Math.min(4, Math.max(1, input.split("\n").length))}
                   placeholder="Pergunte ao Reconquiste"
-                  className="flex-1 bg-transparent text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 px-2 py-2 focus:outline-none text-sm sm:text-base resize-none max-h-32 overflow-y-auto"
+                  style={{ border: "none", outline: "none", boxShadow: "none" }}
+                  className="flex-1 bg-transparent !border-0 !ring-0 !outline-none !shadow-none appearance-none text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400/80 px-1 py-1.5 text-sm sm:text-base resize-none max-h-32 overflow-y-auto leading-normal"
                 />
 
                 <button
@@ -798,20 +801,24 @@ export default function ReconquistaChat() {
                   title={isRecording ? "Parar gravação" : "Gravar desabafo em áudio"}
                   className={`h-9 rounded-full transition-all shrink-0 flex items-center justify-center gap-1 ${
                     isRecording
-                      ? "bg-red-600 text-white animate-pulse px-3"
-                      : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300"
+                      ? "bg-rose-600 text-white animate-pulse px-3"
+                      : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-500 dark:text-stone-300"
                   }`}
                 >
-                  <span>🎙️</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                  </svg>
                   {isRecording && <span className="text-[11px] font-bold">{recordingSeconds}s</span>}
                 </button>
 
                 <button
                   type="submit"
                   disabled={isLoading || (!input.trim() && !attachment)}
-                  className="w-9 h-9 bg-rose-900 dark:bg-rose-600 text-white rounded-full hover:bg-rose-800 disabled:opacity-35 flex items-center justify-center shrink-0 transition-colors shadow-sm"
+                  className="w-9 h-9 bg-[#5c162e] hover:bg-[#731c3a] dark:bg-[#7a1c3a] dark:hover:bg-[#912246] text-white rounded-full disabled:opacity-40 flex items-center justify-center shrink-0 transition-all shadow-sm"
                 >
-                  ➤
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                  </svg>
                 </button>
               </form>
             )}
@@ -822,7 +829,7 @@ export default function ReconquistaChat() {
       {/* MODAL DO QUESTIONÁRIO DE DIAGNÓSTICO DE RECONQUISTA */}
       {showQuestionnaire && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#1c1016] border border-rose-200 dark:border-rose-400/25 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
+          <div className="bg-white dark:bg-[#1c0d15] border border-rose-200 dark:border-rose-300/25 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
@@ -854,7 +861,7 @@ export default function ReconquistaChat() {
                     placeholder="Ex: 2 anos e meio"
                     value={quiz.duracao}
                     onChange={(e) => setQuiz({ ...quiz, duracao: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
                 <div>
@@ -864,7 +871,7 @@ export default function ReconquistaChat() {
                     placeholder="Ex: Eu (H, 30) / Ela (M, 28)"
                     value={quiz.idadesGeneros}
                     onChange={(e) => setQuiz({ ...quiz, idadesGeneros: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
               </div>
@@ -877,7 +884,7 @@ export default function ReconquistaChat() {
                     placeholder="Ex: Ambos trabalham / Só ela trabalha..."
                     value={quiz.trabalho}
                     onChange={(e) => setQuiz({ ...quiz, trabalho: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
                 <div>
@@ -887,7 +894,7 @@ export default function ReconquistaChat() {
                     placeholder="Ex: 4 dias / 2 semanas"
                     value={quiz.tempoSemFalar}
                     onChange={(e) => setQuiz({ ...quiz, tempoSemFalar: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
               </div>
@@ -899,7 +906,7 @@ export default function ReconquistaChat() {
                   placeholder="Ex: Era tranquilo, mas nos últimos meses brigávamos por ciúmes/rotina..."
                   value={quiz.convivio}
                   onChange={(e) => setQuiz({ ...quiz, convivio: e.target.value })}
-                  className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                  className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                 />
               </div>
 
@@ -910,7 +917,7 @@ export default function ReconquistaChat() {
                   placeholder="Ex: Primeiro término, sem traição / Já terminamos 2 vezes..."
                   value={quiz.historico}
                   onChange={(e) => setQuiz({ ...quiz, historico: e.target.value })}
-                  className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                  className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                 />
               </div>
 
@@ -921,7 +928,7 @@ export default function ReconquistaChat() {
                   placeholder="Ex: Ela terminou dizendo que estava confusa e desgastada..."
                   value={quiz.motivoQuemTerminou}
                   onChange={(e) => setQuiz({ ...quiz, motivoQuemTerminou: e.target.value })}
-                  className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                  className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                 />
               </div>
 
@@ -933,7 +940,7 @@ export default function ReconquistaChat() {
                     placeholder="Ex: Mandei texto pedindo pra voltar e fui ignorado(a)"
                     value={quiz.houveMensagens}
                     onChange={(e) => setQuiz({ ...quiz, houveMensagens: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
                 <div>
@@ -943,7 +950,7 @@ export default function ReconquistaChat() {
                     placeholder="Ex: Nos seguimos e ela vê todos os meus stories"
                     value={quiz.redesSociais}
                     onChange={(e) => setQuiz({ ...quiz, redesSociais: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
               </div>
@@ -956,14 +963,14 @@ export default function ReconquistaChat() {
                   placeholder="Cole aqui a última troca de mensagens ou digite o que foi dito por último..."
                   value={quiz.ultimaConversa}
                   onChange={(e) => setQuiz({ ...quiz, ultimaConversa: e.target.value })}
-                  className="w-full rounded-xl px-3.5 py-2 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                  className="w-full rounded-xl px-3.5 py-2 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                 />
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
                 <button
                   type="submit"
-                  className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600 text-white font-bold rounded-2xl shadow-lg transition-all"
+                  className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-[#6b1630] to-[#8a1c3e] hover:from-[#7d1a38] hover:to-[#9e2147] text-white font-bold rounded-2xl shadow-lg transition-all"
                 >
                   🔍 Gerar Diagnóstico de Reconquista Agora
                 </button>
@@ -982,7 +989,7 @@ export default function ReconquistaChat() {
 
       {showPaywallModal && !isPremium && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1c1016] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+          <div className="bg-white dark:bg-[#1c0d15] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <button
               onClick={() => setShowPaywallModal(false)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"

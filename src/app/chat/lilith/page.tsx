@@ -45,13 +45,13 @@ interface ToolConfig {
 const TOOL_CONFIGS: Record<string, ToolConfig> = {
   primeiro_contato: {
     key: "primeiro_contato",
-    badge: "Ferramenta Tática • Abertura Magnética",
+    badge: "Especialidade da Lilith • Abertura Magnética",
     title: "Primeiro Contato Irresistível",
     desc: "Puxar assunto e gerar interesse imediato sem parecer óbvio.",
     icon: "👋",
     warning:
-      "Mensagens comuns como 'Oi, tudo bem?' são ignoradas. Preencha os detalhes abaixo (opcional) para a Lilith criar um abridor com provocação leve e curiosidade impossível de ignorar.",
-    buttonLabel: "🔥 Gerar Abordagem de Primeiro Contato",
+      "Mensagens comuns como 'Oi, tudo bem?' são ignoradas. Preencha os detalhes abaixo (opcional) para a Lilith criar um abridor com charme e curiosidade impossível de ignorar.",
+    buttonLabel: "✨ Criar Mensagem de Primeiro Contato",
     fields: [
       {
         id: "f1",
@@ -71,19 +71,19 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       {
         id: "f4",
         label: "4. Qual vibe você quer passar nessa primeira mensagem?",
-        placeholder: "Ex: Misterioso(a) e provocante, divertido(a) e debochado(a), direto(a) ao ponto...",
+        placeholder: "Ex: Misterioso(a) e envolvente, divertido(a) e leve, direto(a) ao ponto...",
       },
     ],
   },
   red_flags: {
     key: "red_flags",
-    badge: "Scanner Comportamental • Prevenção",
+    badge: "Especialidade da Lilith • Leitura de Intenções",
     title: "Detector de Red Flags",
     desc: "Identificar joguinhos, mentiras ou manipulação nas mensagens.",
     icon: "🚩",
     warning:
-      "Pessoas manipuladoras ou indisponíveis dão sinais sutis logo nas primeiras conversas. Informe os dados abaixo para a Lilith escanear as entrelinhas.",
-    buttonLabel: "🚩 Escanear Red Flags Agora",
+      "Pessoas manipuladoras ou indisponíveis dão sinais sutis logo nas primeiras conversas. Informe os dados abaixo para a Lilith ler as entrelinhas.",
+    buttonLabel: "🚩 Analisar Sinais de Alerta Agora",
     fields: [
       {
         id: "f1",
@@ -102,21 +102,21 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f4",
-        label: "4. Cole aqui as mensagens suspeitas ou colar o print:",
-        placeholder: "Cole o trecho da conversa para leitura fria...",
+        label: "4. Cole aqui as mensagens suspeitas ou cole o print:",
+        placeholder: "Cole o trecho da conversa para análise...",
         multiline: true,
       },
     ],
   },
   pos_encontro: {
     key: "pos_encontro",
-    badge: "Estratégia Pós-Date • Alta Atração",
+    badge: "Especialidade da Lilith • Conexão Pós-Date",
     title: "O Jogo do Pós-Encontro",
     desc: "O que mandar depois de sair para manter a química lá no alto.",
     icon: "🥂",
     warning:
-      "As primeiras 24h após o encontro definem se a pessoa vai viciar em você ou esfriar achando que já te ganhou. Dê o contexto abaixo para acertarmos o timing e a mensagem.",
-    buttonLabel: "🥂 Traçar Estratégia Pós-Encontro",
+      "As primeiras 24h após o encontro definem se a pessoa vai sentir saudade ou esfriar achando que já te ganhou. Dê o contexto abaixo para acertarmos a mensagem.",
+    buttonLabel: "🥂 Criar Mensagem Pós-Encontro",
     fields: [
       {
         id: "f1",
@@ -142,12 +142,12 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
   },
   responder: {
     key: "responder",
-    badge: "Resposta Cirúrgica • Inversão de Poder",
+    badge: "Especialidade da Lilith • Resposta Magnética",
     title: "O Que Eu Respondo Agora?",
     desc: "Resposta exata para virar o jogo e deixar a pessoa pensando em você.",
     icon: "✍️",
     warning:
-      "Não responda no impulso! Informe exatamente o que a pessoa mandou para a Lilith calcular uma resposta que gera tensão e coloca você no comando.",
+      "Não responda no impulso! Informe exatamente o que a pessoa mandou para a Lilith desenhar uma resposta que gera encanto e coloca você no comando.",
     buttonLabel: "✍️ Gerar Minha Resposta Agora",
     fields: [
       {
@@ -168,19 +168,19 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f4",
-        label: "4. Que efeito você quer causar na cabeça dessa pessoa?",
-        placeholder: "Ex: Deixar com pulga atrás da orelha, cortar o orgulho dele(a), gerar desejo...",
+        label: "4. Que sentimento você quer despertar nessa pessoa?",
+        placeholder: "Ex: Curiosidade, saudade, cortar o orgulho dele(a), gerar desejo...",
       },
     ],
   },
   analise: {
     key: "analise",
-    badge: "Raio-X Psicológico • Leitura Fria",
+    badge: "Especialidade da Lilith • Entrelinhas do Amor",
     title: "Analisar Conversa e Subtexto",
     desc: "Traduza o que a pessoa realmente quis dizer nas entrelinhas.",
     icon: "🔍",
     warning:
-      "As pessoas raramente dizem o que pensam de forma direta. Cole a conversa ou o print abaixo para a Lilith traduzir o que está nas entrelinhas.",
+      "As pessoas raramente dizem o que sentem de forma direta. Cole a conversa ou o print abaixo para a Lilith traduzir o que está nas entrelinhas.",
     buttonLabel: "🔍 Decifrar Conversa Agora",
     fields: [
       {
@@ -208,13 +208,13 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
   },
   conselho: {
     key: "conselho",
-    badge: "Consultoria Estratégica • Sem Julgamentos",
+    badge: "Consultoria da Lilith • Sem Julgamentos",
     title: "Diagnóstico & Conselho Amoroso",
-    desc: "Desabafe sobre sua situação e receba um plano de ação estratégico.",
+    desc: "Desabafe sobre sua situação e receba uma orientação acolhedora e certeira.",
     icon: "💬",
     warning:
-      "Conte a verdade sem filtros. Quanto mais claro for o contexto abaixo, mais certeiro será o plano de ação da Lilith para o seu caso.",
-    buttonLabel: "💬 Receber Diagnóstico da Lilith",
+      "Conte a verdade sem filtros. Quanto mais claro for o contexto abaixo, mais certeiro será o direcionamento da Lilith para o seu coração.",
+    buttonLabel: "💬 Receber Conselho da Lilith",
     fields: [
       {
         id: "f1",
@@ -234,7 +234,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f4",
-        label: "4. Qual resultado você mais quer alcançar?",
+        label: "4. Qual resultado você mais deseja alcançar?",
         placeholder: "Ex: Virar o jogo e fazer a pessoa correr atrás / Saber se vale a pena insistir...",
       },
     ],
@@ -255,7 +255,7 @@ export default function LilithChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -358,11 +358,11 @@ export default function LilithChat() {
 
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
     setSessions((prev) => {
-      const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Novo Caso";
+      const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Nova Conversa";
       const cleanTitle =
         firstUserMsg
           .replace(/^[^\wÀ-ÿ]+/, "")
-          .replace(/^FERRAMENTA ATIVADA:\s*/i, "")
+          .replace(/^ESPECIALIDADE LILITH:\s*/i, "")
           .slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
 
       const lightMessages = updatedMsgs.map((m) =>
@@ -371,7 +371,7 @@ export default function LilithChat() {
 
       const updatedSession: ChatSession = {
         id: activeSessionId || Date.now().toString(),
-        title: updatedMsgs.length > 0 ? cleanTitle : "Novo Caso",
+        title: updatedMsgs.length > 0 ? cleanTitle : "Nova Conversa",
         updatedAt: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
         messages: lightMessages,
         bonusLimit: newBonus,
@@ -395,7 +395,7 @@ export default function LilithChat() {
     const newId = Date.now().toString();
     const newSession: ChatSession = {
       id: newId,
-      title: pickedTool ? `${pickedTool.icon} ${pickedTool.title}` : "Novo Caso",
+      title: pickedTool ? `${pickedTool.icon} ${pickedTool.title}` : "Nova Conversa",
       updatedAt: "Agora",
       messages: [],
       bonusLimit: 0,
@@ -640,18 +640,17 @@ export default function LilithChat() {
 
     if (partes.length === 0 && !attachment) return;
 
-    const promptMontado = `${currentTool.icon} FERRAMENTA ATIVADA: ${currentTool.title.toUpperCase()}\n${partes.join(
+    const promptMontado = `${currentTool.icon} ESPECIALIDADE LILITH: ${currentTool.title.toUpperCase()}\n${partes.join(
       "\n"
-    )}\n\nAplique sua leitura comportamental avançada especificamente para este módulo (${
+    )}\n\nAplique sua leitura comportamental e emocional para este caso (${
       currentTool.title
-    }), fugindo de abordagens mornas ou clichês.`;
+    }), fugindo de respostas mornas ou clichês.`;
 
     await sendRawMessage(promptMontado, attachment);
   };
 
   return (
-    <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
-      {/* OVERLAY MOBILE QUANDO A GAVETA ESTÁ ABERTA */}
+    <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#1a0b12] font-sans overflow-hidden transition-colors">
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-30 lg:hidden"
@@ -659,14 +658,13 @@ export default function LilithChat() {
         />
       )}
 
-      {/* BARRA LATERAL ESTILO GEMINI / GPT (Minimizada com ícones no PC ou Expandida) */}
+      {/* BARRA LATERAL RETRÁTIL (ESTILO GEMINI / CHATGPT) */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#1a0d13] border-r border-stone-200/80 dark:border-rose-400/15 flex flex-col transition-all duration-200 ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#14080e] border-r border-stone-200/80 dark:border-rose-300/10 flex flex-col transition-all duration-200 ${
           isSidebarOpen ? "translate-x-0 w-[82%] max-w-[300px]" : "-translate-x-full lg:translate-x-0"
         } ${isDesktopCollapsed ? "lg:w-[68px]" : "lg:w-72"}`}
       >
-        {/* Topo da Sidebar: Botão de Recolher/Fechar + Logo */}
-        <div className="h-14 px-3.5 border-b border-stone-100 dark:border-rose-400/10 flex items-center justify-between shrink-0">
+        <div className="h-14 px-3.5 border-b border-stone-100 dark:border-rose-300/10 flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -677,7 +675,7 @@ export default function LilithChat() {
               }
             }}
             className="w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors"
-            title="Alternar menu"
+            title="Menu"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -697,37 +695,35 @@ export default function LilithChat() {
           </button>
         </div>
 
-        {/* Ações Principais no Topo da Gaveta (Igual ao Gemini) */}
-        <div className="p-2.5 space-y-1 shrink-0">
+        <div className="p-2.5 space-y-1.5 shrink-0">
           <button
             type="button"
             onClick={() => {
               setIsSidebarOpen(false);
               setShowCaseSelector(true);
             }}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-rose-900 dark:bg-rose-600 hover:bg-rose-800 text-white font-semibold text-xs transition-all shadow-sm ${
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-[#381826] hover:bg-[#4a2033] text-rose-100 border border-rose-300/20 font-semibold text-xs transition-all shadow-sm ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Nova conversa / Escolher Caso"
+            title="Nova Conversa com a Lilith"
           >
             <span className="text-base leading-none">✍️</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Novo Caso / Conversa</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Nova Conversa</span>
           </button>
 
           <button
             type="button"
             onClick={() => {
               setIsSidebarOpen(false);
-              setToolForm({ f1: "", f2: "", f3: "", f4: "" });
-              setActiveTool(TOOL_CONFIGS.primeiro_contato);
+              setShowCaseSelector(true);
             }}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Ferramentas Táticas"
+            title="Especialidades da Lilith"
           >
-            <span className="text-base leading-none">⚡</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Ferramentas Táticas</span>
+            <span className="text-base leading-none">🔮</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Especialidades da Lilith</span>
           </button>
 
           <Link
@@ -735,10 +731,10 @@ export default function LilithChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Módulo de Reconquista"
+            title="Reconquiste"
           >
             <span className="text-base leading-none">❤️‍🩹</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Módulo Reconquista</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Reconquiste</span>
           </Link>
 
           <Link
@@ -746,10 +742,10 @@ export default function LilithChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Oráculo & Astrologia"
+            title="Oráculo do Amor"
           >
-            <span className="text-base leading-none">🔮</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Astrologia & Oráculo</span>
+            <span className="text-base leading-none">✨</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Oráculo Astral</span>
           </Link>
 
           <Link
@@ -764,10 +760,9 @@ export default function LilithChat() {
           </Link>
         </div>
 
-        {/* Lista de Histórico de Conversas */}
         <div className={`flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5 border-t border-stone-100 dark:border-white/5 ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
           <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
-            Meus Casos Recentes
+            Minhas Conversas
           </p>
           {sessions.map((s) => (
             <div
@@ -775,7 +770,7 @@ export default function LilithChat() {
               onClick={() => selectSession(s)}
               className={`group flex items-center justify-between px-3 py-2.5 rounded-2xl cursor-pointer transition-all text-left border ${
                 s.id === activeSessionId
-                  ? "bg-rose-50/90 dark:bg-rose-500/15 border-rose-200 dark:border-rose-400/30 text-rose-950 dark:text-rose-200 font-medium"
+                  ? "bg-rose-50/90 dark:bg-[#2a131e] border-rose-200 dark:border-rose-400/30 text-rose-950 dark:text-rose-200 font-medium"
                   : "border-transparent hover:bg-stone-100 dark:hover:bg-white/5 text-stone-700 dark:text-stone-300"
               }`}
             >
@@ -787,7 +782,7 @@ export default function LilithChat() {
                 <button
                   onClick={(e) => deleteSession(s.id, e)}
                   className="opacity-60 lg:opacity-0 lg:group-hover:opacity-100 text-stone-400 hover:text-rose-700 text-xs px-1.5"
-                  title="Excluir caso"
+                  title="Excluir conversa"
                 >
                   ✕
                 </button>
@@ -796,35 +791,34 @@ export default function LilithChat() {
           ))}
         </div>
 
-        {/* Rodapé da Sidebar */}
-        <div className={`p-3 border-t border-stone-100 dark:border-rose-400/10 flex items-center justify-between text-xs text-stone-500 ${isDesktopCollapsed ? "lg:justify-center" : ""}`}>
+        <div className={`p-3 border-t border-stone-100 dark:border-rose-300/10 flex items-center justify-between text-xs text-stone-500 ${isDesktopCollapsed ? "lg:justify-center" : ""}`}>
           <UserButton afterSignOutUrl="/" />
           <span className={`text-[11px] truncate ml-2 ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
-            Sincronizado na nuvem
+            Sincronizado na conta
           </span>
         </div>
       </aside>
 
       {/* ÁREA PRINCIPAL DO CHAT */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
-        {/* TOPO LIMPO ESTILO GEMINI MOBILE */}
-        <header className="relative z-20 h-14 flex items-center justify-between gap-2 px-3 sm:px-5 bg-white/95 dark:bg-[#140a0f]/95 backdrop-blur-md border-b border-stone-200/60 dark:border-white/10 shrink-0">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0 bg-[#faf7f5] dark:bg-gradient-to-b dark:from-[#1f0d16] dark:via-[#1a0b12] dark:to-[#14080e]">
+        {/* TOPO LIMPO E ELEGANTE */}
+        <header className="relative z-20 h-14 flex items-center justify-between gap-2 px-3 sm:px-5 bg-white/90 dark:bg-[#1a0b12]/90 backdrop-blur-md border-b border-stone-200/60 dark:border-rose-300/10 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 flex items-center justify-center text-stone-700 dark:text-stone-200 shrink-0"
+              className="lg:hidden w-9 h-9 rounded-full bg-stone-100 dark:bg-[#28121d] hover:bg-stone-200 text-stone-700 dark:text-stone-200 flex items-center justify-center shrink-0"
               title="Abrir Menu e Histórico"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
               </svg>
             </button>
 
             <button
               type="button"
               onClick={() => setShowCaseSelector(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl hover:bg-stone-100 dark:hover:bg-white/5 transition-colors min-w-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
             >
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
                 Lilith
@@ -835,11 +829,12 @@ export default function LilithChat() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Botão no tom escuro elegante igual à Print 3 */}
             <button
               type="button"
               onClick={() => setShowCaseSelector(true)}
-              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-rose-100 text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm"
-              title="Nova Conversa / Escolher Ferramenta"
+              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 hover:bg-rose-100 dark:hover:bg-[#381826] text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm transition-colors"
+              title="Escolher Especialidade da Lilith"
             >
               ✍️
             </button>
@@ -848,10 +843,10 @@ export default function LilithChat() {
               onClick={() => {
                 if (!isPremium) setShowPaywallModal(true);
               }}
-              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-full border transition-colors ${
+              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                 isPremium
                   ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
-                  : "bg-rose-50 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 border-rose-200 dark:border-rose-400/30 hover:bg-rose-100"
+                  : "bg-rose-50 dark:bg-[#28121d] text-rose-900 dark:text-rose-200 border-rose-200 dark:border-rose-300/20"
               }`}
             >
               <span>{isPremium ? "👑" : "✨"}</span>
@@ -870,21 +865,22 @@ export default function LilithChat() {
           </div>
         </header>
 
-        {/* MENSAGENS */}
-        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto">
+        {/* ÁREA DE MENSAGENS (Sem barra branca grossa no PC) */}
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-3 space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-rose-500/20 dark:to-rose-900/10 border border-rose-200 dark:border-rose-400/20 rounded-full flex items-center justify-center text-3xl shadow-sm">
+              <div className="w-16 h-16 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-[#381826] dark:to-[#240e18] border border-rose-200 dark:border-rose-300/20 rounded-full flex items-center justify-center text-3xl shadow-md">
                 🔮
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
                 Por onde quer começar?
               </h2>
-              <p className="text-stone-500 dark:text-stone-400 max-w-md text-xs sm:text-sm leading-relaxed">
+              <p className="text-stone-500 dark:text-stone-300/80 max-w-md text-xs sm:text-sm leading-relaxed">
                 Selecione abaixo qual situação vamos analisar, grave um áudio ou aperte <strong>Ctrl+V para colar o print</strong> da conversa.
               </p>
 
-              <div className="flex flex-wrap justify-center gap-2 max-w-xl pt-1">
+              {/* Botões com tom destacado igual à Print 3 tanto no celular quanto no PC */}
+              <div className="flex flex-wrap justify-center gap-2 max-w-xl pt-2">
                 {Object.values(TOOL_CONFIGS).map((t) => (
                   <button
                     key={t.key}
@@ -893,7 +889,7 @@ export default function LilithChat() {
                       setToolForm({ f1: "", f2: "", f3: "", f4: "" });
                       setActiveTool(t);
                     }}
-                    className="px-3 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/15 border border-stone-200 dark:border-white/10 text-xs font-semibold text-stone-700 dark:text-stone-200 shadow-sm transition-all flex items-center gap-1.5"
+                    className="px-3.5 py-2 rounded-full bg-white dark:bg-[#28121d] hover:bg-rose-50 dark:hover:bg-[#381826] border border-stone-200 dark:border-rose-300/20 text-xs font-semibold text-stone-700 dark:text-stone-100 shadow-sm transition-all flex items-center gap-1.5"
                   >
                     <span>{t.icon}</span>
                     <span>{t.title}</span>
@@ -907,13 +903,13 @@ export default function LilithChat() {
                 <div
                   className={`max-w-[90%] sm:max-w-[82%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-sm whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] ${
                     m.role === "user"
-                      ? "bg-gradient-to-br from-rose-900 to-rose-800 text-rose-50 rounded-tr-sm shadow-md"
-                      : "bg-white dark:bg-white/5 text-stone-800 dark:text-stone-200 border border-rose-100/80 dark:border-rose-400/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-tl-sm shadow-md"
+                      ? "bg-gradient-to-br from-[#6b1630] to-[#4a0f21] text-rose-50 rounded-tr-sm shadow-md border border-rose-400/20"
+                      : "bg-white dark:bg-[#24101a] text-stone-800 dark:text-stone-200 border border-rose-100/80 dark:border-rose-300/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-tl-sm shadow-md"
                   }`}
                 >
                   {m.role === "assistant" && (
                     <div className="text-[10px] font-bold uppercase tracking-widest text-rose-800 dark:text-rose-400 mb-1.5 flex items-center gap-1.5">
-                      <span>✦</span> DIAGNÓSTICO DE LILITH
+                      <span>✦</span> LILITH • CONSULTORIA AMOROSA
                     </div>
                   )}
 
@@ -959,24 +955,24 @@ export default function LilithChat() {
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-white dark:bg-white/5 border border-rose-100 dark:border-rose-400/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-2xl rounded-tl-sm px-4 py-3.5 shadow-sm flex items-center gap-3">
+              <div className="bg-white dark:bg-[#24101a] border border-rose-100 dark:border-rose-300/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-2xl rounded-tl-sm px-4 py-3.5 shadow-sm flex items-center gap-3">
                 <div className="flex gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "0ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "300ms" }}></span>
                 </div>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Lilith está lendo as entrelinhas do seu relato...</span>
+                <span className="text-xs text-stone-500 dark:text-stone-300 font-medium">Lilith está lendo as entrelinhas do seu relato...</span>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </main>
 
-        {/* RODAPÉ EM PÍLULA UNIFICADA ESTILO GEMINI */}
-        <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#faf7f5] dark:bg-[#140a0f] shrink-0">
+        {/* BARRA DE DIGITAÇÃO ESTILO CHATGPT (SEM CAIXA QUADRADA INTERNA + ÍCONES FINOS SVG) */}
+        <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
             {attachment && (
-              <div className="mb-2 flex items-center justify-between bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-2xl text-xs text-rose-900 dark:text-rose-200">
+              <div className="mb-2 flex items-center justify-between bg-rose-50 dark:bg-[#28121d] border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-2xl text-xs text-rose-900 dark:text-rose-200">
                 <div className="flex items-center gap-2.5 truncate">
                   {attachment.mimeType.startsWith("image/") ? (
                     <img src={attachment.previewUrl} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-rose-300" />
@@ -1016,7 +1012,7 @@ export default function LilithChat() {
             ) : (
               <form
                 onSubmit={handleSend}
-                className="flex items-end gap-1.5 bg-white dark:bg-[#1e1118] border border-stone-300/80 dark:border-white/15 rounded-3xl px-2.5 py-1.5 shadow-md focus-within:ring-2 focus-within:ring-rose-400/40 transition-all"
+                className="flex items-center gap-2 bg-white dark:bg-[#26121c] border border-stone-300/90 dark:border-rose-300/20 rounded-[28px] px-3 py-1.5 shadow-lg transition-all"
               >
                 <input
                   type="file"
@@ -1026,15 +1022,19 @@ export default function LilithChat() {
                   className="hidden"
                 />
 
+                {/* Botão + minimalista igual ao ChatGPT */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  title="Enviar Print, Áudio ou Vídeo"
+                  title="Adicionar Print, Foto ou Áudio"
                   className="w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 flex items-center justify-center shrink-0 transition-colors"
                 >
-                  <span className="text-lg leading-none">＋</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
                 </button>
 
+                {/* Textarea 100% invisível sem bordas quadradas do navegador */}
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -1047,29 +1047,36 @@ export default function LilithChat() {
                   }}
                   rows={Math.min(4, Math.max(1, input.split("\n").length))}
                   placeholder="Pergunte a Lilith"
-                  className="flex-1 bg-transparent text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 px-2 py-2 focus:outline-none text-sm sm:text-base resize-none max-h-32 overflow-y-auto"
+                  style={{ border: "none", outline: "none", boxShadow: "none" }}
+                  className="flex-1 bg-transparent !border-0 !ring-0 !outline-none !shadow-none appearance-none text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400/80 px-1 py-1.5 text-sm sm:text-base resize-none max-h-32 overflow-y-auto leading-normal"
                 />
 
+                {/* Microfone SVG limpo igual ao ChatGPT */}
                 <button
                   type="button"
                   onClick={toggleRecording}
-                  title={isRecording ? "Parar gravação" : "Gravar desabafo em áudio"}
+                  title={isRecording ? "Parar gravação" : "Gravar áudio"}
                   className={`h-9 rounded-full transition-all shrink-0 flex items-center justify-center gap-1 ${
                     isRecording
-                      ? "bg-red-600 text-white animate-pulse px-3"
-                      : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300"
+                      ? "bg-rose-600 text-white animate-pulse px-3"
+                      : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-500 dark:text-stone-300"
                   }`}
                 >
-                  <span>🎙️</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                  </svg>
                   {isRecording && <span className="text-[11px] font-bold">{recordingSeconds}s</span>}
                 </button>
 
+                {/* Botão circular de envio elegante (tom vinho/ameixa, sem vermelho gritante) */}
                 <button
                   type="submit"
                   disabled={isLoading || (!input.trim() && !attachment)}
-                  className="w-9 h-9 bg-rose-900 dark:bg-rose-600 text-white rounded-full hover:bg-rose-800 disabled:opacity-35 flex items-center justify-center shrink-0 transition-colors shadow-sm"
+                  className="w-9 h-9 bg-[#5c162e] hover:bg-[#731c3a] dark:bg-[#7a1c3a] dark:hover:bg-[#912246] text-white rounded-full disabled:opacity-40 flex items-center justify-center shrink-0 transition-all shadow-sm"
                 >
-                  ➤
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                  </svg>
                 </button>
               </form>
             )}
@@ -1077,20 +1084,20 @@ export default function LilithChat() {
         </footer>
       </div>
 
-      {/* MODAL DE ESCOLHA DE NOVO CASO */}
+      {/* MODAL DE ESCOLHA DE ESPECIALIDADE DA LILITH */}
       {showCaseSelector && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#1c1016] border border-rose-200 dark:border-rose-400/25 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
+          <div className="bg-white dark:bg-[#1c0d15] border border-rose-200 dark:border-rose-300/20 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 block">
-                  Novo Diagnóstico • LilithLove
+                  Consultoria da Lilith • LilithLove
                 </span>
                 <h3 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 dark:text-white mt-0.5">
-                  Qual caso vamos analisar agora?
+                  Qual situação vamos analisar agora?
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
-                  Escolha o objetivo abaixo para abrirmos a ficha tática ideal para a sua situação:
+                  Escolha o tema abaixo para a Lilith preparar a análise ideal para você:
                 </p>
               </div>
               <button
@@ -1108,7 +1115,7 @@ export default function LilithChat() {
                   key={t.key}
                   type="button"
                   onClick={() => createNewSession(sessions, t)}
-                  className="flex items-start gap-3 p-3.5 rounded-2xl bg-stone-50 dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-500/15 border border-stone-200/80 dark:border-white/10 hover:border-rose-300 dark:hover:border-rose-400/40 text-left transition-all group"
+                  className="flex items-start gap-3 p-3.5 rounded-2xl bg-stone-50 dark:bg-[#28121d] hover:bg-rose-50 dark:hover:bg-[#381826] border border-stone-200/80 dark:border-rose-300/15 hover:border-rose-300 dark:hover:border-rose-400/40 text-left transition-all group"
                 >
                   <span className="text-xl p-2 rounded-xl bg-white dark:bg-white/10 shadow-sm group-hover:scale-110 transition-transform">
                     {t.icon}
@@ -1117,7 +1124,7 @@ export default function LilithChat() {
                     <p className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-100 mb-0.5">
                       {t.title}
                     </p>
-                    <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-snug">
+                    <p className="text-[11px] text-stone-500 dark:text-stone-300/80 leading-snug">
                       {t.desc}
                     </p>
                   </div>
@@ -1129,15 +1136,15 @@ export default function LilithChat() {
               <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                 <Link
                   href="/chat/reconquista"
-                  className="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 font-semibold border border-rose-200 dark:border-rose-400/25"
+                  className="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-[#28121d] text-rose-800 dark:text-rose-200 font-semibold border border-rose-200 dark:border-rose-400/25"
                 >
-                  ❤️‍🩹 Ir para Módulo de Reconquista
+                  ❤️‍🩹 Ir para Reconquiste
                 </Link>
                 <Link
                   href="/chat/mistico"
                   className="px-3.5 py-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-200 font-semibold border border-purple-200 dark:border-purple-400/25"
                 >
-                  🔮 Ir para Astrologia & Tarot
+                  🔮 Ir para Oráculo Astral
                 </Link>
               </div>
               <button
@@ -1145,20 +1152,20 @@ export default function LilithChat() {
                 onClick={() => createNewSession(sessions, null)}
                 className="w-full sm:w-auto px-4 py-2 rounded-xl bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300 font-semibold hover:bg-stone-200"
               >
-                Abrir Chat Livre sem Ficha →
+                Conversa Livre com a Lilith →
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL DO QUESTIONÁRIO DA FERRAMENTA */}
+      {/* MODAL DO QUESTIONÁRIO DA ESPECIALIDADE */}
       {activeTool && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#1c1016] border border-rose-200 dark:border-rose-400/25 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
+          <div className="bg-white dark:bg-[#1c0d15] border border-rose-200 dark:border-rose-300/25 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-rose-500/15 flex items-center justify-center text-2xl shrink-0">
+                <div className="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-[#28121d] flex items-center justify-center text-2xl shrink-0">
                   {activeTool.icon}
                 </div>
                 <div>
@@ -1180,7 +1187,7 @@ export default function LilithChat() {
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 rounded-2xl p-3 mb-5 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-              ⚡ <strong>Calibragem de Precisão:</strong> {activeTool.warning}
+              ✨ <strong>Dica da Lilith:</strong> {activeTool.warning}
             </div>
 
             <form onSubmit={handleToolSubmit} className="space-y-3.5 text-xs sm:text-sm">
@@ -1196,7 +1203,7 @@ export default function LilithChat() {
                       placeholder={field.placeholder}
                       value={toolForm[field.id]}
                       onChange={(e) => setToolForm({ ...toolForm, [field.id]: e.target.value })}
-                      className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                      className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                     />
                   ) : (
                     <input
@@ -1205,14 +1212,14 @@ export default function LilithChat() {
                       placeholder={field.placeholder}
                       value={toolForm[field.id]}
                       onChange={(e) => setToolForm({ ...toolForm, [field.id]: e.target.value })}
-                      className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                      className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
                     />
                   )}
                 </div>
               ))}
 
               {attachment && (
-                <div className="flex items-center justify-between bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-xl text-xs text-rose-900 dark:text-rose-200">
+                <div className="flex items-center justify-between bg-rose-50 dark:bg-[#28121d] border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-xl text-xs text-rose-900 dark:text-rose-200">
                   <span className="truncate">📎 Print/Arquivo anexado: {attachment.name}</span>
                   <button
                     type="button"
@@ -1227,7 +1234,7 @@ export default function LilithChat() {
               <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
                 <button
                   type="submit"
-                  className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600 text-white font-bold rounded-2xl shadow-lg transition-all"
+                  className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-[#6b1630] to-[#8a1c3e] hover:from-[#7d1a38] hover:to-[#9e2147] text-white font-bold rounded-2xl shadow-lg transition-all"
                 >
                   {activeTool.buttonLabel}
                 </button>
@@ -1246,7 +1253,7 @@ export default function LilithChat() {
 
       {showPaywallModal && !isPremium && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1c1016] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+          <div className="bg-white dark:bg-[#1c0d15] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <button
               onClick={() => setShowPaywallModal(false)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"

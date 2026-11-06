@@ -40,7 +40,7 @@ export default function MisticoChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -405,7 +405,7 @@ export default function MisticoChat() {
   };
 
   return (
-    <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#140a0f] font-sans overflow-hidden transition-colors">
+    <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#160b1c] font-sans overflow-hidden transition-colors">
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-30 lg:hidden"
@@ -413,9 +413,9 @@ export default function MisticoChat() {
         />
       )}
 
-      {/* SIDEBAR ESTILO GEMINI / GPT */}
+      {/* SIDEBAR RETRÁTIL */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#1a0d16] border-r border-purple-200/80 dark:border-purple-400/15 flex flex-col transition-all duration-200 ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#110816] border-r border-purple-200/80 dark:border-purple-400/15 flex flex-col transition-all duration-200 ${
           isSidebarOpen ? "translate-x-0 w-[82%] max-w-[300px]" : "-translate-x-full lg:translate-x-0"
         } ${isDesktopCollapsed ? "lg:w-[68px]" : "lg:w-72"}`}
       >
@@ -450,11 +450,11 @@ export default function MisticoChat() {
           </button>
         </div>
 
-        <div className="p-2.5 space-y-1 shrink-0">
+        <div className="p-2.5 space-y-1.5 shrink-0">
           <button
             type="button"
             onClick={() => createNewSession()}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-purple-900 dark:bg-purple-600 hover:bg-purple-800 text-white font-semibold text-xs transition-all shadow-sm ${
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-[#2a1438] hover:bg-[#381b4a] text-purple-100 border border-purple-300/20 font-semibold text-xs transition-all shadow-sm ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
             title="Nova Leitura Astral"
@@ -483,10 +483,10 @@ export default function MisticoChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Chat Principal da Lilith"
+            title="Consultoria da Lilith"
           >
-            <span className="text-base leading-none">💬</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Chat da Lilith</span>
+            <span className="text-base leading-none">🔮</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Consultoria da Lilith</span>
           </Link>
 
           <Link
@@ -494,10 +494,10 @@ export default function MisticoChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Módulo de Reconquista"
+            title="Reconquiste"
           >
             <span className="text-base leading-none">❤️‍🩹</span>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Módulo Reconquista</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Reconquiste</span>
           </Link>
 
           <Link
@@ -522,7 +522,7 @@ export default function MisticoChat() {
               onClick={() => selectSession(s)}
               className={`group flex items-center justify-between px-3 py-2.5 rounded-2xl cursor-pointer transition-all text-left border ${
                 s.id === activeSessionId
-                  ? "bg-purple-50/90 dark:bg-purple-500/15 border-purple-200 dark:border-purple-400/30 text-purple-950 dark:text-purple-200 font-medium"
+                  ? "bg-purple-50/90 dark:bg-[#241230] border-purple-200 dark:border-purple-400/30 text-purple-950 dark:text-purple-200 font-medium"
                   : "border-transparent hover:bg-stone-100 dark:hover:bg-white/5 text-stone-700 dark:text-stone-300"
               }`}
             >
@@ -545,30 +545,30 @@ export default function MisticoChat() {
         <div className={`p-3 border-t border-stone-100 dark:border-purple-400/10 flex items-center justify-between text-xs text-stone-500 ${isDesktopCollapsed ? "lg:justify-center" : ""}`}>
           <UserButton afterSignOutUrl="/" />
           <span className={`text-[11px] truncate ml-2 ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
-            Sincronizado na nuvem
+            Sincronizado na conta
           </span>
         </div>
       </aside>
 
       {/* ÁREA PRINCIPAL */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
-        <header className="relative z-20 h-14 flex items-center justify-between gap-2 px-3 sm:px-5 bg-white/95 dark:bg-[#140a0f]/95 backdrop-blur-md border-b border-stone-200/60 dark:border-white/10 shrink-0">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0 bg-[#faf7f5] dark:bg-gradient-to-b dark:from-[#1d0e26] dark:via-[#160b1c] dark:to-[#110816]">
+        <header className="relative z-20 h-14 flex items-center justify-between gap-2 px-3 sm:px-5 bg-white/90 dark:bg-[#160b1c]/90 backdrop-blur-md border-b border-stone-200/60 dark:border-purple-300/10 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 flex items-center justify-center text-stone-700 dark:text-stone-200 shrink-0"
+              className="lg:hidden w-9 h-9 rounded-full bg-stone-100 dark:bg-[#241230] hover:bg-stone-200 text-stone-700 dark:text-stone-200 flex items-center justify-center shrink-0"
               title="Abrir Menu e Histórico"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
               </svg>
             </button>
 
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl hover:bg-stone-100 dark:hover:bg-white/5 transition-colors min-w-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#241230] transition-colors min-w-0"
             >
               <span className="text-base">🔮</span>
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
@@ -583,7 +583,7 @@ export default function MisticoChat() {
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-purple-100 text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm"
+              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-[#241230] border border-stone-200 dark:border-purple-300/15 hover:bg-purple-100 dark:hover:bg-[#321942] text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm transition-colors"
               title="Mapa dos Signos"
             >
               ✨
@@ -593,10 +593,10 @@ export default function MisticoChat() {
               onClick={() => {
                 if (!isPremium) setShowPaywallModal(true);
               }}
-              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-full border transition-colors ${
+              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                 isPremium
                   ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
-                  : "bg-purple-50 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300 border-purple-200 hover:bg-purple-100"
+                  : "bg-purple-50 dark:bg-[#241230] text-purple-900 dark:text-purple-200 border-purple-200 dark:border-purple-300/20"
               }`}
             >
               <span>{isPremium ? "👑" : "✨"}</span>
@@ -615,21 +615,21 @@ export default function MisticoChat() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(168,85,247,0.2)_transparent]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-3 space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-tr from-purple-100 to-indigo-50 dark:from-purple-500/20 dark:to-indigo-900/10 border border-purple-200 rounded-full flex items-center justify-center text-3xl shadow-sm">
+              <div className="w-16 h-16 bg-gradient-to-tr from-purple-100 to-indigo-50 dark:from-[#321942] dark:to-[#1f0e2b] border border-purple-200 dark:border-purple-300/20 rounded-full flex items-center justify-center text-3xl shadow-md">
                 🔮
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
                 Astrologia do Amor, Signos & Tarot
               </h2>
-              <p className="text-stone-500 dark:text-stone-400 max-w-md text-xs sm:text-sm leading-relaxed">
+              <p className="text-stone-500 dark:text-stone-300/80 max-w-md text-xs sm:text-sm leading-relaxed">
                 Descubra a compatibilidade dos signos de vocês, gere o Mapa Astral da mente do seu parceiro(a) ou consulte seu Horóscopo Amoroso do dia.
               </p>
               <button
                 onClick={() => setShowQuestionnaire(true)}
-                className="px-5 py-2.5 rounded-full bg-purple-900 dark:bg-purple-600 text-white text-xs sm:text-sm font-semibold shadow hover:bg-purple-800 transition-colors"
+                className="px-5 py-2.5 rounded-full bg-white dark:bg-[#241230] hover:bg-purple-50 dark:hover:bg-[#321942] border border-stone-200 dark:border-purple-300/25 text-stone-800 dark:text-stone-100 text-xs sm:text-sm font-semibold shadow-sm transition-colors"
               >
                 ✨ Preencher Dados dos Signos / Mapa Astral
               </button>
@@ -640,8 +640,8 @@ export default function MisticoChat() {
                 <div
                   className={`max-w-[90%] sm:max-w-[82%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-sm whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] ${
                     m.role === "user"
-                      ? "bg-gradient-to-br from-purple-900 to-indigo-800 text-purple-50 rounded-tr-sm shadow-md"
-                      : "bg-white dark:bg-white/5 text-stone-800 dark:text-stone-200 border border-purple-100/80 dark:border-purple-400/20 border-l-4 border-l-purple-800 dark:border-l-purple-500 rounded-tl-sm shadow-md"
+                      ? "bg-gradient-to-br from-[#4c1d6e] to-[#34124d] text-purple-50 rounded-tr-sm shadow-md border border-purple-400/20"
+                      : "bg-white dark:bg-[#20102b] text-stone-800 dark:text-stone-200 border border-purple-100/80 dark:border-purple-300/20 border-l-4 border-l-purple-800 dark:border-l-purple-500 rounded-tl-sm shadow-md"
                   }`}
                 >
                   {m.role === "assistant" && (
@@ -689,24 +689,24 @@ export default function MisticoChat() {
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-white dark:bg-white/5 border border-purple-100 border-l-4 border-l-purple-800 rounded-2xl rounded-tl-sm px-4 py-3.5 shadow-sm flex items-center gap-3">
+              <div className="bg-white dark:bg-[#20102b] border border-purple-100 dark:border-purple-300/20 border-l-4 border-l-purple-800 rounded-2xl rounded-tl-sm px-4 py-3.5 shadow-sm flex items-center gap-3">
                 <div className="flex gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "0ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "150ms" }}></span>
                   <span className="w-2 h-2 rounded-full bg-purple-700 animate-bounce" style={{ animationDelay: "300ms" }}></span>
                 </div>
-                <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Sintonizando a energia dos signos e abrindo a leitura...</span>
+                <span className="text-xs text-stone-500 dark:text-stone-300 font-medium">Sintonizando a energia dos signos e abrindo a leitura...</span>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </main>
 
-        {/* RODAPÉ EM PÍLULA UNIFICADA ESTILO GEMINI */}
-        <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#faf7f5] dark:bg-[#140a0f] shrink-0">
+        {/* BARRA DE DIGITAÇÃO ESTILO CHATGPT */}
+        <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
             {attachment && (
-              <div className="mb-2 flex items-center justify-between bg-purple-50 dark:bg-purple-500/15 border border-purple-200 px-3.5 py-2 rounded-2xl text-xs text-purple-900 dark:text-purple-200">
+              <div className="mb-2 flex items-center justify-between bg-purple-50 dark:bg-[#241230] border border-purple-200 dark:border-purple-400/30 px-3.5 py-2 rounded-2xl text-xs text-purple-900 dark:text-purple-200">
                 <div className="flex items-center gap-2.5 truncate">
                   {attachment.mimeType.startsWith("image/") ? (
                     <img src={attachment.previewUrl} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-purple-300" />
@@ -746,7 +746,7 @@ export default function MisticoChat() {
             ) : (
               <form
                 onSubmit={handleSend}
-                className="flex items-end gap-1.5 bg-white dark:bg-[#1e1118] border border-stone-300/80 dark:border-white/15 rounded-3xl px-2.5 py-1.5 shadow-md focus-within:ring-2 focus-within:ring-purple-400/40 transition-all"
+                className="flex items-center gap-2 bg-white dark:bg-[#241230] border border-stone-300/90 dark:border-purple-300/20 rounded-[28px] px-3 py-1.5 shadow-lg transition-all"
               >
                 <input
                   type="file"
@@ -759,10 +759,12 @@ export default function MisticoChat() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  title="Enviar Imagem ou Áudio"
+                  title="Adicionar Imagem ou Áudio"
                   className="w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 flex items-center justify-center shrink-0 transition-colors"
                 >
-                  <span className="text-lg leading-none">＋</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
                 </button>
 
                 <textarea
@@ -777,7 +779,8 @@ export default function MisticoChat() {
                   }}
                   rows={Math.min(4, Math.max(1, input.split("\n").length))}
                   placeholder="Pergunte ao Oráculo"
-                  className="flex-1 bg-transparent text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 px-2 py-2 focus:outline-none text-sm sm:text-base resize-none max-h-32 overflow-y-auto"
+                  style={{ border: "none", outline: "none", boxShadow: "none" }}
+                  className="flex-1 bg-transparent !border-0 !ring-0 !outline-none !shadow-none appearance-none text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400/80 px-1 py-1.5 text-sm sm:text-base resize-none max-h-32 overflow-y-auto leading-normal"
                 />
 
                 <button
@@ -786,20 +789,24 @@ export default function MisticoChat() {
                   title={isRecording ? "Parar gravação" : "Gravar pergunta em áudio"}
                   className={`h-9 rounded-full transition-all shrink-0 flex items-center justify-center gap-1 ${
                     isRecording
-                      ? "bg-red-600 text-white animate-pulse px-3"
-                      : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300"
+                      ? "bg-rose-600 text-white animate-pulse px-3"
+                      : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-500 dark:text-stone-300"
                   }`}
                 >
-                  <span>🎙️</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                  </svg>
                   {isRecording && <span className="text-[11px] font-bold">{recordingSeconds}s</span>}
                 </button>
 
                 <button
                   type="submit"
                   disabled={isLoading || (!input.trim() && !attachment)}
-                  className="w-9 h-9 bg-purple-900 dark:bg-purple-600 text-white rounded-full hover:bg-purple-800 disabled:opacity-35 flex items-center justify-center shrink-0 transition-colors shadow-sm"
+                  className="w-9 h-9 bg-[#4c1d6e] hover:bg-[#5e2487] dark:bg-[#62268c] dark:hover:bg-[#762ea8] text-white rounded-full disabled:opacity-40 flex items-center justify-center shrink-0 transition-all shadow-sm"
                 >
-                  ➤
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                  </svg>
                 </button>
               </form>
             )}
@@ -810,7 +817,7 @@ export default function MisticoChat() {
       {/* MODAL DO QUESTIONÁRIO DE ASTROLOGIA, SIGNOS & MAPA DO PARCEIRO */}
       {showQuestionnaire && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#1c1016] border border-purple-200 dark:border-purple-400/25 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
+          <div className="bg-white dark:bg-[#1a0d24] border border-purple-200 dark:border-purple-400/25 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
@@ -850,7 +857,7 @@ export default function MisticoChat() {
                       className={`text-left p-2.5 rounded-xl border text-xs font-medium transition-all ${
                         astroQuiz.objetivo === opcao
                           ? "bg-purple-900 text-white border-purple-700 shadow-sm"
-                          : "bg-stone-50 dark:bg-white/5 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-white/10 hover:bg-purple-50"
+                          : "bg-stone-50 dark:bg-[#241230] text-stone-700 dark:text-stone-300 border-stone-200 dark:border-purple-300/15 hover:bg-purple-50"
                       }`}
                     >
                       ✨ {opcao}
@@ -867,7 +874,7 @@ export default function MisticoChat() {
                     placeholder="Ex: Escorpião (14/11/1995)"
                     value={astroQuiz.meusDados}
                     onChange={(e) => setAstroQuiz({ ...astroQuiz, meusDados: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#241230] border border-stone-200 dark:border-purple-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
                 <div>
@@ -877,7 +884,7 @@ export default function MisticoChat() {
                     placeholder="Ex: Aquário (20/02) — ou só o signo"
                     value={astroQuiz.dadosParceiro}
                     onChange={(e) => setAstroQuiz({ ...astroQuiz, dadosParceiro: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#241230] border border-stone-200 dark:border-purple-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
               </div>
@@ -890,7 +897,7 @@ export default function MisticoChat() {
                     placeholder="Ex: Ficando / Namorando / Afastados / Ex"
                     value={astroQuiz.statusRelacao}
                     onChange={(e) => setAstroQuiz({ ...astroQuiz, statusRelacao: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#241230] border border-stone-200 dark:border-purple-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
                 <div>
@@ -900,7 +907,7 @@ export default function MisticoChat() {
                     placeholder="Ex: Uma hora é carinhoso(a), depois some e fica frio..."
                     value={astroQuiz.comportamentoDuvida}
                     onChange={(e) => setAstroQuiz({ ...astroQuiz, comportamentoDuvida: e.target.value })}
-                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                    className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#241230] border border-stone-200 dark:border-purple-300/15 text-stone-800 dark:text-stone-100"
                   />
                 </div>
               </div>
@@ -912,7 +919,7 @@ export default function MisticoChat() {
                   placeholder="Ex: Nós temos futuro juntos? O que ele(a) realmente sente por mim hoje?"
                   value={astroQuiz.perguntaPrincipal}
                   onChange={(e) => setAstroQuiz({ ...astroQuiz, perguntaPrincipal: e.target.value })}
-                  className="w-full rounded-xl px-3.5 py-2 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
+                  className="w-full rounded-xl px-3.5 py-2 bg-stone-50 dark:bg-[#241230] border border-stone-200 dark:border-purple-300/15 text-stone-800 dark:text-stone-100"
                 />
               </div>
 
@@ -938,7 +945,7 @@ export default function MisticoChat() {
 
       {showPaywallModal && !isPremium && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1c1016] border border-purple-100 dark:border-purple-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+          <div className="bg-white dark:bg-[#1a0d24] border border-purple-100 dark:border-purple-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <button
               onClick={() => setShowPaywallModal(false)}
               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
