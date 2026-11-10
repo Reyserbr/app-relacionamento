@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
+import RewardedAdModal from "@/components/RewardedAdModal";
 
 interface Attachment {
   name: string;
@@ -41,7 +42,6 @@ export default function ReconquistaChat() {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
-  const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -210,14 +210,10 @@ export default function ReconquistaChat() {
   };
 
   const handleUnlockAdBonus = () => {
-    setIsWatchingAd(true);
-    setTimeout(() => {
-      const nextBonus = bonusLimit + 3;
-      setBonusLimit(nextBonus);
-      saveToHistory(messages, nextBonus);
-      setIsWatchingAd(false);
-      setShowPaywallModal(false);
-    }, 2500);
+    const nextBonus = bonusLimit + 3;
+    setBonusLimit(nextBonus);
+    saveToHistory(messages, nextBonus);
+    setShowPaywallModal(false);
   };
 
   useEffect(() => {
@@ -987,67 +983,16 @@ export default function ReconquistaChat() {
         </div>
       )}
 
-      {showPaywallModal && !isPremium && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1c0d15] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-            <button
-              onClick={() => setShowPaywallModal(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
-            >
-              ✕
-            </button>
-
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 flex items-center justify-center text-2xl mb-4">
-              ❤️‍🩹
-            </div>
-
-            <span className="text-[11px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
-              Módulo Avançado • Reconquista
-            </span>
-            <h3 className="text-2xl font-serif font-bold text-stone-900 dark:text-white mt-1 mb-2">
-              Desbloqueie o Protocolo de Reconquista
-            </h3>
-            <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-5">
-              Acesse a estratégia completa para o seu caso, reduza a dependência emocional e reverta o término:
-            </p>
-
-            <ul className="space-y-2.5 text-sm text-stone-700 dark:text-stone-300 mb-6">
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Estratégia Personalizada:</strong> O passo a passo completo da tática indicada para o seu caso.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Plano de Repaginação:</strong> Rotina, aparência, lugares e hobbies para cortar a dependência e gerar atração.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Consultas Ilimitadas:</strong> Acompanhamento diário para cada fase do Contato Zero.</span>
-              </li>
-            </ul>
-
-            <a
-              href={CHECKOUT_URL}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-rose-900 to-rose-700 text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3"
-            >
-              Desbloquear Protocolo Completo →
-            </a>
-
-            <button
-              type="button"
-              onClick={handleUnlockAdBonus}
-              disabled={isWatchingAd}
-              className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10"
-            >
-              {isWatchingAd ? (
-                <span>⏳ Carregando patrocinador... Aguarde 2s</span>
-              ) : (
-                <span>📺 Assistir 1 Anúncio para liberar +3 Mensagens Grátis</span>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* NOVO MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS INTEGRADO */}
+      <RewardedAdModal
+        isOpen={showPaywallModal && !isPremium}
+        onClose={() => setShowPaywallModal(false)}
+        onRewardEarned={handleUnlockAdBonus}
+        checkoutUrl={CHECKOUT_URL}
+        theme="rose"
+        badgeText="Módulo Avançado • Reconquiste"
+        titleText="Desbloqueie o Protocolo de Reconquista"
+      />
     </div>
   );
 }

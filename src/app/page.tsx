@@ -1,3 +1,4 @@
+import AdBanner from "@/components/AdBanner";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
@@ -223,6 +224,9 @@ export default function Home() {
 
         </div>
       </div>
+      <div className="w-full max-w-4xl mx-auto px-6 mt-12">
+  <AdBanner format="horizontal" slotId="HOME_BOTTOM_SLOT" />
+</div>
       {/* RODAPÉ INSTITUCIONAL & AVISO LEGAL DE IA (CONFORMIDADE ADSENSE / LGPD) */}
       <footer className="w-full border-t border-stone-200 dark:border-white/10 bg-white/60 dark:bg-[#10070b] mt-20 py-10 px-6 text-center text-xs text-stone-500 dark:text-stone-400">
         <div className="max-w-5xl mx-auto space-y-4">

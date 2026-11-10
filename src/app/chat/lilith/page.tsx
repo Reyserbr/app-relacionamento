@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
+import RewardedAdModal from "@/components/RewardedAdModal";
 
 interface Attachment {
   name: string;
@@ -256,7 +257,6 @@ export default function LilithChat() {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
-  const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -445,14 +445,10 @@ export default function LilithChat() {
   };
 
   const handleUnlockAdBonus = () => {
-    setIsWatchingAd(true);
-    setTimeout(() => {
-      const nextBonus = bonusLimit + 3;
-      setBonusLimit(nextBonus);
-      saveToHistory(messages, nextBonus);
-      setIsWatchingAd(false);
-      setShowPaywallModal(false);
-    }, 2500);
+    const nextBonus = bonusLimit + 3;
+    setBonusLimit(nextBonus);
+    saveToHistory(messages, nextBonus);
+    setShowPaywallModal(false);
   };
 
   useEffect(() => {
@@ -829,7 +825,6 @@ export default function LilithChat() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* Botão no tom escuro elegante igual à Print 3 */}
             <button
               type="button"
               onClick={() => setShowCaseSelector(true)}
@@ -865,7 +860,7 @@ export default function LilithChat() {
           </div>
         </header>
 
-        {/* ÁREA DE MENSAGENS (Sem barra branca grossa no PC) */}
+        {/* ÁREA DE MENSAGENS */}
         <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-3 space-y-4">
@@ -879,7 +874,6 @@ export default function LilithChat() {
                 Selecione abaixo qual situação vamos analisar, grave um áudio ou aperte <strong>Ctrl+V para colar o print</strong> da conversa.
               </p>
 
-              {/* Botões com tom destacado igual à Print 3 tanto no celular quanto no PC */}
               <div className="flex flex-wrap justify-center gap-2 max-w-xl pt-2">
                 {Object.values(TOOL_CONFIGS).map((t) => (
                   <button
@@ -968,7 +962,7 @@ export default function LilithChat() {
           <div ref={messagesEndRef} />
         </main>
 
-        {/* BARRA DE DIGITAÇÃO ESTILO CHATGPT (SEM CAIXA QUADRADA INTERNA + ÍCONES FINOS SVG) */}
+        {/* BARRA DE DIGITAÇÃO ESTILO CHATGPT */}
         <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
             {attachment && (
@@ -1022,7 +1016,6 @@ export default function LilithChat() {
                   className="hidden"
                 />
 
-                {/* Botão + minimalista igual ao ChatGPT */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -1034,7 +1027,6 @@ export default function LilithChat() {
                   </svg>
                 </button>
 
-                {/* Textarea 100% invisível sem bordas quadradas do navegador */}
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -1051,7 +1043,6 @@ export default function LilithChat() {
                   className="flex-1 bg-transparent !border-0 !ring-0 !outline-none !shadow-none appearance-none text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400/80 px-1 py-1.5 text-sm sm:text-base resize-none max-h-32 overflow-y-auto leading-normal"
                 />
 
-                {/* Microfone SVG limpo igual ao ChatGPT */}
                 <button
                   type="button"
                   onClick={toggleRecording}
@@ -1068,7 +1059,6 @@ export default function LilithChat() {
                   {isRecording && <span className="text-[11px] font-bold">{recordingSeconds}s</span>}
                 </button>
 
-                {/* Botão circular de envio elegante (tom vinho/ameixa, sem vermelho gritante) */}
                 <button
                   type="submit"
                   disabled={isLoading || (!input.trim() && !attachment)}
@@ -1251,67 +1241,14 @@ export default function LilithChat() {
         </div>
       )}
 
-      {showPaywallModal && !isPremium && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1c0d15] border border-rose-100 dark:border-rose-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-            <button
-              onClick={() => setShowPaywallModal(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
-            >
-              ✕
-            </button>
-
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300 flex items-center justify-center text-2xl mb-4">
-              👑
-            </div>
-
-            <span className="text-[11px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
-              Acesso VIP • LilithLove
-            </span>
-            <h3 className="text-2xl font-serif font-bold text-stone-900 dark:text-white mt-1 mb-2">
-              Desbloqueie o Plano de Ação Completo
-            </h3>
-            <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-5">
-              Tenha acesso imediato à mensagem exata para virar o jogo e consultas ilimitadas com a Lilith:
-            </p>
-
-            <ul className="space-y-2.5 text-sm text-stone-700 dark:text-stone-300 mb-6">
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
-                <span><strong>A Mensagem Cirúrgica:</strong> O texto exato para copiar, colar e quebrar o silêncio.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
-                <span><strong>Guia de Stories e Postura:</strong> O que postar para ativar gatilho de perda.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
-                <span><strong>Consultas Ilimitadas:</strong> Envie quantos prints, áudios e textos quiser.</span>
-              </li>
-            </ul>
-
-            <a
-              href={CHECKOUT_URL}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-rose-900 to-rose-700 text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3"
-            >
-              Desbloquear Acesso Premium Ilimitado →
-            </a>
-
-            <button
-              type="button"
-              onClick={handleUnlockAdBonus}
-              disabled={isWatchingAd}
-              className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10"
-            >
-              {isWatchingAd ? (
-                <span>⏳ Carregando patrocinador... Aguarde 2s</span>
-              ) : (
-                <span>📺 Assistir 1 Anúncio para liberar +3 Mensagens Grátis</span>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* NOVO MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS INTEGRADO */}
+      <RewardedAdModal
+        isOpen={showPaywallModal && !isPremium}
+        onClose={() => setShowPaywallModal(false)}
+        onRewardEarned={handleUnlockAdBonus}
+        checkoutUrl={CHECKOUT_URL}
+        theme="rose"
+      />
     </div>
   );
 }

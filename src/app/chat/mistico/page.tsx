@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
+import RewardedAdModal from "@/components/RewardedAdModal";
 
 interface Attachment {
   name: string;
@@ -41,7 +42,6 @@ export default function MisticoChat() {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
-  const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -206,14 +206,10 @@ export default function MisticoChat() {
   };
 
   const handleUnlockAdBonus = () => {
-    setIsWatchingAd(true);
-    setTimeout(() => {
-      const nextBonus = bonusLimit + 3;
-      setBonusLimit(nextBonus);
-      saveToHistory(messages, nextBonus);
-      setIsWatchingAd(false);
-      setShowPaywallModal(false);
-    }, 2500);
+    const nextBonus = bonusLimit + 3;
+    setBonusLimit(nextBonus);
+    saveToHistory(messages, nextBonus);
+    setShowPaywallModal(false);
   };
 
   useEffect(() => {
@@ -943,67 +939,17 @@ export default function MisticoChat() {
         </div>
       )}
 
-      {showPaywallModal && !isPremium && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1a0d24] border border-purple-100 dark:border-purple-400/20 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-            <button
-              onClick={() => setShowPaywallModal(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
-            >
-              ✕
-            </button>
-
-            <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300 flex items-center justify-center text-2xl mb-4">
-              🔮
-            </div>
-
-            <span className="text-[11px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
-              Oráculo VIP • LilithLove
-            </span>
-            <h3 className="text-2xl font-serif font-bold text-stone-900 dark:text-white mt-1 mb-2">
-              Desbloqueie o Dossiê Astral Completo
-            </h3>
-            <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-5">
-              Descubra o ponto fraco de sedução do signo dessa pessoa, a 3ª Carta do Destino e o ritual exato de conexão:
-            </p>
-
-            <ul className="space-y-2.5 text-sm text-stone-700 dark:text-stone-300 mb-6">
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Gatilho de Obsessão do Signo:</strong> Como agir e falar para prender a mente dessa pessoa.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>A 3ª Carta e Simpatia Secreta:</strong> O desfecho do Tarot e o ritual passo a passo.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Sinastria & Horóscopo Ilimitados:</strong> Consulte quantos signos e datas quiser.</span>
-              </li>
-            </ul>
-
-            <a
-              href={CHECKOUT_URL}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-900 to-indigo-700 text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3"
-            >
-              Desbloquear Oráculo Completo →
-            </a>
-
-            <button
-              type="button"
-              onClick={handleUnlockAdBonus}
-              disabled={isWatchingAd}
-              className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10"
-            >
-              {isWatchingAd ? (
-                <span>⏳ Carregando patrocinador... Aguarde 2s</span>
-              ) : (
-                <span>📺 Assistir 1 Anúncio para liberar +3 Leituras Grátis</span>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* NOVO MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS INTEGRADO */}
+      <RewardedAdModal
+        isOpen={showPaywallModal && !isPremium}
+        onClose={() => setShowPaywallModal(false)}
+        onRewardEarned={handleUnlockAdBonus}
+        checkoutUrl={CHECKOUT_URL}
+        theme="purple"
+        badgeText="Oráculo VIP • LilithLove"
+        titleText="Desbloqueie o Dossiê Astral Completo"
+        rewardLabel="+3 Leituras Grátis"
+      />
     </div>
   );
 }

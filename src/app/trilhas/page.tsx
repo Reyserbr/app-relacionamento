@@ -1,5 +1,6 @@
 "use client";
 
+import AdBanner from "@/components/AdBanner";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
