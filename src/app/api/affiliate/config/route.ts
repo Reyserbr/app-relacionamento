@@ -21,6 +21,12 @@ interface PlanItem {
   buttonText: string;
 }
 
+interface FeedbackSummary {
+  likes: number;
+  dislikes: number;
+  recentDislikes: { agent: string; snippet: string; date: string }[];
+}
+
 interface SystemSettings {
   plans: PlanItem[];
   communityOpen: boolean;
@@ -34,6 +40,7 @@ interface SystemSettings {
   adsenseModalSlot: string;
   customBannerHtml: string;
   customModalHtml: string;
+  feedbackStats: FeedbackSummary;
 }
 
 const DEFAULT_PLANS: PlanItem[] = [
@@ -60,7 +67,7 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
   const defaults: SystemSettings = {
     plans: DEFAULT_PLANS,
     communityOpen: false,
-    tracksOpen: false, // Começa oculto até você ativar no Admin
+    tracksOpen: false,
     salesPopupOpen: true,
     lessonVideos: {},
     adsEnabled: true,
@@ -70,6 +77,7 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
     adsenseModalSlot: '',
     customBannerHtml: '',
     customModalHtml: '',
+    feedbackStats: { likes: 0, dislikes: 0, recentDislikes: [] },
   };
 
   if (!rawLink || rawLink === 'SYSTEM_CONFIG') return defaults;
@@ -93,6 +101,16 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
         adsenseModalSlot: typeof parsed.adsenseModalSlot === 'string' ? parsed.adsenseModalSlot : '',
         customBannerHtml: typeof parsed.customBannerHtml === 'string' ? parsed.customBannerHtml : '',
         customModalHtml: typeof parsed.customModalHtml === 'string' ? parsed.customModalHtml : '',
+        feedbackStats:
+          parsed.feedbackStats && typeof parsed.feedbackStats === 'object'
+            ? {
+                likes: Number(parsed.feedbackStats.likes || 0),
+                dislikes: Number(parsed.feedbackStats.dislikes || 0),
+                recentDislikes: Array.isArray(parsed.feedbackStats.recentDislikes)
+                  ? parsed.feedbackStats.recentDislikes.slice(0, 8)
+                  : [],
+              }
+            : defaults.feedbackStats,
       };
     }
   } catch (_) {}
@@ -173,6 +191,7 @@ export async function POST(req: NextRequest) {
         typeof body.customModalHtml === 'string'
           ? body.customModalHtml
           : currentSettings.customModalHtml,
+      feedbackStats: currentSettings.feedbackStats,
     };
 
     const serialized = JSON.stringify(nextSettings);
@@ -202,5 +221,48 @@ export async function POST(req: NextRequest) {
       { error: e?.message || 'Erro ao salvar configuração' },
       { status: 500 }
     );
+  }
+}
+
+// Registra Like (up) ou Dislike (down) dos usuários nas respostas da IA
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const vote = body.vote === 'down' ? 'down' : 'up';
+    const agent = String(body.agent || 'lilith');
+    const snippet = String(body.snippet || '').slice(0, 140);
+
+    const existing = await findAffiliateByClerkId(CONFIG_KEY);
+    const currentSettings = parseConfigFromRow(existing?.cakto_affiliate_link);
+
+    const stats = currentSettings.feedbackStats || { likes: 0, dislikes: 0, recentDislikes: [] };
+    if (vote === 'up') {
+      stats.likes += 1;
+    } else {
+      stats.dislikes += 1;
+      if (snippet) {
+        stats.recentDislikes = [
+          {
+            agent,
+            snippet,
+            date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+          },
+          ...(stats.recentDislikes || []),
+        ].slice(0, 6);
+      }
+    }
+
+    currentSettings.feedbackStats = stats;
+    const serialized = JSON.stringify(currentSettings);
+
+    if (existing?.id) {
+      await updateAffiliate(existing.id, {
+        cakto_affiliate_link: serialized,
+      });
+    }
+
+    return NextResponse.json({ ok: true, feedbackStats: stats });
+  } catch (e) {
+    return NextResponse.json({ ok: false });
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import AssistantMessageCard from "@/components/AssistantMessageCard";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
@@ -298,6 +299,7 @@ export default function LilithChat() {
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
 
   const [showCaseSelector, setShowCaseSelector] = useState(false);
   const [activeTool, setActiveTool] = useState<ToolConfig | null>(null);
@@ -630,14 +632,16 @@ export default function LilithChat() {
 
       const data = await res.json();
 
-      const withReply: Message[] = [
-        ...updatedMessages,
-        {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: data.reply || "Não consegui processar a resposta.",
-        },
-      ];
+      const newReplyId = (Date.now() + 1).toString();
+setStreamingMsgId(newReplyId);
+const withReply: Message[] = [
+  ...updatedMessages,
+  {
+    id: newReplyId,
+    role: "assistant",
+    content: data.reply || "Não consegui processar a resposta.",
+  },
+];
       setMessages(withReply);
       saveToHistory(withReply);
     } catch (err) {
@@ -957,66 +961,54 @@ export default function LilithChat() {
               </div>
             </div>
           ) : (
-            messages.map((m) => (
-              <div key={m.id} className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
-                <div
-                  className={`max-w-[90%] sm:max-w-[82%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-sm whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] ${
-                    m.role === "user"
-                      ? "bg-gradient-to-br from-[#6b1630] to-[#4a0f21] text-rose-50 rounded-tr-sm shadow-md border border-rose-400/20"
-                      : "bg-white dark:bg-[#24101a] text-stone-800 dark:text-stone-200 border border-rose-100/80 dark:border-rose-300/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-tl-sm shadow-md"
-                  }`}
-                >
-                  {m.role === "assistant" && (
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-rose-800 dark:text-rose-400 mb-1.5 flex items-center gap-1.5">
-                      <span>✦</span> LILITH • CONSULTORIA AMOROSA
-                    </div>
-                  )}
+            messages.map((m) =>
+  m.role === "assistant" ? (
+    <AssistantMessageCard
+      key={m.id}
+      messageId={m.id}
+      content={m.content}
+      agent="lilith" // use "reconquista" no reconquista/page.tsx e "mistico" no mistico/page.tsx
+      isNew={m.id === streamingMsgId}
+      copiedId={copiedId}
+      onCopy={copyMessage}
+      attachment={m.attachment}
+    />
+  ) : (
+    <div key={m.id} className="flex flex-col items-end">
+      <div className="max-w-[88%] sm:max-w-[78%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-md whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] bg-gradient-to-br from-[#6b1630] to-[#4a0f21] text-rose-50 rounded-tr-sm border border-rose-400/20">
+        {m.attachment && (
+          <div className="mb-3 rounded-xl overflow-hidden bg-black/10 p-1">
+            {m.attachment.mimeType.startsWith("image/") && (
+              <img src={m.attachment.previewUrl} alt="Print enviado" className="max-h-72 rounded-lg object-contain mx-auto" />
+            )}
+            {m.attachment.mimeType.startsWith("audio/") && (
+              <audio controls src={m.attachment.previewUrl} className="w-full max-w-xs" />
+            )}
+          </div>
+        )}
+        <div>{formatText(m.content)}</div>
+      </div>
 
-                  {m.attachment && (
-                    <div className="mb-3 rounded-xl overflow-hidden bg-black/10 p-1">
-                      {m.attachment.mimeType.startsWith("image/") && (
-                        <img src={m.attachment.previewUrl} alt="Print enviado" className="max-h-72 rounded-lg object-contain mx-auto" />
-                      )}
-                      {m.attachment.mimeType.startsWith("audio/") && (
-                        <audio controls src={m.attachment.previewUrl} className="w-full max-w-xs" />
-                      )}
-                      {m.attachment.mimeType.startsWith("video/") && (
-                        <video controls src={m.attachment.previewUrl} className="max-h-72 rounded-lg mx-auto" />
-                      )}
-                    </div>
-                  )}
-
-                  <div>{formatText(m.content)}</div>
-                </div>
-
-                <div className="flex items-center gap-3 mt-1 px-2 text-[11px] text-stone-400 dark:text-stone-500">
-                  <button
-                    type="button"
-                    onClick={() => copyMessage(m.id, m.content)}
-                    className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    <span>{copiedId === m.id ? "Copiado" : "Copiar texto"}</span>
-                  </button>
-                  {m.role === "user" && (
-                    <button
-                      type="button"
-                      onClick={() => sendRawMessage(m.content)}
-                      disabled={isLoading}
-                      className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                      </svg>
-                      <span>Reenviar</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
+      <div className="flex items-center gap-3 mt-1 px-2 text-[11px] text-stone-400 dark:text-stone-500">
+        <button
+          type="button"
+          onClick={() => copyMessage(m.id, m.content)}
+          className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
+        >
+          <span>{copiedId === m.id ? "Copiado" : "Copiar texto"}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => sendRawMessage(m.content)}
+          disabled={isLoading}
+          className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
+        >
+          <span>Reenviar</span>
+        </button>
+      </div>
+    </div>
+  )
+)
 
           {isLoading && (
             <div className="flex justify-start">

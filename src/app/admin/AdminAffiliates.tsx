@@ -76,6 +76,7 @@ export default function AdminAffiliates() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [feedbackStats, setFeedbackStats] = useState<{ likes: number; dislikes: number }>({ likes: 0, dislikes: 0 });
 
   // 5 Alavancas Globais
   const [programOpen, setProgramOpen] = useState(true);
@@ -108,6 +109,7 @@ export default function AdminAffiliates() {
     fetch('/api/affiliate/config')
       .then((r) => r.json())
       .then((d) => {
+        if (d.feedbackStats) setFeedbackStats(d.feedbackStats);
         if (typeof d.isOpen === 'boolean') setProgramOpen(d.isOpen);
         if (typeof d.communityOpen === 'boolean') setCommunityOpen(d.communityOpen);
         if (typeof d.tracksOpen === 'boolean') setTracksOpen(d.tracksOpen);
