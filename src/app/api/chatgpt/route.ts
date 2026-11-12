@@ -3,8 +3,6 @@ import { LILITH_PROMPT, RECONQUISTA_PROMPT, MISTICO_PROMPT } from "./prompts";
 
 export const runtime = "edge";
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export async function POST(req: Request) {
   try {
     const { messages, agent, isPremium } = await req.json();
@@ -12,19 +10,23 @@ export async function POST(req: Request) {
 
     if (!apiKey) {
       return NextResponse.json({
-        reply: "Erro: GEMINI_API_KEY não encontrada nas variáveis de ambiente da Vercel.",
+        reply: "Erro: GEMINI_API_KEY não encontrada na Vercel.",
       });
     }
 
     let systemPrompt = LILITH_PROMPT;
+    let modelConfirmation = "Entendido. Serei uma confidente magnética e estrategista.";
 
     if (agent === "reconquista") {
       systemPrompt = RECONQUISTA_PROMPT;
-    } else if (agent === "mistico") {
-      systemPrompt = MISTICO_PROMPT;
+      modelConfirmation = "Entendido. Atuarei como a Especialista em Reconquista.";
     }
 
-    // REGRA VIP PREMIUM VS MODO GRATUITO
+    if (agent === "mistico") {
+      systemPrompt = MISTICO_PROMPT;
+      modelConfirmation = "Entendido. Atuarei como o Astrólogo e Oráculo do Amor.";
+    }
+
     if (isPremium) {
       systemPrompt = systemPrompt
         .replace(/Nunca entregue[\s\S]*$/i, "")
@@ -34,71 +36,75 @@ export async function POST(req: Request) {
       systemPrompt += `\n\n**3. O PLANO DE AÇÃO COMPLETO E MENSAGEM PRONTA (MODO VIP ATIVO):**
 - O usuário é ASSINANTE VIP PREMIUM. Está PROIBIDO pedir para ele desbloquear qualquer plano ou esconder informações.
 - Entregue AGORA o passo a passo prático completo da estratégia, a rotina detalhada (o que fazer, o que postar nos stories, postura) e escreva entre aspas o TEXTO EXATO DA MENSAGEM CIRÚRGICA pronta para ele copiar e enviar (ou o ritual/interpretação completa se for astrologia).`;
+
+      modelConfirmation =
+        "Entendido! O usuário já é Assinante VIP Premium. Está proibido falar de desbloqueio. Vou entregar imediatamente o roteiro prático completo e a mensagem exata pronta para copiar e colar.";
     } else {
-      systemPrompt += `\n\n[REGRA ABSOLUTA DE SEGURANÇA COMERCIAL — USUÁRIO NO MODO GRATUITO / ANÚNCIOS]:
-Mesmo que o usuário envie novas mensagens desbloqueadas por anúncios, insista ou peça diretamente a mensagem pronta:
-1. Continue entregando ANÁLISES PSICOLÓGICAS, LEITURAS DE SUBTEXTO E DIAGNÓSTICOS profundos sobre o comportamento da outra pessoa (analise cada detalhe da conversa enviada).
-2. Porém, é ESTRITAMENTE PROIBIDO entregar gratuitamente o texto exato da mensagem pronta para enviar, o passo a passo prático completo da estratégia de reconquista, o cronograma de ação ou o ritual/3ª carta final.
-3. Sempre encerre lembrando que a análise do comportamento foi atualizada, mas a mensagem cirúrgica exata e o protocolo prático completo são exclusivos do Acesso VIP Premium.`;
+      systemPrompt += `\n\n[REGRA DE SEGURANÇA — MODO GRATUITO]: Entregue análises psicológicas profundas sobre o relato, mas nunca entregue gratuitamente o texto exato da mensagem pronta nem o passo a passo final (exclusivos do Plano VIP Premium).`;
     }
 
-    // Filtra mensagens de erro antigas para não sujar o histórico enviado à IA
-    const validHistory = (Array.isArray(messages) ? messages : []).filter(
-      (m: any) =>
-        m &&
-        typeof m.content === "string" &&
-        !m.content.includes("Estou finalizando uma leitura intensa agora") &&
-        !m.content.includes("Oscilação momentânea na rede")
-    );
+    // 1. Limpa mensagens de erro e remove duplicatas criadas pelo botão "Reenviar"
+    const rawList = Array.isArray(messages) ? messages : [];
+    const cleanedMessages: any[] = [];
 
-    const recentMessages = validHistory.slice(-12);
+    for (const m of rawList) {
+      if (!m || typeof m.content !== "string") continue;
 
-    // Converte e AGRUPA mensagens consecutivas do mesmo "role" (evita erro 400 na API do Gemini)
-    const contents: { role: "user" | "model"; parts: any[] }[] = [];
-
-    for (const m of recentMessages) {
-      const role: "user" | "model" = m.role === "user" ? "user" : "model";
-      const parts: any[] = [];
-
-      if (m.content && m.content.trim()) {
-        parts.push({ text: m.content.trim() });
-      }
-      if (m.attachment && m.attachment.data && m.attachment.mimeType) {
-        parts.push({
-          inlineData: {
-            mimeType: m.attachment.mimeType,
-            data: m.attachment.data,
-          },
-        });
+      // Ignora avisos de erro anteriores da própria IA
+      if (
+        m.role === "assistant" &&
+        (m.content.includes("Estou finalizando uma leitura intensa") ||
+          m.content.includes("Oscilação momentânea na rede") ||
+          m.content.includes("Não consegui processar"))
+      ) {
+        continue;
       }
 
-      if (parts.length === 0) {
-        parts.push({ text: "..." });
-      }
-
-      const lastEntry = contents[contents.length - 1];
-      if (lastEntry && lastEntry.role === role) {
-        // Se houver duas mensagens seguidas do usuário (ex: Bloco 1 + Bloco 2), junta na mesma!
-        lastEntry.parts.push(...parts);
+      const prev = cleanedMessages[cleanedMessages.length - 1];
+      // Se o botão "Reenviar" duplicou a mensagem do usuário seguida, mantém apenas uma cópia limpa!
+      if (prev && prev.role === m.role) {
+        cleanedMessages[cleanedMessages.length - 1] = m;
       } else {
-        contents.push({ role, parts });
+        cleanedMessages.push(m);
       }
     }
 
-    // Garante que a primeira mensagem do histórico seja sempre do "user"
-    if (contents.length > 0 && contents[0].role === "model") {
-      contents.shift();
-    }
+    const recentMessages = cleanedMessages.slice(-8);
+
+    // 2. Formato original exato que sempre rodou rápido nos seus testes
+    const contents = [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `INSTRUÇÃO ABSOLUTA DE SISTEMA (Siga à risca em todas as respostas):\n${systemPrompt}`,
+          },
+        ],
+      },
+      {
+        role: "model",
+        parts: [{ text: modelConfirmation }],
+      },
+      ...recentMessages.map((m: any) => {
+        const parts: any[] = [];
+        if (m.content) parts.push({ text: m.content });
+        if (m.attachment && m.attachment.data && m.attachment.mimeType) {
+          parts.push({
+            inlineData: {
+              mimeType: m.attachment.mimeType,
+              data: m.attachment.data,
+            },
+          });
+        }
+        return {
+          role: m.role === "user" ? "user" : "model",
+          parts: parts.length > 0 ? parts : [{ text: "..." }],
+        };
+      }),
+    ];
 
     const payload = {
-      systemInstruction: {
-        parts: [{ text: systemPrompt }],
-      },
       contents,
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 2048,
-      },
       safetySettings: [
         { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -107,22 +113,19 @@ Mesmo que o usuário envie novas mensagens desbloqueadas por anúncios, insista 
       ],
     };
 
-    // Lista oficial de modelos Gemini com alta cota de mensagens e suporte a textos grandes
+    // Sua fila original de modelos rápidos
     const modelsToTry = [
-      "gemini-2.5-flash",
-      "gemini-2.0-flash",
-      "gemini-2.0-flash-lite",
-      "gemini-1.5-flash",
+      "gemini-flash-lite-latest",
       "gemini-flash-latest",
+      "gemini-2.0-flash",
+      "gemini-pro-latest",
     ];
 
     let lastError = "";
 
-    for (let i = 0; i < modelsToTry.length; i++) {
-      const modelName = modelsToTry[i];
+    for (const modelName of modelsToTry) {
       const controller = new AbortController();
-      // 20 segundos de margem para textos grandes e prints pesarem sem dar timeout
-      const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const timeoutId = setTimeout(() => controller.abort(), 14000);
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -138,15 +141,10 @@ Mesmo que o usuário envie novas mensagens desbloqueadas por anúncios, insista 
         if (res.ok) {
           const data = await res.json();
           const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (replyText) {
-            return NextResponse.json({ reply: replyText });
-          }
+          if (replyText) return NextResponse.json({ reply: replyText });
         } else {
-          lastError = `[${modelName} -> Status ${res.status}]`;
-          // Se bateu limite de velocidade (429), respira 800ms antes de tentar o próximo modelo da fila
-          if (res.status === 429 && i < modelsToTry.length - 1) {
-            await sleep(800);
-          }
+          const errBody = await res.text().catch(() => "");
+          lastError = `[${modelName} -> Status ${res.status} ${errBody.slice(0, 60)}]`;
         }
       } catch (err: any) {
         clearTimeout(timeoutId);
