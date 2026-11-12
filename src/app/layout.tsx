@@ -41,6 +41,13 @@ export default function RootLayout({
           <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#140a0f" />
 <link rel="apple-touch-icon" href="/logo.png" />
+{process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+  <script
+    async
+    src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+    crossOrigin="anonymous"
+  />
+)}
         </head>
         <body className="font-sans antialiased">
           {/* Captura o ?ref= (indicação de afiliado) em qualquer página e salva por 30 dias */}

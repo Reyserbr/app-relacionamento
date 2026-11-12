@@ -26,6 +26,14 @@ interface SystemSettings {
   communityOpen: boolean;
   salesPopupOpen: boolean;
   lessonVideos: Record<string, string>;
+  // Novas configurações de Monetização / Anúncios controladas pelo Admin
+  adsEnabled: boolean;
+  adsProvider: 'adsense' | 'custom';
+  adsenseClientId: string;
+  adsenseBannerSlot: string;
+  adsenseModalSlot: string;
+  customBannerHtml: string;
+  customModalHtml: string;
 }
 
 const DEFAULT_PLANS: PlanItem[] = [
@@ -51,16 +59,22 @@ const DEFAULT_PLANS: PlanItem[] = [
 function parseConfigFromRow(rawLink?: string | null): SystemSettings {
   const defaults: SystemSettings = {
     plans: DEFAULT_PLANS,
-    communityOpen: false, // Começa desativado até você ligar no Admin
-    salesPopupOpen: true, // Notificações de vendas ativas para Free
+    communityOpen: false,
+    salesPopupOpen: true,
     lessonVideos: {},
+    adsEnabled: true,
+    adsProvider: 'adsense',
+    adsenseClientId: process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID ?? '',
+    adsenseBannerSlot: '',
+    adsenseModalSlot: '',
+    customBannerHtml: '',
+    customModalHtml: '',
   };
 
   if (!rawLink || rawLink === 'SYSTEM_CONFIG') return defaults;
 
   try {
     const parsed = JSON.parse(rawLink);
-    // Compatibilidade caso antes estivesse salvo apenas o array de planos
     if (Array.isArray(parsed)) {
       return { ...defaults, plans: parsed.length > 0 ? parsed : DEFAULT_PLANS };
     }
@@ -70,6 +84,13 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
         communityOpen: typeof parsed.communityOpen === 'boolean' ? parsed.communityOpen : false,
         salesPopupOpen: typeof parsed.salesPopupOpen === 'boolean' ? parsed.salesPopupOpen : true,
         lessonVideos: parsed.lessonVideos && typeof parsed.lessonVideos === 'object' ? parsed.lessonVideos : {},
+        adsEnabled: typeof parsed.adsEnabled === 'boolean' ? parsed.adsEnabled : true,
+        adsProvider: parsed.adsProvider === 'custom' ? 'custom' : 'adsense',
+        adsenseClientId: typeof parsed.adsenseClientId === 'string' ? parsed.adsenseClientId : defaults.adsenseClientId,
+        adsenseBannerSlot: typeof parsed.adsenseBannerSlot === 'string' ? parsed.adsenseBannerSlot : '',
+        adsenseModalSlot: typeof parsed.adsenseModalSlot === 'string' ? parsed.adsenseModalSlot : '',
+        customBannerHtml: typeof parsed.customBannerHtml === 'string' ? parsed.customBannerHtml : '',
+        customModalHtml: typeof parsed.customModalHtml === 'string' ? parsed.customModalHtml : '',
       };
     }
   } catch (_) {}
@@ -85,18 +106,12 @@ export async function GET() {
 
     return NextResponse.json({
       isOpen,
-      plans: settings.plans,
-      communityOpen: settings.communityOpen,
-      salesPopupOpen: settings.salesPopupOpen,
-      lessonVideos: settings.lessonVideos,
+      ...settings,
     });
   } catch (e) {
     return NextResponse.json({
       isOpen: true,
-      plans: DEFAULT_PLANS,
-      communityOpen: false,
-      salesPopupOpen: true,
-      lessonVideos: {},
+      ...parseConfigFromRow(null),
     });
   }
 }
@@ -129,6 +144,13 @@ export async function POST(req: NextRequest) {
         body.lessonVideos && typeof body.lessonVideos === 'object'
           ? body.lessonVideos
           : currentSettings.lessonVideos,
+      adsEnabled: typeof body.adsEnabled === 'boolean' ? body.adsEnabled : currentSettings.adsEnabled,
+      adsProvider: body.adsProvider === 'custom' || body.adsProvider === 'adsense' ? body.adsProvider : currentSettings.adsProvider,
+      adsenseClientId: typeof body.adsenseClientId === 'string' ? body.adsenseClientId.trim() : currentSettings.adsenseClientId,
+      adsenseBannerSlot: typeof body.adsenseBannerSlot === 'string' ? body.adsenseBannerSlot.trim() : currentSettings.adsenseBannerSlot,
+      adsenseModalSlot: typeof body.adsenseModalSlot === 'string' ? body.adsenseModalSlot.trim() : currentSettings.adsenseModalSlot,
+      customBannerHtml: typeof body.customBannerHtml === 'string' ? body.customBannerHtml : currentSettings.customBannerHtml,
+      customModalHtml: typeof body.customModalHtml === 'string' ? body.customModalHtml : currentSettings.customModalHtml,
     };
 
     const serialized = JSON.stringify(nextSettings);

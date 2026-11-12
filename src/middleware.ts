@@ -4,17 +4,28 @@ import { NextResponse } from "next/server";
 export default authMiddleware({
   publicRoutes: [
     "/",
+    "/sobre",
+    "/planos",
+    "/trilhas",
+    "/comunidade",
+    "/termos",
+    "/privacidade",
+    "/contato",
     "/sign-in(.*)",
     "/sign-up(.*)",
-    // Webhooks externos precisam ser publicos (Cakto e Clerk chamam o servidor direto, sem login)
+    // Rotas públicas de configuração, status e webhooks
+    "/api/affiliate/config",
+    "/api/status",
     "/api/webhook/cakto",
     "/api/webhook/clerk",
+    "/manifest.json",
+    "/sw.js",
+    "/ads.txt",
   ],
   afterAuth(auth, req) {
-    // Se o usuário não estiver logado e clicar em qualquer botão que leva ao chat:
+    // Se o usuário não estiver logado e clicar em qualquer botão que leva ao chat ou painel restrito:
     if (!auth.userId && !auth.isPublicRoute) {
       const signInUrl = new URL("/sign-in", req.url);
-      // Guarda o link exato que ele clicou (ex: /chat/lilith?action=analise) para abrir direto lá após logar
       signInUrl.searchParams.set("redirect_url", req.url);
       return NextResponse.redirect(signInUrl);
     }
