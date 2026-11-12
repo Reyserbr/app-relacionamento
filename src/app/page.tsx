@@ -78,8 +78,8 @@ export default function Home() {
         <div className="relative w-full max-w-5xl px-6 py-12 sm:py-20 mx-auto flex flex-col items-center">
 
           {/* Hero */}
-          <div className="text-center max-w-3xl mb-14 mt-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-rose-200 dark:border-rose-400/20 bg-white/70 dark:bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-300 shadow-sm backdrop-blur mb-6">
+          <div className="text-center max-w-3xl mb-14 mt-4">
+            <span className="inline-flex items-center gap-2 rounded-full bg-rose-500/10 dark:bg-rose-500/15 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-rose-700 dark:text-rose-300 mb-6">
               <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
               Inteligência emocional guiada por IA
             </span>
@@ -93,90 +93,141 @@ export default function Home() {
               Analise conversas, melhore seus relacionamentos e saiba exatamente como agir.
             </p>
 
-            {/* Chips - Ações Rápidas */}
-            <div className="flex flex-wrap justify-center gap-3 mt-4">
+            {/* Botões de Ação Rápida com Ícones Vetoriais de IA e sem contornos pesados */}
+            <div className="flex flex-wrap justify-center gap-3.5 mt-4">
               <Link
                 href="/chat/lilith?action=conselho"
-                className="px-6 py-3 bg-rose-100 dark:bg-rose-950/70 hover:bg-rose-200 dark:hover:bg-rose-900/80 text-rose-900 dark:text-rose-50 border border-transparent dark:border-rose-400/25 rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2"
+                className="px-6 py-3.5 bg-gradient-to-r from-rose-900/90 to-rose-800/90 hover:from-rose-800 hover:to-rose-700 text-rose-50 rounded-2xl font-semibold text-sm transition-all shadow-lg shadow-rose-950/30 flex items-center gap-2.5"
               >
-                <span className="text-xl">💬</span> Preciso de um conselho
+                <svg className="w-4 h-4 text-rose-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>Preciso de um conselho</span>
               </Link>
+
               <Link
                 href="/chat/lilith?action=analise"
-                className="px-6 py-3 bg-orange-100 dark:bg-orange-950/70 hover:bg-orange-200 dark:hover:bg-orange-900/80 text-orange-900 dark:text-orange-50 border border-transparent dark:border-orange-400/25 rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2"
+                className="px-6 py-3.5 bg-amber-500/15 dark:bg-[#2a1710] hover:bg-amber-500/25 dark:hover:bg-[#381f15] text-amber-950 dark:text-amber-200 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2.5"
               >
-                <span className="text-xl">🔍</span> Analisar uma conversa
+                <svg className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <span>Analisar uma conversa</span>
               </Link>
+
               <Link
                 href="/chat/lilith?action=responder"
-                className="px-6 py-3 bg-white dark:bg-white/10 hover:bg-stone-100 dark:hover:bg-white/20 border border-stone-200 dark:border-white/20 text-stone-800 dark:text-white rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2"
+                className="px-6 py-3.5 bg-stone-200/70 dark:bg-white/[0.07] hover:bg-stone-300/70 dark:hover:bg-white/[0.12] text-stone-800 dark:text-stone-100 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2.5"
               >
-                <span className="text-xl">✍️</span> O que respondo agora?
+                <svg className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>O que respondo agora?</span>
               </Link>
             </div>
           </div>
 
-          {/* Ferramentas Inteligentes */}
+          {/* Ferramentas Inteligentes (Com Ícones Vetoriais SaaS IA) */}
           <div className="w-full mt-10">
             <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8 text-center">
               Ferramentas Inteligentes
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Card 1 - Primeiro Contato */}
               <Link
                 href="/chat/lilith?action=primeiro_contato"
-                className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
+                className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
               >
-                <div className="bg-stone-50 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">👋</div>
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-600 dark:text-rose-400">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+                  </svg>
+                </div>
                 <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Primeiro Contato</h3>
-                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.</p>
+                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
+                  Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.
+                </p>
               </Link>
 
+              {/* Card 2 - Detector de Red Flags */}
               <Link
                 href="/chat/lilith?action=red_flags"
-                className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
+                className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
               >
-                <div className="bg-stone-50 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">🚩</div>
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-600 dark:text-rose-400">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+                  </svg>
+                </div>
                 <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Detector de Red Flags</h3>
-                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.</p>
+                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
+                  Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.
+                </p>
               </Link>
 
+              {/* Card 3 - Pós-Encontro */}
               <Link
                 href="/chat/lilith?action=pos_encontro"
-                className="bg-white dark:bg-white/5 p-8 rounded-3xl shadow-sm border border-stone-100 dark:border-white/10 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
+                className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
               >
-                <div className="bg-stone-50 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">🥂</div>
-                <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Pós-Encontro</h3>
-                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).</p>
-              </Link>
-
-              <Link
-                href="/chat/reconquista"
-                className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/70 dark:to-orange-950/60 p-8 rounded-3xl shadow-sm border border-rose-200 dark:border-rose-400/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
-              >
-                <div className="absolute top-6 right-6 bg-rose-900 dark:bg-rose-500 text-rose-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
-                  Alta Eficácia
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-amber-600 dark:text-amber-400">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+                  </svg>
                 </div>
-                <div className="bg-white/60 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">❤️‍🩹</div>
-                <h3 className="text-xl font-semibold text-rose-900 dark:text-rose-50 mb-3">Reconectar / Reconquistar</h3>
-                <p className="text-rose-800/80 dark:text-rose-100/90 leading-relaxed pr-12">O módulo urgente. Estratégias profundas de reversão de crise, contato zero e reconstrução guiadas pela IA especialista.</p>
+                <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Pós-Encontro</h3>
+                <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
+                  Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).
+                </p>
               </Link>
 
+              {/* Card 4 - Oráculo do Amor & Sinastria (Agora na posição 4 lateral) */}
               <Link
                 href="/chat/mistico"
-                className="md:col-span-2 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-8 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
+                className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-8 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/25 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
               >
                 <div className="absolute top-6 right-6 bg-purple-900 dark:bg-purple-500 text-purple-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
                   Astrologia & Tarot
                 </div>
-                <div className="bg-white/60 dark:bg-white/10 p-3 rounded-2xl mb-5 group-hover:scale-110 transition-transform text-2xl">🔮</div>
-                <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-50 mb-3">Oráculo do Amor & Sinastria</h3>
-                <p className="text-purple-800/80 dark:text-purple-100/90 leading-relaxed pr-12">Descubra a compatibilidade astral de vocês, faça tiragens de cartas para revelar o futuro da relação e receba simpatias de conexão.</p>
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-400/25 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-purple-700 dark:text-purple-300">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-50 mb-3">
+                  Oráculo do Amor & Sinastria
+                </h3>
+                <p className="text-purple-800/80 dark:text-purple-100/90 leading-relaxed">
+                  Descubra a compatibilidade dos signos, o Mapa Mental do parceiro(a) e faça tiragens de cartas.
+                </p>
+              </Link>
+
+              {/* Card 5 - DESTAQUE PRINCIPAL (LARGURA TOTAL): Reconectar / Reconquistar */}
+              <Link
+                href="/chat/reconquista"
+                className="md:col-span-2 bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/75 dark:via-[#2b0916] dark:to-orange-950/60 p-8 sm:p-9 rounded-3xl shadow-md border border-rose-200 dark:border-rose-400/35 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
+              >
+                <div className="absolute top-6 right-6 bg-rose-900 dark:bg-rose-500 text-rose-50 text-[10px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                  Alta Eficácia • Módulo Urgente
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-400/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-700 dark:text-rose-300">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-rose-950 dark:text-rose-50 mb-3">
+                  Reconectar / Reconquistar
+                </h3>
+                <p className="text-rose-900/80 dark:text-rose-100/90 leading-relaxed max-w-3xl">
+                  O módulo de emergência para reverter términos e esfriamentos. Diagnóstico comportamental completo, protocolo de Contato Zero, repaginação de postura e a mensagem cirúrgica para reativar a saudade sem parecer carente.
+                </p>
               </Link>
             </div>
           </div>
 
-          {/* Trilhas de Aprendizado (Exibido apenas quando a alavanca Aulas & Trilhas está ativa no Admin) */}
+          {/* Trilhas de Aprendizado (Quando ativo no Admin) */}
           {tracksOpen && (
             <div className="w-full mt-20 pt-16 border-t border-stone-200 dark:border-white/10 text-center">
               <span className="text-rose-600 dark:text-rose-300 font-semibold tracking-wider uppercase text-sm mb-4 block">
@@ -186,9 +237,9 @@ export default function Home() {
                 Trilhas de Desenvolvimento
               </h2>
               <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/trilhas?track=amor_proprio" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">✨ Ame a Si Mesmo Primeiro</Link>
-                <Link href="/trilhas?track=contato_zero" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🛑 Contato Zero na Prática</Link>
-                <Link href="/trilhas?track=confianca" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🔥 Desperte sua Confiança</Link>
+                <Link href="/trilhas?track=amor_proprio" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">Ame a Si Mesmo Primeiro</Link>
+                <Link href="/trilhas?track=contato_zero" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">Contato Zero na Prática</Link>
+                <Link href="/trilhas?track=confianca" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">Desperte sua Confiança</Link>
               </div>
             </div>
           )}
