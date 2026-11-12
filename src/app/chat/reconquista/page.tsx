@@ -31,6 +31,9 @@ const STORAGE_KEY = "lilithlove_reconquista_v1";
 const CLOUD_KEY = "reconquista";
 const CHECKOUT_URL = "/planos";
 
+const cleanDisplayTitle = (rawTitle: string) =>
+  (rawTitle || "Caso de Reconquista").replace(/^[^\wÀ-ÿ]+/, "").trim() || "Caso de Reconquista";
+
 export default function ReconquistaChat() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string>("");
@@ -139,7 +142,11 @@ export default function ReconquistaChat() {
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
     setSessions((prev) => {
       const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Caso de Reconquista";
-      const cleanTitle = firstUserMsg.replace(/^📋\s*DIAGNÓSTICO:\s*/i, "").slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
+      const cleanTitle =
+        firstUserMsg
+          .replace(/^[^\wÀ-ÿ]+/, "")
+          .replace(/^DIAGNÓSTICO:\s*/i, "")
+          .slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
 
       const lightMessages = updatedMsgs.map((m) =>
         m.attachment ? { ...m, attachment: undefined } : m
@@ -412,7 +419,7 @@ export default function ReconquistaChat() {
 
     if (partes.length === 0) return;
 
-    const resumo = `📋 DIAGNÓSTICO DO MEU CASO DE RECONQUISTA:\n${partes.join("\n")}\n\nAnalise meu cenário com precisão e me diga qual é o diagnóstico e a estratégia ideal.`;
+    const resumo = `DIAGNÓSTICO DO MEU CASO DE RECONQUISTA:\n${partes.join("\n")}\n\nAnalise meu cenário com precisão e me diga qual é o diagnóstico e a estratégia ideal.`;
     await sendRawMessage(resumo, attachment);
   };
 
@@ -425,7 +432,7 @@ export default function ReconquistaChat() {
         />
       )}
 
-      {/* SIDEBAR RETRÁTIL */}
+      {/* SIDEBAR RETRÁTIL COM ÍCONES VETORIAIS */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#14080e] border-r border-stone-200/80 dark:border-rose-300/10 flex flex-col transition-all duration-200 ${
           isSidebarOpen ? "translate-x-0 w-[82%] max-w-[300px]" : "-translate-x-full lg:translate-x-0"
@@ -471,7 +478,9 @@ export default function ReconquistaChat() {
             }`}
             title="Novo Caso de Reconquista"
           >
-            <span className="text-base leading-none">✍️</span>
+            <svg className="w-4 h-4 text-rose-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Novo Caso</span>
           </button>
 
@@ -486,7 +495,9 @@ export default function ReconquistaChat() {
             }`}
             title="Abrir Ficha do Caso"
           >
-            <span className="text-base leading-none">📋</span>
+            <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Ficha de Diagnóstico</span>
           </button>
 
@@ -497,7 +508,9 @@ export default function ReconquistaChat() {
             }`}
             title="Consultoria da Lilith"
           >
-            <span className="text-base leading-none">🔮</span>
+            <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Consultoria da Lilith</span>
           </Link>
 
@@ -506,9 +519,11 @@ export default function ReconquistaChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Oráculo & Astrologia"
+            title="Oráculo Astral"
           >
-            <span className="text-base leading-none">✨</span>
+            <svg className="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Oráculo Astral</span>
           </Link>
 
@@ -519,12 +534,18 @@ export default function ReconquistaChat() {
             }`}
             title="Voltar ao Início"
           >
-            <span className="text-base leading-none">🏠</span>
+            <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Voltar ao Início</span>
           </Link>
         </div>
 
-        <div className={`flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5 border-t border-stone-100 dark:border-white/5 ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
+        <div
+          className={`flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5 border-t border-stone-100 dark:border-white/5 [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent] ${
+            isDesktopCollapsed ? "lg:hidden" : ""
+          }`}
+        >
           <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
             Meus Casos de Reconquista
           </p>
@@ -538,9 +559,14 @@ export default function ReconquistaChat() {
                   : "border-transparent hover:bg-stone-100 dark:hover:bg-white/5 text-stone-700 dark:text-stone-300"
               }`}
             >
-              <div className="truncate pr-2">
-                <p className="text-xs truncate">{s.title}</p>
-                <span className="text-[10px] text-stone-400 dark:text-stone-500">{s.updatedAt}</span>
+              <div className="flex items-center gap-2.5 truncate pr-2">
+                <svg className="w-3.5 h-3.5 text-rose-400/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                <div className="truncate">
+                  <p className="text-xs truncate">{cleanDisplayTitle(s.title)}</p>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500">{s.updatedAt}</span>
+                </div>
               </div>
               {sessions.length > 1 && (
                 <button
@@ -581,9 +607,11 @@ export default function ReconquistaChat() {
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
             >
-              <span className="text-base">❤️‍🩹</span>
+              <svg className="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
                 Reconquiste
               </span>
@@ -596,23 +624,27 @@ export default function ReconquistaChat() {
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 hover:bg-rose-100 dark:hover:bg-[#381826] text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm transition-colors"
+              className="w-8 h-8 rounded-lg bg-stone-100 dark:bg-[#28121d] border border-stone-200/70 dark:border-rose-300/15 hover:bg-rose-100 dark:hover:bg-[#381826] text-stone-700 dark:text-stone-200 flex items-center justify-center transition-colors"
               title="Ficha de Diagnóstico"
             >
-              📋
+              <svg className="w-4 h-4 text-rose-500 dark:text-rose-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+              </svg>
             </button>
 
             <button
               onClick={() => {
                 if (!isPremium) setShowPaywallModal(true);
               }}
-              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+              className={`flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
                 isPremium
-                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/30 cursor-default"
                   : "bg-rose-50 dark:bg-[#28121d] text-rose-900 dark:text-rose-200 border-rose-200 dark:border-rose-300/20"
               }`}
             >
-              <span>{isPremium ? "👑" : "✨"}</span>
+              <svg className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z" />
+              </svg>
               <span>
                 {isPremium ? (
                   "VIP"
@@ -631,8 +663,10 @@ export default function ReconquistaChat() {
         <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-3 space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-[#381826] dark:to-[#240e18] border border-rose-200 dark:border-rose-300/20 rounded-full flex items-center justify-center text-3xl shadow-md">
-                ❤️‍🩹
+              <div className="w-16 h-16 bg-gradient-to-tr from-rose-500/15 to-orange-500/10 dark:from-[#381826] dark:to-[#240e18] border border-rose-200 dark:border-rose-300/20 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-300 shadow-md">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
                 Módulo de Reconquista
@@ -642,9 +676,12 @@ export default function ReconquistaChat() {
               </p>
               <button
                 onClick={() => setShowQuestionnaire(true)}
-                className="px-5 py-2.5 rounded-full bg-white dark:bg-[#28121d] hover:bg-rose-50 dark:hover:bg-[#381826] border border-stone-200 dark:border-rose-300/25 text-stone-800 dark:text-stone-100 text-xs sm:text-sm font-semibold shadow-sm transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-white dark:bg-[#28121d] hover:bg-rose-50 dark:hover:bg-[#381826] border border-stone-200 dark:border-rose-300/25 text-stone-800 dark:text-stone-100 text-xs sm:text-sm font-semibold shadow-sm transition-colors flex items-center gap-2"
               >
-                📋 Abrir Questionário de Diagnóstico
+                <svg className="w-4 h-4 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                </svg>
+                <span>Abrir Questionário de Diagnóstico</span>
               </button>
             </div>
           ) : (
@@ -686,7 +723,10 @@ export default function ReconquistaChat() {
                     onClick={() => copyMessage(m.id, m.content)}
                     className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
                   >
-                    {copiedId === m.id ? "✓ Copiado" : "📋 Copiar texto"}
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>{copiedId === m.id ? "Copiado" : "Copiar texto"}</span>
                   </button>
                   {m.role === "user" && (
                     <button
@@ -695,7 +735,10 @@ export default function ReconquistaChat() {
                       disabled={isLoading}
                       className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
                     >
-                      🔄 Reenviar
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      </svg>
+                      <span>Reenviar</span>
                     </button>
                   )}
                 </div>
@@ -727,7 +770,9 @@ export default function ReconquistaChat() {
                   {attachment.mimeType.startsWith("image/") ? (
                     <img src={attachment.previewUrl} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-rose-300" />
                   ) : (
-                    <span className="text-base">🎙️</span>
+                    <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                    </svg>
                   )}
                   <span className="font-medium truncate">{attachment.name}</span>
                 </div>
@@ -760,7 +805,7 @@ export default function ReconquistaChat() {
                   onClick={() => setShowPaywallModal(true)}
                   className="w-full sm:w-auto px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs rounded-xl shadow transition-colors shrink-0"
                 >
-                  🔓 {canUnlockMoreWithAds ? "Liberar +1 ou VIP" : "Desbloquear Protocolo VIP"}
+                  {canUnlockMoreWithAds ? "Liberar +1 ou VIP" : "Desbloquear Protocolo VIP"}
                 </button>
               </div>
             ) : (
@@ -857,7 +902,7 @@ export default function ReconquistaChat() {
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 rounded-2xl p-3 mb-5 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-              ⚠️ <strong>Importante:</strong> Todos os campos são opcionais e você pode pular este questionário se preferir, mas <strong>quanto mais detalhes preencher, mais cirúrgica e precisa será a estratégia da IA</strong>. Pular pode comprometer a profundidade da análise inicial.
+              <strong>Importante:</strong> Todos os campos são opcionais e você pode pular este questionário se preferir, mas <strong>quanto mais detalhes preencher, mais cirúrgica e precisa será a estratégia da IA</strong>. Pular pode comprometer a profundidade da análise inicial.
             </div>
 
             <form onSubmit={handleQuizSubmit} className="space-y-3.5 text-xs sm:text-sm">
@@ -980,7 +1025,7 @@ export default function ReconquistaChat() {
                   type="submit"
                   className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-[#6b1630] to-[#8a1c3e] hover:from-[#7d1a38] hover:to-[#9e2147] text-white font-bold rounded-2xl shadow-lg transition-all"
                 >
-                  🔍 Gerar Diagnóstico de Reconquista Agora
+                  Gerar Diagnóstico de Reconquista Agora →
                 </button>
                 <button
                   type="button"
@@ -995,7 +1040,7 @@ export default function ReconquistaChat() {
         </div>
       )}
 
-      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS (1 MENSAGEM POR ANÚNCIO, MÁXIMO DE 10 PEDIDOS) */}
+      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS */}
       <RewardedAdModal
         isOpen={showPaywallModal && !isPremium}
         onClose={() => setShowPaywallModal(false)}

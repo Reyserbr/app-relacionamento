@@ -31,6 +31,9 @@ const STORAGE_KEY = "lilithlove_mistico_v1";
 const CLOUD_KEY = "mistico";
 const CHECKOUT_URL = "/planos";
 
+const cleanDisplayTitle = (rawTitle: string) =>
+  (rawTitle || "Leitura Astral").replace(/^[^\wÀ-ÿ]+/, "").trim() || "Leitura Astral";
+
 export default function MisticoChat() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string>("");
@@ -133,7 +136,11 @@ export default function MisticoChat() {
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
     setSessions((prev) => {
       const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Leitura Astral";
-      const cleanTitle = firstUserMsg.replace(/^✨\s*MAPA ASTRAL:\s*/i, "").slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
+      const cleanTitle =
+        firstUserMsg
+          .replace(/^[^\wÀ-ÿ]+/, "")
+          .replace(/^MAPA ASTRAL:\s*/i, "")
+          .slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
 
       const lightMessages = updatedMsgs.map((m) =>
         m.attachment ? { ...m, attachment: undefined } : m
@@ -400,7 +407,7 @@ export default function MisticoChat() {
 
     if (partes.length === 0) return;
 
-    const resumo = `✨ MAPA ASTRAL & SINASTRIA DO CASAL:\n${partes.join("\n")}\n\nFaça a leitura profunda da nossa compatibilidade, revele o mapa da mente dessa pessoa e abra as cartas para o nosso momento.`;
+    const resumo = `MAPA ASTRAL & SINASTRIA DO CASAL:\n${partes.join("\n")}\n\nFaça a leitura profunda da nossa compatibilidade, revele o mapa da mente dessa pessoa e abra as cartas para o nosso momento.`;
     await sendRawMessage(resumo, attachment);
   };
 
@@ -413,7 +420,7 @@ export default function MisticoChat() {
         />
       )}
 
-      {/* SIDEBAR RETRÁTIL */}
+      {/* SIDEBAR RETRÁTIL COM ÍCONES VETORIAIS */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-[#110816] border-r border-purple-200/80 dark:border-purple-400/15 flex flex-col transition-all duration-200 ${
           isSidebarOpen ? "translate-x-0 w-[82%] max-w-[300px]" : "-translate-x-full lg:translate-x-0"
@@ -459,7 +466,9 @@ export default function MisticoChat() {
             }`}
             title="Nova Leitura Astral"
           >
-            <span className="text-base leading-none">✍️</span>
+            <svg className="w-4 h-4 text-purple-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Nova Leitura</span>
           </button>
 
@@ -474,7 +483,9 @@ export default function MisticoChat() {
             }`}
             title="Mapa dos Signos"
           >
-            <span className="text-base leading-none">✨</span>
+            <svg className="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Mapa dos Signos</span>
           </button>
 
@@ -485,7 +496,9 @@ export default function MisticoChat() {
             }`}
             title="Consultoria da Lilith"
           >
-            <span className="text-base leading-none">🔮</span>
+            <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Consultoria da Lilith</span>
           </Link>
 
@@ -496,7 +509,9 @@ export default function MisticoChat() {
             }`}
             title="Reconquiste"
           >
-            <span className="text-base leading-none">❤️‍🩹</span>
+            <svg className="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Reconquiste</span>
           </Link>
 
@@ -507,12 +522,18 @@ export default function MisticoChat() {
             }`}
             title="Voltar ao Início"
           >
-            <span className="text-base leading-none">🏠</span>
+            <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Voltar ao Início</span>
           </Link>
         </div>
 
-        <div className={`flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5 border-t border-stone-100 dark:border-white/5 ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
+        <div
+          className={`flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5 border-t border-stone-100 dark:border-white/5 [scrollbar-width:thin] [scrollbar-color:rgba(168,85,247,0.2)_transparent] ${
+            isDesktopCollapsed ? "lg:hidden" : ""
+          }`}
+        >
           <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
             Minhas Leituras
           </p>
@@ -526,9 +547,14 @@ export default function MisticoChat() {
                   : "border-transparent hover:bg-stone-100 dark:hover:bg-white/5 text-stone-700 dark:text-stone-300"
               }`}
             >
-              <div className="truncate pr-2">
-                <p className="text-xs truncate">{s.title}</p>
-                <span className="text-[10px] text-stone-400 dark:text-stone-500">{s.updatedAt}</span>
+              <div className="flex items-center gap-2.5 truncate pr-2">
+                <svg className="w-3.5 h-3.5 text-purple-400/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+                <div className="truncate">
+                  <p className="text-xs truncate">{cleanDisplayTitle(s.title)}</p>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500">{s.updatedAt}</span>
+                </div>
               </div>
               {sessions.length > 1 && (
                 <button
@@ -568,9 +594,11 @@ export default function MisticoChat() {
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#241230] transition-colors min-w-0"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#241230] transition-colors min-w-0"
             >
-              <span className="text-base">🔮</span>
+              <svg className="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+              </svg>
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
                 Oráculo
               </span>
@@ -583,23 +611,27 @@ export default function MisticoChat() {
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="w-8 h-8 rounded-full bg-stone-100 dark:bg-[#241230] border border-stone-200 dark:border-purple-300/15 hover:bg-purple-100 dark:hover:bg-[#321942] text-stone-700 dark:text-stone-200 flex items-center justify-center text-sm transition-colors"
+              className="w-8 h-8 rounded-lg bg-stone-100 dark:bg-[#241230] border border-stone-200/70 dark:border-purple-300/15 hover:bg-purple-100 dark:hover:bg-[#321942] text-stone-700 dark:text-stone-200 flex items-center justify-center transition-colors"
               title="Mapa dos Signos"
             >
-              ✨
+              <svg className="w-4 h-4 text-purple-500 dark:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
             </button>
 
             <button
               onClick={() => {
                 if (!isPremium) setShowPaywallModal(true);
               }}
-              className={`flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+              className={`flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
                 isPremium
-                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/40 cursor-default"
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-400/30 cursor-default"
                   : "bg-purple-50 dark:bg-[#241230] text-purple-900 dark:text-purple-200 border-purple-200 dark:border-purple-300/20"
               }`}
             >
-              <span>{isPremium ? "👑" : "✨"}</span>
+              <svg className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z" />
+              </svg>
               <span>
                 {isPremium ? (
                   "VIP"
@@ -618,8 +650,10 @@ export default function MisticoChat() {
         <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(168,85,247,0.2)_transparent]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-3 space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-tr from-purple-100 to-indigo-50 dark:from-[#321942] dark:to-[#1f0e2b] border border-purple-200 dark:border-purple-300/20 rounded-full flex items-center justify-center text-3xl shadow-md">
-                🔮
+              <div className="w-16 h-16 bg-gradient-to-tr from-purple-500/15 to-indigo-500/10 dark:from-[#321942] dark:to-[#1f0e2b] border border-purple-200 dark:border-purple-300/20 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-300 shadow-md">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
                 Astrologia do Amor, Signos & Tarot
@@ -629,9 +663,12 @@ export default function MisticoChat() {
               </p>
               <button
                 onClick={() => setShowQuestionnaire(true)}
-                className="px-5 py-2.5 rounded-full bg-white dark:bg-[#241230] hover:bg-purple-50 dark:hover:bg-[#321942] border border-stone-200 dark:border-purple-300/25 text-stone-800 dark:text-stone-100 text-xs sm:text-sm font-semibold shadow-sm transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-white dark:bg-[#241230] hover:bg-purple-50 dark:hover:bg-[#321942] border border-stone-200 dark:border-purple-300/25 text-stone-800 dark:text-stone-100 text-xs sm:text-sm font-semibold shadow-sm transition-colors flex items-center gap-2"
               >
-                ✨ Preencher Dados dos Signos / Mapa Astral
+                <svg className="w-4 h-4 text-purple-500 dark:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                </svg>
+                <span>Preencher Dados dos Signos / Mapa Astral</span>
               </button>
             </div>
           ) : (
@@ -670,7 +707,10 @@ export default function MisticoChat() {
                     onClick={() => copyMessage(m.id, m.content)}
                     className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-1"
                   >
-                    {copiedId === m.id ? "✓ Copiado" : "📋 Copiar texto"}
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>{copiedId === m.id ? "Copiado" : "Copiar texto"}</span>
                   </button>
                   {m.role === "user" && (
                     <button
@@ -679,7 +719,10 @@ export default function MisticoChat() {
                       disabled={isLoading}
                       className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-1"
                     >
-                      🔄 Reenviar
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      </svg>
+                      <span>Reenviar</span>
                     </button>
                   )}
                 </div>
@@ -711,7 +754,9 @@ export default function MisticoChat() {
                   {attachment.mimeType.startsWith("image/") ? (
                     <img src={attachment.previewUrl} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-purple-300" />
                   ) : (
-                    <span className="text-base">🎙️</span>
+                    <svg className="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                    </svg>
                   )}
                   <span className="font-medium truncate">{attachment.name}</span>
                 </div>
@@ -740,7 +785,7 @@ export default function MisticoChat() {
                   onClick={() => setShowPaywallModal(true)}
                   className="w-full sm:w-auto px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs rounded-xl shadow transition-colors shrink-0"
                 >
-                  🔓 Revelar Destino Agora
+                  Revelar Destino Agora
                 </button>
               </div>
             ) : (
@@ -837,7 +882,7 @@ export default function MisticoChat() {
             </div>
 
             <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-400/30 rounded-2xl p-3 mb-5 text-xs text-purple-900 dark:text-purple-200 leading-relaxed">
-              ✨ <strong>Dica Astral:</strong> Você pode pular este quadro e conversar livremente se quiser, mas informar os <strong>signos ou datas de nascimento</strong> permite que o Oráculo trace o Mapa Mental exato da pessoa amada e a compatibilidade real de vocês.
+              <strong>Dica Astral:</strong> Você pode pular este quadro e conversar livremente se quiser, mas informar os <strong>signos ou datas de nascimento</strong> permite que o Oráculo trace o Mapa Mental exato da pessoa amada e a compatibilidade real de vocês.
             </div>
 
             <form onSubmit={handleAstroQuizSubmit} className="space-y-3.5 text-xs sm:text-sm">
@@ -860,7 +905,7 @@ export default function MisticoChat() {
                           : "bg-stone-50 dark:bg-[#241230] text-stone-700 dark:text-stone-300 border-stone-200 dark:border-purple-300/15 hover:bg-purple-50"
                       }`}
                     >
-                      ✨ {opcao}
+                      {opcao}
                     </button>
                   ))}
                 </div>
@@ -928,7 +973,7 @@ export default function MisticoChat() {
                   type="submit"
                   className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-purple-900 to-indigo-700 hover:from-purple-800 hover:to-indigo-600 text-white font-bold rounded-2xl shadow-lg transition-all"
                 >
-                  🔮 Gerar Mapa Astral do Casal & Abrir Cartas
+                  Gerar Mapa Astral do Casal & Abrir Cartas →
                 </button>
                 <button
                   type="button"
@@ -943,7 +988,7 @@ export default function MisticoChat() {
         </div>
       )}
 
-      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS (+2 LEITURAS POR ANÚNCIO) */}
+      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS */}
       <RewardedAdModal
         isOpen={showPaywallModal && !isPremium}
         onClose={() => setShowPaywallModal(false)}
