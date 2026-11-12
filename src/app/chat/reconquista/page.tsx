@@ -1,10 +1,10 @@
 "use client";
 
-import AssistantMessageCard from "@/components/AssistantMessageCard";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import RewardedAdModal from "@/components/RewardedAdModal";
+import AssistantMessageCard from "@/components/AssistantMessageCard";
 
 interface Attachment {
   name: string;
@@ -73,8 +73,6 @@ export default function ReconquistaChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // REGRAS DO MÓDULO RECONQUISTA:
-  // 1 mensagem grátis inicial + 1 mensagem por anúncio assistido, limitado a no máximo 10 pedidos no total
   const BASE_FREE_LIMIT = 1;
   const AD_BONUS_STEP = 1;
   const MAX_TOTAL_FREE_REQUESTS = 10;
@@ -190,6 +188,7 @@ export default function ReconquistaChat() {
     setActiveSessionId(newId);
     setMessages([]);
     setBonusLimit(0);
+    setStreamingMsgId(null);
     setIsSidebarOpen(false);
     if (openQuiz) setShowQuestionnaire(true);
     try {
@@ -202,6 +201,7 @@ export default function ReconquistaChat() {
     setActiveSessionId(session.id);
     setMessages(session.messages);
     setBonusLimit(session.bonusLimit || 0);
+    setStreamingMsgId(null);
     setIsSidebarOpen(false);
     setShowQuestionnaire(session.messages.length === 0);
   };
@@ -372,17 +372,17 @@ export default function ReconquistaChat() {
       });
 
       const data = await res.json();
-
       const newReplyId = (Date.now() + 1).toString();
-setStreamingMsgId(newReplyId);
-const withReply: Message[] = [
-  ...updatedMessages,
-  {
-    id: newReplyId,
-    role: "assistant",
-    content: data.reply || "Não consegui processar a resposta.",
-  },
-];
+      setStreamingMsgId(newReplyId);
+
+      const withReply: Message[] = [
+        ...updatedMessages,
+        {
+          id: newReplyId,
+          role: "assistant",
+          content: data.reply || "Não consegui processar a resposta.",
+        },
+      ];
       setMessages(withReply);
       saveToHistory(withReply);
     } catch (err) {
@@ -664,7 +664,7 @@ const withReply: Message[] = [
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent]">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-6 max-w-3xl w-full mx-auto [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent]">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-3 space-y-4">
               <div className="w-16 h-16 bg-gradient-to-tr from-rose-500/15 to-orange-500/10 dark:from-[#381826] dark:to-[#240e18] border border-rose-200 dark:border-rose-300/20 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-300 shadow-md">
@@ -690,63 +690,73 @@ const withReply: Message[] = [
             </div>
           ) : (
             messages.map((m) =>
-  m.role === "assistant" ? (
-    <AssistantMessageCard
-      key={m.id}
-      messageId={m.id}
-      content={m.content}
-      agent="lilith" // use "reconquista" no reconquista/page.tsx e "mistico" no mistico/page.tsx
-      isNew={m.id === streamingMsgId}
-      copiedId={copiedId}
-      onCopy={copyMessage}
-      attachment={m.attachment}
-    />
-  ) : (
-    <div key={m.id} className="flex flex-col items-end">
-      <div className="max-w-[88%] sm:max-w-[78%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-md whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] bg-gradient-to-br from-[#6b1630] to-[#4a0f21] text-rose-50 rounded-tr-sm border border-rose-400/20">
-        {m.attachment && (
-          <div className="mb-3 rounded-xl overflow-hidden bg-black/10 p-1">
-            {m.attachment.mimeType.startsWith("image/") && (
-              <img src={m.attachment.previewUrl} alt="Print enviado" className="max-h-72 rounded-lg object-contain mx-auto" />
-            )}
-            {m.attachment.mimeType.startsWith("audio/") && (
-              <audio controls src={m.attachment.previewUrl} className="w-full max-w-xs" />
-            )}
-          </div>
-        )}
-        <div>{formatText(m.content)}</div>
-      </div>
+              m.role === "assistant" ? (
+                <AssistantMessageCard
+                  key={m.id}
+                  messageId={m.id}
+                  content={m.content}
+                  agent="reconquista"
+                  isNew={m.id === streamingMsgId}
+                  copiedId={copiedId}
+                  onCopy={copyMessage}
+                  attachment={m.attachment}
+                />
+              ) : (
+                <div key={m.id} className="flex flex-col items-end">
+                  <div className="max-w-[88%] sm:max-w-[78%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-md whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] bg-gradient-to-br from-[#6b1630] to-[#4a0f21] text-rose-50 rounded-tr-sm border border-rose-400/20">
+                    {m.attachment && (
+                      <div className="mb-3 rounded-xl overflow-hidden bg-black/10 p-1">
+                        {m.attachment.mimeType.startsWith("image/") && (
+                          <img src={m.attachment.previewUrl} alt="Print enviado" className="max-h-72 rounded-lg object-contain mx-auto" />
+                        )}
+                        {m.attachment.mimeType.startsWith("audio/") && (
+                          <audio controls src={m.attachment.previewUrl} className="w-full max-w-xs" />
+                        )}
+                        {m.attachment.mimeType.startsWith("video/") && (
+                          <video controls src={m.attachment.previewUrl} className="max-h-72 rounded-lg mx-auto" />
+                        )}
+                      </div>
+                    )}
+                    <div>{formatText(m.content)}</div>
+                  </div>
 
-      <div className="flex items-center gap-3 mt-1 px-2 text-[11px] text-stone-400 dark:text-stone-500">
-        <button
-          type="button"
-          onClick={() => copyMessage(m.id, m.content)}
-          className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
-        >
-          <span>{copiedId === m.id ? "Copiado" : "Copiar texto"}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => sendRawMessage(m.content)}
-          disabled={isLoading}
-          className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
-        >
-          <span>Reenviar</span>
-        </button>
-      </div>
-    </div>
-  )
-)
+                  <div className="flex items-center gap-3 mt-1 px-2 text-[11px] text-stone-400 dark:text-stone-500">
+                    <button
+                      type="button"
+                      onClick={() => copyMessage(m.id, m.content)}
+                      className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      <span>{copiedId === m.id ? "Copiado" : "Copiar texto"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => sendRawMessage(m.content)}
+                      disabled={isLoading}
+                      className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      </svg>
+                      <span>Reenviar</span>
+                    </button>
+                  </div>
+                </div>
+              )
+            )
+          )}
 
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-white dark:bg-[#24101a] border border-rose-100 dark:border-rose-300/20 border-l-4 border-l-rose-800 dark:border-l-rose-500 rounded-2xl rounded-tl-sm px-4 py-3.5 shadow-sm flex items-center gap-3">
-                <div className="flex gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "0ms" }}></span>
-                  <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "150ms" }}></span>
-                  <span className="w-2 h-2 rounded-full bg-rose-700 dark:bg-rose-400 animate-bounce" style={{ animationDelay: "300ms" }}></span>
-                </div>
-                <span className="text-xs text-stone-500 dark:text-stone-300 font-medium">Lendo seu relato com atenção e sentindo o momento de vocês...</span>
+            <div className="flex items-center gap-3 py-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#381826] to-[#6b1630] border border-rose-400/30 flex items-center justify-center text-rose-200 shrink-0 animate-pulse">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                </svg>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-300 font-medium">
+                <span>Lendo seu relato com atenção e sentindo o momento de vocês...</span>
               </div>
             </div>
           )}
