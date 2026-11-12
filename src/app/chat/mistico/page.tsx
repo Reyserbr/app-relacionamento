@@ -64,7 +64,11 @@ export default function MisticoChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const BASE_FREE_LIMIT = 5;
+  // REGRAS DO MÓDULO MÍSTICO / ORÁCULO:
+  // 3 mensagens grátis iniciais + 2 mensagens liberadas por anúncio assistido (ilimitado)
+  const BASE_FREE_LIMIT = 3;
+  const AD_BONUS_STEP = 2;
+
   const totalAllowed = BASE_FREE_LIMIT + bonusLimit;
   const assistantRepliesCount = messages.filter((m) => m.role === "assistant").length;
   const isLimitReached = !isPremium && assistantRepliesCount >= totalAllowed;
@@ -206,7 +210,7 @@ export default function MisticoChat() {
   };
 
   const handleUnlockAdBonus = () => {
-    const nextBonus = bonusLimit + 3;
+    const nextBonus = bonusLimit + AD_BONUS_STEP;
     setBonusLimit(nextBonus);
     saveToHistory(messages, nextBonus);
     setShowPaywallModal(false);
@@ -728,7 +732,7 @@ export default function MisticoChat() {
                     Limite de {totalAllowed} leituras gratuitas atingido.
                   </p>
                   <p className="text-[11px] text-purple-100">
-                    Desbloqueie o Acesso Premium para revelar o Ponto Fraco Astral da pessoa amada, a 3ª Carta e as Simpatias.
+                    Assista 1 anúncio rápido para liberar +2 leituras ou desbloqueie o Oráculo VIP completo.
                   </p>
                 </div>
                 <button
@@ -939,7 +943,7 @@ export default function MisticoChat() {
         </div>
       )}
 
-      {/* NOVO MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS INTEGRADO */}
+      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS (+2 LEITURAS POR ANÚNCIO) */}
       <RewardedAdModal
         isOpen={showPaywallModal && !isPremium}
         onClose={() => setShowPaywallModal(false)}
@@ -948,7 +952,7 @@ export default function MisticoChat() {
         theme="purple"
         badgeText="Oráculo VIP • LilithLove"
         titleText="Desbloqueie o Dossiê Astral Completo"
-        rewardLabel="+3 Leituras Grátis"
+        rewardLabel="+2 Leituras Grátis"
       />
     </div>
   );

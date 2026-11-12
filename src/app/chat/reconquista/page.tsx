@@ -68,10 +68,16 @@ export default function ReconquistaChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const BASE_FREE_LIMIT = 5;
-  const totalAllowed = BASE_FREE_LIMIT + bonusLimit;
+  // REGRAS DO MÓDULO RECONQUISTA:
+  // 1 mensagem grátis inicial + 1 mensagem por anúncio assistido, limitado a no máximo 10 pedidos no total
+  const BASE_FREE_LIMIT = 1;
+  const AD_BONUS_STEP = 1;
+  const MAX_TOTAL_FREE_REQUESTS = 10;
+
+  const totalAllowed = Math.min(MAX_TOTAL_FREE_REQUESTS, BASE_FREE_LIMIT + bonusLimit);
   const assistantRepliesCount = messages.filter((m) => m.role === "assistant").length;
   const isLimitReached = !isPremium && assistantRepliesCount >= totalAllowed;
+  const canUnlockMoreWithAds = totalAllowed < MAX_TOTAL_FREE_REQUESTS;
 
   useEffect(() => {
     let localSessions: ChatSession[] = [];
@@ -210,7 +216,9 @@ export default function ReconquistaChat() {
   };
 
   const handleUnlockAdBonus = () => {
-    const nextBonus = bonusLimit + 3;
+    if (!canUnlockMoreWithAds) return;
+    const maxBonus = MAX_TOTAL_FREE_REQUESTS - BASE_FREE_LIMIT;
+    const nextBonus = Math.min(maxBonus, bonusLimit + AD_BONUS_STEP);
     setBonusLimit(nextBonus);
     saveToHistory(messages, nextBonus);
     setShowPaywallModal(false);
@@ -737,10 +745,14 @@ export default function ReconquistaChat() {
               <div className="bg-rose-950 text-white p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2.5 shadow-md">
                 <div className="text-center sm:text-left">
                   <p className="font-serif font-bold text-xs sm:text-sm text-amber-300">
-                    Limite de {totalAllowed} análises gratuitas atingido.
+                    {canUnlockMoreWithAds
+                      ? `Limite de ${totalAllowed} análise(s) gratuita(s) atingido.`
+                      : `Limite máximo de ${MAX_TOTAL_FREE_REQUESTS} análises gratuitas atingido!`}
                   </p>
                   <p className="text-[11px] text-rose-100">
-                    Desbloqueie o Protocolo Premium para acessar o cronograma de repaginação e as estratégias completas.
+                    {canUnlockMoreWithAds
+                      ? "Assista 1 anúncio rápido para liberar +1 análise ou desbloqueie o Protocolo VIP completo."
+                      : "Para acessar a estratégia completa de reconquista e continuar conversando sem limites, torne-se VIP."}
                   </p>
                 </div>
                 <button
@@ -748,7 +760,7 @@ export default function ReconquistaChat() {
                   onClick={() => setShowPaywallModal(true)}
                   className="w-full sm:w-auto px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs rounded-xl shadow transition-colors shrink-0"
                 >
-                  🔓 Desbloquear Protocolo
+                  🔓 {canUnlockMoreWithAds ? "Liberar +1 ou VIP" : "Desbloquear Protocolo VIP"}
                 </button>
               </div>
             ) : (
@@ -983,7 +995,7 @@ export default function ReconquistaChat() {
         </div>
       )}
 
-      {/* NOVO MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS INTEGRADO */}
+      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS (1 MENSAGEM POR ANÚNCIO, MÁXIMO DE 10 PEDIDOS) */}
       <RewardedAdModal
         isOpen={showPaywallModal && !isPremium}
         onClose={() => setShowPaywallModal(false)}
@@ -992,6 +1004,9 @@ export default function ReconquistaChat() {
         theme="rose"
         badgeText="Módulo Avançado • Reconquiste"
         titleText="Desbloqueie o Protocolo de Reconquista"
+        rewardLabel={`+1 Análise Grátis (${totalAllowed}/${MAX_TOTAL_FREE_REQUESTS})`}
+        canWatchAd={canUnlockMoreWithAds}
+        maxReachedText="Você atingiu o limite máximo de 10 análises com anúncios no módulo de Reconquista. Desbloqueie o Protocolo VIP para acessar a estratégia completa e mensagens ilimitadas."
       />
     </div>
   );
