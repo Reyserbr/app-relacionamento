@@ -1,16 +1,18 @@
 "use client";
-import InstallPwaButton from "@/components/InstallPwaButton";
+
 import { useEffect, useState } from "react";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import SalesNotification from "@/components/SalesNotification";
+import InstallPwaButton from "@/components/InstallPwaButton";
 
 export default function Navbar() {
   const { userId } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [showAffiliateMenu, setShowAffiliateMenu] = useState(false);
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
+  const [showTracksMenu, setShowTracksMenu] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem("lilith_vip_test") === "true") {
@@ -21,6 +23,7 @@ export default function Navbar() {
       .then((r) => r.json())
       .then((cfg) => {
         if (cfg?.communityOpen) setShowCommunityMenu(true);
+        if (cfg?.tracksOpen) setShowTracksMenu(true);
         if (userId) {
           fetch("/api/affiliate/status")
             .then((r) => r.json())
@@ -65,7 +68,7 @@ export default function Navbar() {
           </Link>
 
           {/* Menu e Autenticação */}
-          <div className="flex items-center gap-2.5 sm:gap-5">
+          <div className="flex items-center gap-2 sm:gap-4">
             {userId && (
               <Link
                 href="/chat/lilith"
@@ -77,12 +80,14 @@ export default function Navbar() {
               </Link>
             )}
 
-            <Link
-              href="/trilhas"
-              className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors hidden md:block"
-            >
-              Aulas & Guias
-            </Link>
+            {showTracksMenu && (
+              <Link
+                href="/trilhas"
+                className="text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-rose-600 dark:hover:text-rose-300 transition-colors hidden md:block"
+              >
+                Aulas & Guias
+              </Link>
+            )}
 
             {showCommunityMenu && (
               <Link
@@ -115,10 +120,11 @@ export default function Navbar() {
               </Link>
             )}
 
-            <ThemeToggle /> <InstallPwaButton/>
+            <InstallPwaButton />
+            <ThemeToggle />
 
             {/* Divisor e Botão de Login/Perfil do Clerk */}
-            <div className="pl-2.5 sm:pl-4 border-l border-stone-200 dark:border-white/10 flex items-center">
+            <div className="pl-2 sm:pl-3 border-l border-stone-200 dark:border-white/10 flex items-center">
               {userId ? (
                 <UserButton afterSignOutUrl="/" />
               ) : (
@@ -134,7 +140,6 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Barra Flutuante de Notificações de Compra (Exibida apenas no Modo Free) */}
       <SalesNotification />
     </>
   );

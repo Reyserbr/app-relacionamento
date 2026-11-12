@@ -24,9 +24,9 @@ interface PlanItem {
 interface SystemSettings {
   plans: PlanItem[];
   communityOpen: boolean;
+  tracksOpen: boolean;
   salesPopupOpen: boolean;
   lessonVideos: Record<string, string>;
-  // Novas configurações de Monetização / Anúncios controladas pelo Admin
   adsEnabled: boolean;
   adsProvider: 'adsense' | 'custom';
   adsenseClientId: string;
@@ -60,6 +60,7 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
   const defaults: SystemSettings = {
     plans: DEFAULT_PLANS,
     communityOpen: false,
+    tracksOpen: false, // Começa oculto até você ativar no Admin
     salesPopupOpen: true,
     lessonVideos: {},
     adsEnabled: true,
@@ -82,6 +83,7 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
       return {
         plans: Array.isArray(parsed.plans) && parsed.plans.length > 0 ? parsed.plans : DEFAULT_PLANS,
         communityOpen: typeof parsed.communityOpen === 'boolean' ? parsed.communityOpen : false,
+        tracksOpen: typeof parsed.tracksOpen === 'boolean' ? parsed.tracksOpen : false,
         salesPopupOpen: typeof parsed.salesPopupOpen === 'boolean' ? parsed.salesPopupOpen : true,
         lessonVideos: parsed.lessonVideos && typeof parsed.lessonVideos === 'object' ? parsed.lessonVideos : {},
         adsEnabled: typeof parsed.adsEnabled === 'boolean' ? parsed.adsEnabled : true,
@@ -138,6 +140,8 @@ export async function POST(req: NextRequest) {
       plans: Array.isArray(body.plans) && body.plans.length > 0 ? body.plans : currentSettings.plans,
       communityOpen:
         typeof body.communityOpen === 'boolean' ? body.communityOpen : currentSettings.communityOpen,
+      tracksOpen:
+        typeof body.tracksOpen === 'boolean' ? body.tracksOpen : currentSettings.tracksOpen,
       salesPopupOpen:
         typeof body.salesPopupOpen === 'boolean' ? body.salesPopupOpen : currentSettings.salesPopupOpen,
       lessonVideos:
@@ -145,12 +149,30 @@ export async function POST(req: NextRequest) {
           ? body.lessonVideos
           : currentSettings.lessonVideos,
       adsEnabled: typeof body.adsEnabled === 'boolean' ? body.adsEnabled : currentSettings.adsEnabled,
-      adsProvider: body.adsProvider === 'custom' || body.adsProvider === 'adsense' ? body.adsProvider : currentSettings.adsProvider,
-      adsenseClientId: typeof body.adsenseClientId === 'string' ? body.adsenseClientId.trim() : currentSettings.adsenseClientId,
-      adsenseBannerSlot: typeof body.adsenseBannerSlot === 'string' ? body.adsenseBannerSlot.trim() : currentSettings.adsenseBannerSlot,
-      adsenseModalSlot: typeof body.adsenseModalSlot === 'string' ? body.adsenseModalSlot.trim() : currentSettings.adsenseModalSlot,
-      customBannerHtml: typeof body.customBannerHtml === 'string' ? body.customBannerHtml : currentSettings.customBannerHtml,
-      customModalHtml: typeof body.customModalHtml === 'string' ? body.customModalHtml : currentSettings.customModalHtml,
+      adsProvider:
+        body.adsProvider === 'custom' || body.adsProvider === 'adsense'
+          ? body.adsProvider
+          : currentSettings.adsProvider,
+      adsenseClientId:
+        typeof body.adsenseClientId === 'string'
+          ? body.adsenseClientId.trim()
+          : currentSettings.adsenseClientId,
+      adsenseBannerSlot:
+        typeof body.adsenseBannerSlot === 'string'
+          ? body.adsenseBannerSlot.trim()
+          : currentSettings.adsenseBannerSlot,
+      adsenseModalSlot:
+        typeof body.adsenseModalSlot === 'string'
+          ? body.adsenseModalSlot.trim()
+          : currentSettings.adsenseModalSlot,
+      customBannerHtml:
+        typeof body.customBannerHtml === 'string'
+          ? body.customBannerHtml
+          : currentSettings.customBannerHtml,
+      customModalHtml:
+        typeof body.customModalHtml === 'string'
+          ? body.customModalHtml
+          : currentSettings.customModalHtml,
     };
 
     const serialized = JSON.stringify(nextSettings);

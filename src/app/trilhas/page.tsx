@@ -1,9 +1,9 @@
 "use client";
 
-import AdBanner from "@/components/AdBanner";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
+import AdBanner from "@/components/AdBanner";
 
 interface Lesson {
   id: string;
@@ -227,6 +227,7 @@ const TRACKS: Track[] = [
 ];
 
 export default function TrilhasPage() {
+  const [tracksOpen, setTracksOpen] = useState<boolean | null>(null);
   const [selectedTrackId, setSelectedTrackId] = useState<string>("contato_zero");
   const [selectedLessonId, setSelectedLessonId] = useState<string>("cz_1");
   const [isPremium, setIsPremium] = useState<boolean>(false);
@@ -254,22 +255,21 @@ export default function TrilhasPage() {
       })
       .catch(() => {});
 
-    // Busca os links de vídeo que você configurou lá no Painel Admin
     fetch("/api/affiliate/config")
       .then((r) => r.json())
       .then((cfg) => {
+        setTracksOpen(Boolean(cfg?.tracksOpen));
         if (cfg?.lessonVideos && typeof cfg.lessonVideos === "object") {
           setCustomVideos(cfg.lessonVideos);
         }
       })
-      .catch(() => {});
+      .catch(() => setTracksOpen(false));
   }, []);
 
   const currentTrack = TRACKS.find((t) => t.id === selectedTrackId) || TRACKS[0];
   const currentLesson =
     currentTrack.lessons.find((l) => l.id === selectedLessonId) || currentTrack.lessons[0];
 
-  // Prioriza o link salvo no Painel Admin; se não tiver, usa o padrão
   const activeVideoUrl = (customVideos[currentLesson.id] || currentLesson.videoUrl || "").trim();
 
   const handleSelectTrack = (track: Track) => {
@@ -290,227 +290,250 @@ export default function TrilhasPage() {
       <Navbar />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-stone-200 dark:border-white/10">
-          <div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-2">
-              <span>🎓</span> Academia LilithLove • Vídeo & Guia Prático
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 dark:text-white">
-              Trilhas de Desenvolvimento
+        {tracksOpen === false ? (
+          <div className="max-w-lg mx-auto text-center py-20">
+            <div className="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 flex items-center justify-center mx-auto mb-5 text-3xl">
+              🎓
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-white mb-3">
+              Academia & Aulas em Preparação
             </h1>
-            <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 mt-1 max-w-2xl">
-              Aulas objetivas e manuais de bolso para você dominar o jogo emocional, cortar a ansiedade e agir com precisão.
+            <p className="text-stone-500 dark:text-stone-400 text-sm sm:text-base leading-relaxed mb-8">
+              Nossas videoaulas e manuais práticos estão recebendo atualizações exclusivas e serão liberados em breve. Enquanto isso, consulte a Lilith diretamente no chat!
             </p>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 bg-rose-900 hover:bg-rose-800 text-white px-6 py-3 rounded-full text-sm font-semibold shadow"
+            >
+              ← Voltar ao Início
+            </Link>
           </div>
+        ) : (
+          <>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-stone-200 dark:border-white/10">
+              <div>
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-2">
+                  <span>🎓</span> Academia LilithLove • Vídeo & Guia Prático
+                </span>
+                <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 dark:text-white">
+                  Trilhas de Desenvolvimento
+                </h1>
+                <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 mt-1 max-w-2xl">
+                  Aulas objetivas e manuais de bolso para você dominar o jogo emocional, cortar a ansiedade e agir com precisão.
+                </p>
+              </div>
 
-          <Link
-            href="/chat/lilith"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-rose-900 hover:bg-rose-800 dark:bg-rose-600 dark:hover:bg-rose-500 text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors shrink-0"
-          >
-            <span>💬</span> Tirar Dúvida com a Lilith
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {TRACKS.map((track) => {
-            const isSelected = track.id === currentTrack.id;
-            return (
-              <button
-                key={track.id}
-                type="button"
-                onClick={() => handleSelectTrack(track)}
-                className={`text-left p-5 rounded-3xl border transition-all flex flex-col justify-between ${
-                  isSelected
-                    ? "bg-gradient-to-br from-rose-900 to-rose-800 text-white border-rose-700 shadow-lg scale-[1.01]"
-                    : "bg-white dark:bg-white/5 text-stone-800 dark:text-stone-200 border-stone-200/80 dark:border-white/10 hover:border-rose-300"
-                }`}
+              <Link
+                href="/chat/lilith"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-rose-900 hover:bg-rose-800 dark:bg-rose-600 dark:hover:bg-rose-500 text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors shrink-0"
               >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-2xl p-2 rounded-2xl bg-black/10 dark:bg-white/10">
-                      {track.icon}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
-                        isSelected
-                          ? "bg-white/20 text-rose-50"
-                          : "bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300"
-                      }`}
-                    >
-                      {track.badge}
-                    </span>
-                  </div>
-                  <h2 className="text-lg font-serif font-bold mb-1">{track.title}</h2>
-                  <p
-                    className={`text-xs leading-relaxed ${
-                      isSelected ? "text-rose-100/90" : "text-stone-500 dark:text-stone-400"
-                    }`}
-                  >
-                    {track.subtitle}
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between text-xs font-semibold">
-                  <span>{track.lessons.length} Módulos (Vídeo + E-book)</span>
-                  <span>{isSelected ? "● Selecionado" : "Abrir →"}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                <span>💬</span> Tirar Dúvida com a Lilith
+              </Link>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-4 bg-white dark:bg-[#1c1016] rounded-3xl border border-stone-200/80 dark:border-rose-400/15 p-5 shadow-sm">
-            <h3 className="font-serif font-bold text-base text-stone-900 dark:text-white mb-1">
-              Módulos da Trilha
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mb-4">
-              A Aula 01 de cada trilha é liberada gratuitamente.
-            </p>
-
-            <div className="space-y-2.5">
-              {currentTrack.lessons.map((lesson) => {
-                const locked = !lesson.isFree && !isPremium;
-                const active = lesson.id === currentLesson.id;
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              {TRACKS.map((track) => {
+                const isSelected = track.id === currentTrack.id;
                 return (
                   <button
-                    key={lesson.id}
+                    key={track.id}
                     type="button"
-                    onClick={() => handleSelectLesson(lesson)}
-                    className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-start gap-3 ${
-                      active
-                        ? "bg-rose-50 dark:bg-rose-500/15 border-rose-300 dark:border-rose-400/40 text-rose-950 dark:text-rose-100"
-                        : "bg-stone-50/70 dark:bg-white/5 border-transparent hover:bg-stone-100 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300"
+                    onClick={() => handleSelectTrack(track)}
+                    className={`text-left p-5 rounded-3xl border transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? "bg-gradient-to-br from-rose-900 to-rose-800 text-white border-rose-700 shadow-lg scale-[1.01]"
+                        : "bg-white dark:bg-white/5 text-stone-800 dark:text-stone-200 border-stone-200/80 dark:border-white/10 hover:border-rose-300"
                     }`}
                   >
-                    <div
-                      className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
-                        locked
-                          ? "bg-stone-200 dark:bg-white/10 text-stone-500"
-                          : active
-                          ? "bg-rose-900 dark:bg-rose-600 text-white"
-                          : "bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300"
-                      }`}
-                    >
-                      {locked ? "🔒" : lesson.number}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm font-semibold leading-snug mb-1">
-                        {lesson.title}
-                      </p>
-                      <span
-                        className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                          lesson.isFree
-                            ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
-                            : "bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300"
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className="text-2xl p-2 rounded-2xl bg-black/10 dark:bg-white/10">
+                          {track.icon}
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                            isSelected
+                              ? "bg-white/20 text-rose-50"
+                              : "bg-rose-100 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300"
+                          }`}
+                        >
+                          {track.badge}
+                        </span>
+                      </div>
+                      <h2 className="text-lg font-serif font-bold mb-1">{track.title}</h2>
+                      <p
+                        className={`text-xs leading-relaxed ${
+                          isSelected ? "text-rose-100/90" : "text-stone-500 dark:text-stone-400"
                         }`}
                       >
-                        {lesson.duration}
-                      </span>
+                        {track.subtitle}
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between text-xs font-semibold">
+                      <span>{track.lessons.length} Módulos (Vídeo + E-book)</span>
+                      <span>{isSelected ? "● Selecionado" : "Abrir →"}</span>
                     </div>
                   </button>
                 );
               })}
             </div>
-          </div>
 
-          <div className="lg:col-span-8 bg-white dark:bg-[#1c1016] rounded-3xl border border-stone-200/80 dark:border-rose-400/15 overflow-hidden shadow-sm">
-            {/* PLAYER DE VÍDEO PROTEGIDO (Lê link .mp4 direto sem download ou Vimeo configurado no Admin) */}
-            <div className="w-full aspect-video bg-gradient-to-br from-[#260710] via-[#18050b] to-[#0f0307] relative flex items-center justify-center border-b border-stone-200 dark:border-white/10">
-              {activeVideoUrl ? (
-                activeVideoUrl.includes(".mp4") || activeVideoUrl.includes(".webm") ? (
-                  <video
-                    src={activeVideoUrl}
-                    controls
-                    controlsList="nodownload"
-                    onContextMenu={(e) => e.preventDefault()}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <iframe
-                    src={activeVideoUrl}
-                    className="w-full h-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                    title={currentLesson.title}
-                  />
-                )
-              ) : (
-                <div className="text-center px-6 max-w-lg">
-                  <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
-                    {currentTrack.icon}
-                  </div>
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-rose-500/20 text-rose-200 border border-rose-400/30 mb-2">
-                    Módulo {currentLesson.number} • Guia Interativo
-                  </span>
-                  <h3 className="text-lg sm:text-2xl font-serif font-bold text-white leading-snug">
-                    {currentLesson.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-rose-100/70 mt-2">
-                    Leia abaixo o manual estratégico completo deste módulo.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 sm:p-8 space-y-6">
-              <div>
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
-                    📖 Guia Prático de Bolso
-                  </span>
-                  <span className="text-xs text-stone-400">•</span>
-                  <span className="text-xs text-stone-500 dark:text-stone-400">
-                    Leitura rápida de 2 min
-                  </span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-white mb-2">
-                  {currentLesson.title}
-                </h2>
-                <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed">
-                  {currentLesson.summary}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-4 bg-white dark:bg-[#1c1016] rounded-3xl border border-stone-200/80 dark:border-rose-400/15 p-5 shadow-sm">
+                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-white mb-1">
+                  Módulos da Trilha
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mb-4">
+                  A Aula 01 de cada trilha é liberada gratuitamente.
                 </p>
-              </div>
 
-              <div className="space-y-5 pt-2">
-                {currentLesson.ebookChapters.map((cap, idx) => (
-                  <div
-                    key={idx}
-                    className="p-5 rounded-2xl bg-stone-50/80 dark:bg-white/[0.03] border border-stone-200/70 dark:border-white/10 space-y-3"
-                  >
-                    <h4 className="text-base sm:text-lg font-serif font-bold text-stone-900 dark:text-rose-200">
-                      {cap.heading}
-                    </h4>
-                    <p className="text-sm sm:text-[15px] text-stone-700 dark:text-stone-300 whitespace-pre-line leading-relaxed">
-                      {cap.content}
-                    </p>
-                    {cap.highlight && (
-                      <div className="p-3.5 rounded-xl bg-rose-100/70 dark:bg-rose-500/15 border-l-4 border-rose-700 dark:border-rose-400 text-xs sm:text-sm font-semibold text-rose-950 dark:text-rose-200">
-                        💡 {cap.highlight}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-rose-950 to-[#2b0712] text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <p className="font-serif font-bold text-base sm:text-lg text-amber-300">
-                    Quer aplicar esta aula no seu caso específico?
-                  </p>
-                  <p className="text-xs sm:text-sm text-rose-100/90">
-                    Abra o chat e peça para a IA adaptar essa estratégia para a sua situação atual.
-                  </p>
+                <div className="space-y-2.5">
+                  {currentTrack.lessons.map((lesson) => {
+                    const locked = !lesson.isFree && !isPremium;
+                    const active = lesson.id === currentLesson.id;
+                    return (
+                      <button
+                        key={lesson.id}
+                        type="button"
+                        onClick={() => handleSelectLesson(lesson)}
+                        className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-start gap-3 ${
+                          active
+                            ? "bg-rose-50 dark:bg-rose-500/15 border-rose-300 dark:border-rose-400/40 text-rose-950 dark:text-rose-100"
+                            : "bg-stone-50/70 dark:bg-white/5 border-transparent hover:bg-stone-100 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300"
+                        }`}
+                      >
+                        <div
+                          className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
+                            locked
+                              ? "bg-stone-200 dark:bg-white/10 text-stone-500"
+                              : active
+                              ? "bg-rose-900 dark:bg-rose-600 text-white"
+                              : "bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300"
+                          }`}
+                        >
+                          {locked ? "🔒" : lesson.number}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs sm:text-sm font-semibold leading-snug mb-1">
+                            {lesson.title}
+                          </p>
+                          <span
+                            className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                              lesson.isFree
+                                ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                                : "bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300"
+                            }`}
+                          >
+                            {lesson.duration}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-                <Link
-                  href={currentTrack.id === "contato_zero" ? "/chat/reconquista" : "/chat/lilith"}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs sm:text-sm text-center shrink-0 shadow transition-colors"
-                >
-                  Aplicar no Meu Caso Agora →
-                </Link>
+              </div>
+
+              <div className="lg:col-span-8 bg-white dark:bg-[#1c1016] rounded-3xl border border-stone-200/80 dark:border-rose-400/15 overflow-hidden shadow-sm">
+                <div className="w-full aspect-video bg-gradient-to-br from-[#260710] via-[#18050b] to-[#0f0307] relative flex items-center justify-center border-b border-stone-200 dark:border-white/10">
+                  {activeVideoUrl ? (
+                    activeVideoUrl.includes(".mp4") || activeVideoUrl.includes(".webm") ? (
+                      <video
+                        src={activeVideoUrl}
+                        controls
+                        controlsList="nodownload"
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <iframe
+                        src={activeVideoUrl}
+                        className="w-full h-full"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                        title={currentLesson.title}
+                      />
+                    )
+                  ) : (
+                    <div className="text-center px-6 max-w-lg">
+                      <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
+                        {currentTrack.icon}
+                      </div>
+                      <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full bg-rose-500/20 text-rose-200 border border-rose-400/30 mb-2">
+                        Módulo {currentLesson.number} • Guia Interativo
+                      </span>
+                      <h3 className="text-lg sm:text-2xl font-serif font-bold text-white leading-snug">
+                        {currentLesson.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-rose-100/70 mt-2">
+                        Leia abaixo o manual estratégico completo deste módulo.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-6 sm:p-8 space-y-6">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="text-xs font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                        📖 Guia Prático de Bolso
+                      </span>
+                      <span className="text-xs text-stone-400">•</span>
+                      <span className="text-xs text-stone-500 dark:text-stone-400">
+                        Leitura rápida de 2 min
+                      </span>
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-white mb-2">
+                      {currentLesson.title}
+                    </h2>
+                    <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed">
+                      {currentLesson.summary}
+                    </p>
+                  </div>
+
+                  <div className="space-y-5 pt-2">
+                    {currentLesson.ebookChapters.map((cap, idx) => (
+                      <div
+                        key={idx}
+                        className="p-5 rounded-2xl bg-stone-50/80 dark:bg-white/[0.03] border border-stone-200/70 dark:border-white/10 space-y-3"
+                      >
+                        <h4 className="text-base sm:text-lg font-serif font-bold text-stone-900 dark:text-rose-200">
+                          {cap.heading}
+                        </h4>
+                        <p className="text-sm sm:text-[15px] text-stone-700 dark:text-stone-300 whitespace-pre-line leading-relaxed">
+                          {cap.content}
+                        </p>
+                        {cap.highlight && (
+                          <div className="p-3.5 rounded-xl bg-rose-100/70 dark:bg-rose-500/15 border-l-4 border-rose-700 dark:border-rose-400 text-xs sm:text-sm font-semibold text-rose-950 dark:text-rose-200">
+                            💡 {cap.highlight}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <AdBanner format="horizontal" slotId="TRILHAS_BOTTOM_SLOT" />
+
+                  <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-rose-950 to-[#2b0712] text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                      <p className="font-serif font-bold text-base sm:text-lg text-amber-300">
+                        Quer aplicar esta aula no seu caso específico?
+                      </p>
+                      <p className="text-xs sm:text-sm text-rose-100/90">
+                        Abra o chat e peça para a IA adaptar essa estratégia para a sua situação atual.
+                      </p>
+                    </div>
+                    <Link
+                      href={currentTrack.id === "contato_zero" ? "/chat/reconquista" : "/chat/lilith"}
+                      className="w-full sm:w-auto px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs sm:text-sm text-center shrink-0 shadow transition-colors"
+                    >
+                      Aplicar no Meu Caso Agora →
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {showVipModal && (

@@ -77,11 +77,23 @@ export default function AdminAffiliates() {
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  // Alavancas Globais
+  // 5 Alavancas Globais
   const [programOpen, setProgramOpen] = useState(true);
   const [communityOpen, setCommunityOpen] = useState(false);
+  const [tracksOpen, setTracksOpen] = useState(false);
   const [salesPopupOpen, setSalesPopupOpen] = useState(true);
+  const [adsEnabled, setAdsEnabled] = useState(true);
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
+
+  // Configurações de Rede de Anúncios
+  const [adsProvider, setAdsProvider] = useState<'adsense' | 'custom'>('adsense');
+  const [adsenseClientId, setAdsenseClientId] = useState('');
+  const [adsenseBannerSlot, setAdsenseBannerSlot] = useState('');
+  const [adsenseModalSlot, setAdsenseModalSlot] = useState('');
+  const [customBannerHtml, setCustomBannerHtml] = useState('');
+  const [customModalHtml, setCustomModalHtml] = useState('');
+  const [savingAds, setSavingAds] = useState(false);
+  const [adsSavedMsg, setAdsSavedMsg] = useState('');
 
   // Planos e Vídeos das Aulas
   const [plans, setPlans] = useState<PlanItem[]>([]);
@@ -98,7 +110,15 @@ export default function AdminAffiliates() {
       .then((d) => {
         if (typeof d.isOpen === 'boolean') setProgramOpen(d.isOpen);
         if (typeof d.communityOpen === 'boolean') setCommunityOpen(d.communityOpen);
+        if (typeof d.tracksOpen === 'boolean') setTracksOpen(d.tracksOpen);
         if (typeof d.salesPopupOpen === 'boolean') setSalesPopupOpen(d.salesPopupOpen);
+        if (typeof d.adsEnabled === 'boolean') setAdsEnabled(d.adsEnabled);
+        if (d.adsProvider === 'custom' || d.adsProvider === 'adsense') setAdsProvider(d.adsProvider);
+        if (typeof d.adsenseClientId === 'string') setAdsenseClientId(d.adsenseClientId);
+        if (typeof d.adsenseBannerSlot === 'string') setAdsenseBannerSlot(d.adsenseBannerSlot);
+        if (typeof d.adsenseModalSlot === 'string') setAdsenseModalSlot(d.adsenseModalSlot);
+        if (typeof d.customBannerHtml === 'string') setCustomBannerHtml(d.customBannerHtml);
+        if (typeof d.customModalHtml === 'string') setCustomModalHtml(d.customModalHtml);
         if (Array.isArray(d.plans) && d.plans.length > 0) setPlans(d.plans);
         if (d.lessonVideos && typeof d.lessonVideos === 'object') setLessonVideos(d.lessonVideos);
       })
@@ -130,14 +150,30 @@ export default function AdminAffiliates() {
   async function saveGlobalConfig(overrides: {
     isOpen?: boolean;
     communityOpen?: boolean;
+    tracksOpen?: boolean;
     salesPopupOpen?: boolean;
+    adsEnabled?: boolean;
+    adsProvider?: 'adsense' | 'custom';
+    adsenseClientId?: string;
+    adsenseBannerSlot?: string;
+    adsenseModalSlot?: string;
+    customBannerHtml?: string;
+    customModalHtml?: string;
     plans?: PlanItem[];
     lessonVideos?: Record<string, string>;
   }) {
     const payload = {
       isOpen: overrides.isOpen ?? programOpen,
       communityOpen: overrides.communityOpen ?? communityOpen,
+      tracksOpen: overrides.tracksOpen ?? tracksOpen,
       salesPopupOpen: overrides.salesPopupOpen ?? salesPopupOpen,
+      adsEnabled: overrides.adsEnabled ?? adsEnabled,
+      adsProvider: overrides.adsProvider ?? adsProvider,
+      adsenseClientId: overrides.adsenseClientId ?? adsenseClientId,
+      adsenseBannerSlot: overrides.adsenseBannerSlot ?? adsenseBannerSlot,
+      adsenseModalSlot: overrides.adsenseModalSlot ?? adsenseModalSlot,
+      customBannerHtml: overrides.customBannerHtml ?? customBannerHtml,
+      customModalHtml: overrides.customModalHtml ?? customModalHtml,
       plans: overrides.plans ?? plans,
       lessonVideos: overrides.lessonVideos ?? lessonVideos,
     };
@@ -149,7 +185,9 @@ export default function AdminAffiliates() {
     return res.ok;
   }
 
-  async function handleToggleSwitch(type: 'affiliates' | 'community' | 'salesPopup') {
+  async function handleToggleSwitch(
+    type: 'affiliates' | 'community' | 'tracks' | 'salesPopup' | 'ads'
+  ) {
     setTogglingKey(type);
     try {
       if (type === 'affiliates') {
@@ -158,12 +196,42 @@ export default function AdminAffiliates() {
       } else if (type === 'community') {
         const next = !communityOpen;
         if (await saveGlobalConfig({ communityOpen: next })) setCommunityOpen(next);
+      } else if (type === 'tracks') {
+        const next = !tracksOpen;
+        if (await saveGlobalConfig({ tracksOpen: next })) setTracksOpen(next);
       } else if (type === 'salesPopup') {
         const next = !salesPopupOpen;
         if (await saveGlobalConfig({ salesPopupOpen: next })) setSalesPopupOpen(next);
+      } else if (type === 'ads') {
+        const next = !adsEnabled;
+        if (await saveGlobalConfig({ adsEnabled: next })) setAdsEnabled(next);
       }
     } finally {
       setTogglingKey(null);
+    }
+  }
+
+  async function handleSaveAdsConfig() {
+    setSavingAds(true);
+    setAdsSavedMsg('');
+    try {
+      if (
+        await saveGlobalConfig({
+          adsProvider,
+          adsenseClientId,
+          adsenseBannerSlot,
+          adsenseModalSlot,
+          customBannerHtml,
+          customModalHtml,
+        })
+      ) {
+        setAdsSavedMsg('✅ Configurações de Monetização e Anúncios salvas no site!');
+        setTimeout(() => setAdsSavedMsg(''), 4000);
+      } else {
+        setAdsSavedMsg('❌ Erro ao salvar configurações de anúncios.');
+      }
+    } finally {
+      setSavingAds(false);
     }
   }
 
@@ -288,21 +356,71 @@ export default function AdminAffiliates() {
         <span>🛡️</span> Painel do Administrador
       </h1>
       <p className="text-stone-500 dark:text-stone-300 mb-6">
-        Controle geral da plataforma: módulos visíveis, vídeos das aulas, planos da Cakto e aprovação de afiliados.
+        Controle geral da plataforma: anúncios, aulas/trilhas, comunidade, planos da Cakto e afiliados.
       </p>
 
-      {/* CENTRAL DE ALAVANCAS GLOBAIS (AFILIADOS, COMUNIDADE E POP-UP DE VENDAS) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {/* Alavanca 1: Afiliados */}
-        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-5 flex flex-col justify-between gap-4">
+      {/* CENTRAL DE 5 ALAVANCAS GLOBAIS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-8">
+        {/* Alavanca 1: Anúncios & Bônus Free */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className={`w-2.5 h-2.5 rounded-full ${programOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-sm">
-                Vagas de Afiliados: {programOpen ? 'ABERTO' : 'FECHADO'}
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${adsEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-xs sm:text-sm">
+                Anúncios Free: {adsEnabled ? 'ATIVO' : 'OFF'}
               </h2>
             </div>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+              Ativa banners e o botão de assistir anúncio (10s) nos chats para ganhar mais mensagens.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleToggleSwitch('ads')}
+            disabled={togglingKey === 'ads'}
+            className={`w-full py-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${
+              adsEnabled ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-700 hover:bg-stone-600 text-white'
+            }`}
+          >
+            {togglingKey === 'ads' ? 'Salvando...' : adsEnabled ? '🟢 Desativar Ads' : '⚪ Ativar Ads'}
+          </button>
+        </div>
+
+        {/* Alavanca 2: Aulas & Trilhas */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${tracksOpen ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-xs sm:text-sm">
+                Aulas & Trilhas: {tracksOpen ? 'ATIVO' : 'OCULTO'}
+              </h2>
+            </div>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+              Exibe ou oculta a seção de Aulas/Cursos na Home e no menu superior até seus vídeos ficarem prontos.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleToggleSwitch('tracks')}
+            disabled={togglingKey === 'tracks'}
+            className={`w-full py-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${
+              tracksOpen ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-700 hover:bg-stone-600 text-white'
+            }`}
+          >
+            {togglingKey === 'tracks' ? 'Salvando...' : tracksOpen ? '🟢 Ocultar Aulas' : '⚪ Liberar Aulas'}
+          </button>
+        </div>
+
+        {/* Alavanca 3: Afiliados */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${programOpen ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-xs sm:text-sm">
+                Afiliados: {programOpen ? 'ABERTO' : 'FECHADO'}
+              </h2>
+            </div>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
               Exibe ou oculta o menu &ldquo;Afiliados&rdquo; e controla a entrada de novos parceiros.
             </p>
           </div>
@@ -310,74 +428,208 @@ export default function AdminAffiliates() {
             type="button"
             onClick={() => handleToggleSwitch('affiliates')}
             disabled={togglingKey === 'affiliates'}
-            className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+            className={`w-full py-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${
               programOpen ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-800 dark:bg-rose-700 text-white'
             }`}
           >
-            {togglingKey === 'affiliates' ? 'Salvando...' : programOpen ? '🟢 Fechar Vagas' : '🔴 Reabrir Vagas'}
+            {togglingKey === 'affiliates' ? 'Salvando...' : programOpen ? '🟢 Fechar Vagas' : '🔴 Abrir Vagas'}
           </button>
         </div>
 
-        {/* Alavanca 2: Comunidade Anônima */}
-        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-5 flex flex-col justify-between gap-4">
+        {/* Alavanca 4: Comunidade Anônima */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className={`w-2.5 h-2.5 rounded-full ${communityOpen ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
-              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-sm">
-                Mural da Comunidade: {communityOpen ? 'ATIVO' : 'OCULTO'}
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${communityOpen ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-xs sm:text-sm">
+                Comunidade: {communityOpen ? 'ATIVO' : 'OCULTO'}
               </h2>
             </div>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Ative quando tiver volume de usuários para liberar a aba &ldquo;Comunidade&rdquo; no topo do site.
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+              Ative quando tiver volume de usuários para liberar o mural &ldquo;Comunidade&rdquo; no topo.
             </p>
           </div>
           <button
             type="button"
             onClick={() => handleToggleSwitch('community')}
             disabled={togglingKey === 'community'}
-            className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+            className={`w-full py-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${
               communityOpen ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-700 hover:bg-stone-600 text-white'
             }`}
           >
-            {togglingKey === 'community' ? 'Salvando...' : communityOpen ? '🟢 Desativar Comunidade' : '⚪ Ativar Comunidade'}
+            {togglingKey === 'community' ? 'Salvando...' : communityOpen ? '🟢 Ocultar Mural' : '⚪ Ativar Mural'}
           </button>
         </div>
 
-        {/* Alavanca 3: Pop-up de Notificações de Compra (150+ nomes) */}
-        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-5 flex flex-col justify-between gap-4">
+        {/* Alavanca 5: Pop-up de Notificações de Compra */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className={`w-2.5 h-2.5 rounded-full ${salesPopupOpen ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
-              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-sm">
-                Notificações de Compra: {salesPopupOpen ? 'ATIVO' : 'DESATIVADO'}
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${salesPopupOpen ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-xs sm:text-sm">
+                Pop-up Vendas: {salesPopupOpen ? 'ATIVO' : 'OCULTO'}
               </h2>
             </div>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Exibe pop-ups de prova social (160 nomes aleatórios comprando VIP) apenas para usuários no modo Free.
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+              Mostra notificações de compra (160 nomes) para visitantes no modo Free.
             </p>
           </div>
           <button
             type="button"
             onClick={() => handleToggleSwitch('salesPopup')}
             disabled={togglingKey === 'salesPopup'}
-            className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+            className={`w-full py-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${
               salesPopupOpen ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-stone-700 hover:bg-stone-600 text-white'
             }`}
           >
-            {togglingKey === 'salesPopup' ? 'Salvando...' : salesPopupOpen ? '🟢 Ocultar Pop-ups' : '⚪ Ativar Pop-ups'}
+            {togglingKey === 'salesPopup' ? 'Salvando...' : salesPopupOpen ? '🟢 Ocultar Pop-up' : '⚪ Ativar Pop-up'}
           </button>
         </div>
       </div>
 
-      {/* GERENCIADOR DE VÍDEOS DAS AULAS (/TRILHAS) DIRETO PELO PAINEL ADMIN */}
+      {/* CENTRAL DE MONETIZAÇÃO & ANÚNCIOS (ADSENSE / MONETAG / ADSTERRA) */}
       <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-10">
-        <div className="pb-4 mb-5 border-b border-stone-100 dark:border-white/10">
-          <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
-            <span>🎬</span> Vídeos das Aulas (Academia & Trilhas)
-          </h2>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            Quando criar seus vídeos, cole aqui o link direto <code className="font-mono">.mp4</code> (ex: Cloudflare R2 / Supabase Storage — abre no player próprio bloqueado contra download e sem anúncios) ou link de embed do Vimeo. Se deixar em branco, a aula mostra o banner elegante + E-book.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b border-stone-100 dark:border-white/10">
+          <div>
+            <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
+              <span>📢</span> Central de Monetização & Códigos de Anúncios (Modo Free)
+            </h2>
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+              Regras ativas: <strong>Lilith</strong> (5 grátis + 3 por anúncio) • <strong>Oráculo</strong> (3 grátis + 2 por anúncio) • <strong>Reconquista</strong> (1 grátis + 1 por anúncio, máx. 10).
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setAdsProvider('adsense')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                adsProvider === 'adsense'
+                  ? 'bg-rose-700 text-white shadow'
+                  : 'bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300'
+              }`}
+            >
+              Google AdSense
+            </button>
+            <button
+              type="button"
+              onClick={() => setAdsProvider('custom')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                adsProvider === 'custom'
+                  ? 'bg-rose-700 text-white shadow'
+                  : 'bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300'
+              }`}
+            >
+              Monetag / Adsterra / HTML
+            </button>
+          </div>
+        </div>
+
+        {adsProvider === 'adsense' ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+            <div>
+              <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                ID do Cliente AdSense (ca-pub-...)
+              </label>
+              <input
+                type="text"
+                placeholder="ca-pub-1234567890123456"
+                value={adsenseClientId}
+                onChange={(e) => setAdsenseClientId(e.target.value)}
+                className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 font-mono text-xs"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                ID do Bloco (Slot) — Banner Horizontal
+              </label>
+              <input
+                type="text"
+                placeholder="Ex: 1122334455"
+                value={adsenseBannerSlot}
+                onChange={(e) => setAdsenseBannerSlot(e.target.value)}
+                className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 font-mono text-xs"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                ID do Bloco (Slot) — Modal 10s (Nos Chats)
+              </label>
+              <input
+                type="text"
+                placeholder="Ex: 9988776655"
+                value={adsenseModalSlot}
+                onChange={(e) => setAdsenseModalSlot(e.target.value)}
+                className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 font-mono text-xs"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+            <div>
+              <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                Código HTML / Script — Banner Horizontal (Home & Trilhas)
+              </label>
+              <textarea
+                rows={4}
+                placeholder="Cole aqui o código <script> ou <iframe> do banner da Monetag / Adsterra..."
+                value={customBannerHtml}
+                onChange={(e) => setCustomBannerHtml(e.target.value)}
+                className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 font-mono text-xs"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                Código HTML / Script — Modal 10 Segundos (Nos Chats)
+              </label>
+              <textarea
+                rows={4}
+                placeholder="Cole aqui o código <script>, <iframe> ou banner 300x250 que aparece durante os 10s no chat..."
+                value={customModalHtml}
+                onChange={(e) => setCustomModalHtml(e.target.value)}
+                className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 font-mono text-xs"
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={handleSaveAdsConfig}
+            disabled={savingAds}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-rose-700 dark:hover:bg-rose-600 text-white font-bold text-xs sm:text-sm shadow transition-all disabled:opacity-50"
+          >
+            {savingAds ? 'Salvando...' : '💾 Salvar Configuração de Anúncios'}
+          </button>
+          {adsSavedMsg && (
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              {adsSavedMsg}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* GERENCIADOR DE VÍDEOS DAS AULAS (/TRILHAS) */}
+      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-5 border-b border-stone-100 dark:border-white/10">
+          <div>
+            <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
+              <span>🎬</span> Vídeos das Aulas (Academia & Trilhas)
+            </h2>
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+              Você pode ir colando os links <code className="font-mono">.mp4</code> ou Vimeo aqui sem pressa. Enquanto a alavanca <strong>Aulas & Trilhas</strong> acima estiver <strong>OCULTO</strong>, os usuários não verão essa área.
+            </p>
+          </div>
+          <span
+            className={`text-[11px] font-bold px-3 py-1 rounded-full shrink-0 ${
+              tracksOpen
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
+                : 'bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-400'
+            }`}
+          >
+            Status atual: {tracksOpen ? 'Visível no Site' : 'Oculto para Usuários'}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

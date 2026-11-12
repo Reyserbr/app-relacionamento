@@ -1,6 +1,9 @@
-import AdBanner from "@/components/AdBanner";
+"use client";
+
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
+import AdBanner from "@/components/AdBanner";
 
 const DEPOIMENTOS = [
   {
@@ -38,9 +41,9 @@ const DEPOIMENTOS = [
   {
     nome: "B. T., 27 anos",
     cidade: "Rio de Janeiro, RJ",
-    modulo: "Trilha Contato Zero",
+    modulo: "Consultoria da Lilith",
     texto:
-      "Só a aula de Desintoxicação de Dopamina e o guia do que postar nos stories já valeram cada centavo. Parei de passar vergonha postando indireta e em menos de duas semanas quem terminou comigo veio puxar assunto perguntando da minha vida.",
+      "Só de entender como funciona o vácuo magnético e o que postar nos stories já valeu cada centavo. Parei de passar vergonha postando indireta e em menos de duas semanas quem terminou comigo veio puxar assunto perguntando da minha vida.",
     estrelas: 5,
   },
   {
@@ -54,11 +57,21 @@ const DEPOIMENTOS = [
 ];
 
 export default function Home() {
+  const [tracksOpen, setTracksOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/affiliate/config")
+      .then((r) => r.json())
+      .then((cfg) => {
+        if (cfg?.tracksOpen) setTracksOpen(true);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <main className="flex min-h-screen flex-col items-center bg-stone-50 text-stone-800 dark:bg-[#140a0f] dark:text-stone-200 font-sans selection:bg-rose-200 selection:text-rose-900">
       <Navbar />
 
-      {/* Fundo decorativo suave */}
       <div className="relative w-full overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-gradient-to-b from-rose-100/70 via-orange-50/40 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent" />
 
@@ -163,20 +176,24 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Trilhas de Aprendizado */}
-          <div className="w-full mt-20 pt-16 border-t border-stone-200 dark:border-white/10 text-center">
-            <span className="text-rose-600 dark:text-rose-300 font-semibold tracking-wider uppercase text-sm mb-4 block">Exclusivo Assinantes • Aulas & Guias</span>
-            <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8">
-              Trilhas de Desenvolvimento
-            </h2>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/trilhas?track=amor_proprio" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">✨ Ame a Si Mesmo Primeiro</Link>
-              <Link href="/trilhas?track=contato_zero" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🛑 Contato Zero na Prática</Link>
-              <Link href="/trilhas?track=confianca" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🔥 Desperte sua Confiança</Link>
+          {/* Trilhas de Aprendizado (Exibido apenas quando a alavanca Aulas & Trilhas está ativa no Admin) */}
+          {tracksOpen && (
+            <div className="w-full mt-20 pt-16 border-t border-stone-200 dark:border-white/10 text-center">
+              <span className="text-rose-600 dark:text-rose-300 font-semibold tracking-wider uppercase text-sm mb-4 block">
+                Exclusivo Assinantes • Aulas & Guias
+              </span>
+              <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8">
+                Trilhas de Desenvolvimento
+              </h2>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link href="/trilhas?track=amor_proprio" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">✨ Ame a Si Mesmo Primeiro</Link>
+                <Link href="/trilhas?track=contato_zero" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🛑 Contato Zero na Prática</Link>
+                <Link href="/trilhas?track=confianca" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">🔥 Desperte sua Confiança</Link>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* NOVA SEÇÃO: DEPOIMENTOS DE QUEM VIROU O JOGO */}
+          {/* DEPOIMENTOS DE QUEM VIROU O JOGO */}
           <div className="w-full mt-20 pt-16 border-t border-stone-200 dark:border-white/10">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <span className="text-amber-600 dark:text-amber-400 font-semibold tracking-wider uppercase text-xs sm:text-sm mb-2 block">
@@ -222,18 +239,22 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="w-full max-w-4xl mx-auto mt-12">
+            <AdBanner format="horizontal" slotId="HOME_BOTTOM_SLOT" />
+          </div>
+
         </div>
       </div>
-      <div className="w-full max-w-4xl mx-auto px-6 mt-12">
-  <AdBanner format="horizontal" slotId="HOME_BOTTOM_SLOT" />
-</div>
-      {/* RODAPÉ INSTITUCIONAL & AVISO LEGAL DE IA (CONFORMIDADE ADSENSE / LGPD) */}
-      <footer className="w-full border-t border-stone-200 dark:border-white/10 bg-white/60 dark:bg-[#10070b] mt-20 py-10 px-6 text-center text-xs text-stone-500 dark:text-stone-400">
+
+      {/* RODAPÉ INSTITUCIONAL & AVISO LEGAL DE IA */}
+      <footer className="w-full border-t border-stone-200 dark:border-white/10 bg-white/60 dark:bg-[#10070b] mt-10 py-10 px-6 text-center text-xs text-stone-500 dark:text-stone-400">
         <div className="max-w-5xl mx-auto space-y-4">
           <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 font-semibold text-stone-700 dark:text-stone-300">
             <Link href="/sobre" className="hover:text-rose-600 transition-colors">Como Funciona</Link>
             <Link href="/planos" className="hover:text-rose-600 transition-colors">Planos VIP</Link>
-            <Link href="/trilhas" className="hover:text-rose-600 transition-colors">Aulas & Guias</Link>
+            {tracksOpen && (
+              <Link href="/trilhas" className="hover:text-rose-600 transition-colors">Aulas & Guias</Link>
+            )}
             <Link href="/termos" className="hover:text-rose-600 transition-colors">Termos de Uso</Link>
             <Link href="/privacidade" className="hover:text-rose-600 transition-colors">Política de Privacidade</Link>
             <Link href="/contato" className="hover:text-rose-600 transition-colors">Contato</Link>
