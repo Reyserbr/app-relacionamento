@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from "react";
 
+interface AttachmentItem {
+  name: string;
+  mimeType: string;
+  previewUrl: string;
+}
+
 interface AssistantMessageCardProps {
   messageId: string;
   content: string;
@@ -9,11 +15,8 @@ interface AssistantMessageCardProps {
   isNew?: boolean;
   copiedId: string | null;
   onCopy: (id: string, text: string) => void;
-  attachment?: {
-    name: string;
-    mimeType: string;
-    previewUrl: string;
-  };
+  attachment?: AttachmentItem;
+  attachments?: AttachmentItem[];
 }
 
 export default function AssistantMessageCard({
@@ -24,13 +27,13 @@ export default function AssistantMessageCard({
   copiedId,
   onCopy,
   attachment,
+  attachments,
 }: AssistantMessageCardProps) {
   const [displayedText, setDisplayedText] = useState(isNew ? "" : content);
   const [isTyping, setIsTyping] = useState(isNew);
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [feedbackSentMsg, setFeedbackSentMsg] = useState("");
 
-  // Carrega se o usuário já deu Like/Dislike nessa mensagem antes
   useEffect(() => {
     try {
       const saved = localStorage.getItem(`lilith_fb_${messageId}`);
@@ -38,7 +41,6 @@ export default function AssistantMessageCard({
     } catch (_) {}
   }, [messageId]);
 
-  // Efeito de escrita em tempo real (Typewriter fluido estilo ChatGPT/Gemini)
   useEffect(() => {
     if (!isNew) {
       setDisplayedText(content);
@@ -50,8 +52,6 @@ export default function AssistantMessageCard({
     const totalLength = content.length;
     setIsTyping(true);
 
-    // Velocidade adaptativa: escreve de 4 em 4 caracteres a cada 16ms (~60fps)
-    // Dá a sensação visual exata de streaming da IA sem demorar demais em textos longos
     const interval = setInterval(() => {
       currentIndex += 5;
       if (currentIndex >= totalLength) {
@@ -98,9 +98,11 @@ export default function AssistantMessageCard({
       ? "ORÁCULO • REVELAÇÃO ASTRAL"
       : "LILITH • CONSULTORIA AMOROSA";
 
-  // Formata parágrafos e destaca blocos importantes sem aquele caixote pesado antigo
   const renderFormattedContent = (raw: string) => {
-    const cleanText = raw.replace(/^#{1,4}\s*/gm, "");
+    // Remove ### e remove linhas que são apenas "---"
+    const cleanText = raw
+      .replace(/^#{1,4}\s*/gm, "")
+      .replace(/^\s*---+\s*$/gm, "");
     const paragraphs = cleanText.split(/\n\n+/);
 
     const parseInline = (line: string) => {
@@ -135,12 +137,27 @@ export default function AssistantMessageCard({
       const trimmed = para.trim();
       if (!trimmed) return null;
 
-      // Detecta se é um título de seção (ex: "**1. LEITURA DE BASTIDORES:**")
-      const isSectionHeader = /^\*\*([123]\.|LEITURA|A VIRADA|O PRÓXIMO|SINASTRIA|TENDÊNCIA|O PONTO|O CRONOGRAMA)/i.test(
+      // Se for uma mensagem sugerida começando com ">" (blockquote), mostra num card elegante
+      if (trimmed.startsWith(">")) {
+        const cleanQuote = trimmed.replace(/^>\s*/gm, "");
+        return (
+          <div
+            key={pIdx}
+            className={`my-2 p-4 rounded-2xl border-l-4 ${
+              isPurple
+                ? "bg-purple-500/10 border-l-purple-400 text-purple-950 dark:text-purple-100"
+                : "bg-rose-500/10 border-l-rose-400 text-rose-950 dark:text-rose-100"
+            } font-medium text-sm sm:text-[15px] leading-relaxed shadow-sm`}
+          >
+            {parseInline(cleanQuote)}
+          </div>
+        );
+      }
+
+      const isSectionHeader = /^\*\*([123]\.|LEITURA|A VIRADA|O PRÓXIMO|SINASTRIA|TENDÊNCIA|O PONTO|O CRONOGRAMA|O PLANO)/i.test(
         trimmed
       );
 
-      // Detecta se é a chamada final de desbloqueio VIP para dar destaque especial
       const isVipCallout =
         /Desbloqueie o (meu Plano|Protocolo|Acesso) Premium/i.test(trimmed) ||
         /roteiro completo/i.test(trimmed);
@@ -181,9 +198,15 @@ export default function AssistantMessageCard({
     });
   };
 
+  const allAttachments =
+    Array.isArray(attachments) && attachments.length > 0
+      ? attachments
+      : attachment
+      ? [attachment]
+      : [];
+
   return (
     <div className="w-full flex items-start gap-3 sm:gap-4 py-2">
-      {/* Avatar Moderno da IA (Estilo Gemini / ChatGPT) */}
       <div
         className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-sm border ${
           isPurple
@@ -200,7 +223,6 @@ export default function AssistantMessageCard({
         </svg>
       </div>
 
-      {/* Corpo Fluido da Resposta (Sem caixote fechado) */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2 mb-2">
           <span
@@ -220,23 +242,26 @@ export default function AssistantMessageCard({
               }}
               className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-200/70 dark:bg-white/10 text-stone-600 dark:text-stone-300 hover:opacity-80 transition-opacity"
             >
-              ⚡ Mostrar tudo
+              Mostrar tudo
             </button>
           )}
         </div>
 
-        {attachment && (
-          <div className="mb-3 rounded-xl overflow-hidden bg-black/10 p-1 max-w-xs">
-            {attachment.mimeType.startsWith("image/") && (
-              <img src={attachment.previewUrl} alt="Anexo" className="max-h-64 rounded-lg object-contain" />
-            )}
-            {attachment.mimeType.startsWith("audio/") && (
-              <audio controls src={attachment.previewUrl} className="w-full" />
-            )}
+        {allAttachments.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {allAttachments.map((att, idx) => (
+              <div key={idx} className="rounded-xl overflow-hidden bg-black/10 p-1 max-w-xs">
+                {att.mimeType.startsWith("image/") && (
+                  <img src={att.previewUrl} alt="Anexo" className="max-h-60 rounded-lg object-contain" />
+                )}
+                {att.mimeType.startsWith("audio/") && (
+                  <audio controls src={att.previewUrl} className="w-full" />
+                )}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Texto da resposta com espaçamento entre parágrafos e cursor piscando enquanto digita */}
         <div className="space-y-3.5 text-stone-800 dark:text-stone-100 text-sm sm:text-[15.5px] leading-relaxed">
           {renderFormattedContent(displayedText)}
           {isTyping && (
@@ -248,7 +273,6 @@ export default function AssistantMessageCard({
           )}
         </div>
 
-        {/* Barra de Ações Inferior: Copiar + Like (👍) + Dislike (👎) */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 pt-2 border-t border-stone-200/50 dark:border-white/[0.06] text-[11px] text-stone-400 dark:text-stone-500">
           <button
             type="button"
@@ -266,7 +290,6 @@ export default function AssistantMessageCard({
             <span>{copiedId === messageId ? "Copiado" : "Copiar"}</span>
           </button>
 
-          {/* Botão Like (Gostei da resposta) */}
           <button
             type="button"
             onClick={() => handleFeedback("up")}
@@ -286,7 +309,6 @@ export default function AssistantMessageCard({
             </svg>
           </button>
 
-          {/* Botão Dislike (Não gostei da resposta) */}
           <button
             type="button"
             onClick={() => handleFeedback("down")}

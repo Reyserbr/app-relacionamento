@@ -18,6 +18,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   attachment?: Attachment;
+  attachments?: Attachment[];
 }
 
 interface ChatSession {
@@ -41,7 +42,7 @@ export default function ReconquistaChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [bonusLimit, setBonusLimit] = useState<number>(0);
   const [input, setInput] = useState("");
-  const [attachment, setAttachment] = useState<Attachment | null>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -149,7 +150,9 @@ export default function ReconquistaChat() {
           .slice(0, 34) + (firstUserMsg.length > 34 ? "..." : "");
 
       const lightMessages = updatedMsgs.map((m) =>
-        m.attachment ? { ...m, attachment: undefined } : m
+        m.attachment || m.attachments
+          ? { ...m, attachment: undefined, attachments: undefined }
+          : m
       );
 
       const updatedSession: ChatSession = {
@@ -238,44 +241,105 @@ export default function ReconquistaChat() {
   }, [messages, isLoading]);
 
   const processFile = (file: File) => {
-    if (file.size > 4 * 1024 * 1024) {
-      alert("O arquivo é muito grande! Envie um print, áudio ou vídeo curto de até 4MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      alert("O arquivo é muito grande! Envie arquivos de até 10MB.");
       return;
     }
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX_DIM = 1280;
+          let w = img.width;
+          let h = img.height;
+          if (w > MAX_DIM || h > MAX_DIM) {
+            if (w > h) {
+              h = Math.round((h * MAX_DIM) / w);
+              w = MAX_DIM;
+            } else {
+              w = Math.round((w * MAX_DIM) / h);
+              h = MAX_DIM;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.84);
+            const base64Data = compressedDataUrl.split(",")[1];
+            setAttachments((prev) =>
+              prev.length >= 5
+                ? prev
+                : [
+                    ...prev,
+                    {
+                      name: file.name || `print-${Date.now()}.jpg`,
+                      mimeType: "image/jpeg",
+                      data: base64Data,
+                      previewUrl: compressedDataUrl,
+                    },
+                  ]
+            );
+          }
+        };
+        img.src = ev.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
       const base64Data = result.split(",")[1];
-      setAttachment({
-        name: file.name || `print-${Date.now()}.png`,
-        mimeType: file.type || "image/png",
-        data: base64Data,
-        previewUrl: result,
-      });
+      setAttachments((prev) =>
+        prev.length >= 5
+          ? prev
+          : [
+              ...prev,
+              {
+                name: file.name || `anexo-${Date.now()}`,
+                mimeType: file.type || "audio/webm",
+                data: base64Data,
+                previewUrl: result,
+              },
+            ]
+      );
     };
     reader.readAsDataURL(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    processFile(file);
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    Array.from(fileList).forEach((f) => processFile(f));
     e.target.value = "";
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     const items = e.clipboardData?.items;
     if (!items) return;
+    let foundMedia = false;
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.startsWith("image/") || items[i].type.startsWith("audio/")) {
         const file = items[i].getAsFile();
         if (file) {
-          e.preventDefault();
+          foundMedia = true;
           processFile(file);
-          return;
         }
       }
     }
+    if (foundMedia) {
+      e.preventDefault();
+    }
+  };
+
+  const removeAttachment = (indexToRemove: number) => {
+    setAttachments((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const toggleRecording = async () => {
@@ -343,25 +407,30 @@ export default function ReconquistaChat() {
     });
   };
 
-  const sendRawMessage = async (textToSend: string, attachToSend: Attachment | null = null) => {
+  const sendRawMessage = async (textToSend: string, attachListToSend: Attachment[] = []) => {
     if (isLimitReached) {
       setShowPaywallModal(true);
       return;
     }
-    if ((!textToSend.trim() && !attachToSend) || isLoading) return;
+    if ((!textToSend.trim() && attachListToSend.length === 0) || isLoading) return;
 
     const userMsg: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: textToSend.trim() || (attachToSend ? "Analise este arquivo/áudio do meu término." : ""),
-      attachment: attachToSend || undefined,
+      content:
+        textToSend.trim() ||
+        (attachListToSend.length > 1
+          ? `Analise estas ${attachListToSend.length} prints em sequência.`
+          : "Analise este arquivo/áudio do meu término."),
+      attachment: attachListToSend[0] || undefined,
+      attachments: attachListToSend.length > 0 ? attachListToSend : undefined,
     };
 
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     saveToHistory(updatedMessages);
     setInput("");
-    setAttachment(null);
+    setAttachments([]);
     setIsLoading(true);
 
     try {
@@ -402,7 +471,7 @@ export default function ReconquistaChat() {
 
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    await sendRawMessage(input, attachment);
+    await sendRawMessage(input, attachments);
   };
 
   const handleQuizSubmit = async (e: React.FormEvent) => {
@@ -421,10 +490,10 @@ export default function ReconquistaChat() {
 
     setShowQuestionnaire(false);
 
-    if (partes.length === 0) return;
+    if (partes.length === 0 && attachments.length === 0) return;
 
     const resumo = `DIAGNÓSTICO DO MEU CASO DE RECONQUISTA:\n${partes.join("\n")}\n\nAnalise meu cenário com precisão e me diga qual é o diagnóstico e a estratégia ideal.`;
-    await sendRawMessage(resumo, attachment);
+    await sendRawMessage(resumo, attachments);
   };
 
   return (
@@ -546,7 +615,7 @@ export default function ReconquistaChat() {
         </div>
 
         <div
-          className={`flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5 border-t border-stone-100 dark:border-white/5 [scrollbar-width:thin] [scrollbar-color:rgba(244,63,94,0.2)_transparent] ${
+          className={`flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5 border-t border-stone-100 dark:border-white/5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
             isDesktopCollapsed ? "lg:hidden" : ""
           }`}
         >
@@ -676,7 +745,7 @@ export default function ReconquistaChat() {
                 Módulo de Reconquista
               </h2>
               <p className="text-stone-500 dark:text-stone-300/80 max-w-md text-xs sm:text-sm leading-relaxed">
-                Preencha a ficha de diagnóstico para uma análise cirúrgica, grave um áudio desabafando ou cole o print da conversa.
+                Preencha a ficha de diagnóstico para uma análise cirúrgica, grave um áudio desabafando ou aperte <strong>Ctrl+V para colar um ou mais prints</strong> da conversa.
               </p>
               <button
                 onClick={() => setShowQuestionnaire(true)}
@@ -689,8 +758,15 @@ export default function ReconquistaChat() {
               </button>
             </div>
           ) : (
-            messages.map((m) =>
-              m.role === "assistant" ? (
+            messages.map((m) => {
+              const msgAttachments =
+                Array.isArray(m.attachments) && m.attachments.length > 0
+                  ? m.attachments
+                  : m.attachment
+                  ? [m.attachment]
+                  : [];
+
+              return m.role === "assistant" ? (
                 <AssistantMessageCard
                   key={m.id}
                   messageId={m.id}
@@ -700,23 +776,33 @@ export default function ReconquistaChat() {
                   copiedId={copiedId}
                   onCopy={copyMessage}
                   attachment={m.attachment}
+                  attachments={m.attachments}
                 />
               ) : (
                 <div key={m.id} className="flex flex-col items-end">
+                  {msgAttachments.length > 0 && (
+                    <div className="mb-2 flex flex-wrap justify-end gap-2 max-w-[88%] sm:max-w-[78%]">
+                      {msgAttachments.map((att, idx) => (
+                        <div
+                          key={idx}
+                          className="rounded-2xl overflow-hidden border border-rose-400/25 bg-black/20 shadow-md"
+                        >
+                          {att.mimeType.startsWith("image/") && (
+                            <img
+                              src={att.previewUrl}
+                              alt={`Print ${idx + 1}`}
+                              className="max-h-60 sm:max-h-72 w-auto object-contain"
+                            />
+                          )}
+                          {att.mimeType.startsWith("audio/") && (
+                            <audio controls src={att.previewUrl} className="w-64 p-2" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="max-w-[88%] sm:max-w-[78%] rounded-3xl px-4 py-3 sm:px-5 sm:py-3.5 shadow-md whitespace-pre-wrap leading-relaxed text-sm sm:text-[15px] bg-gradient-to-br from-[#6b1630] to-[#4a0f21] text-rose-50 rounded-tr-sm border border-rose-400/20">
-                    {m.attachment && (
-                      <div className="mb-3 rounded-xl overflow-hidden bg-black/10 p-1">
-                        {m.attachment.mimeType.startsWith("image/") && (
-                          <img src={m.attachment.previewUrl} alt="Print enviado" className="max-h-72 rounded-lg object-contain mx-auto" />
-                        )}
-                        {m.attachment.mimeType.startsWith("audio/") && (
-                          <audio controls src={m.attachment.previewUrl} className="w-full max-w-xs" />
-                        )}
-                        {m.attachment.mimeType.startsWith("video/") && (
-                          <video controls src={m.attachment.previewUrl} className="max-h-72 rounded-lg mx-auto" />
-                        )}
-                      </div>
-                    )}
                     <div>{formatText(m.content)}</div>
                   </div>
 
@@ -733,7 +819,7 @@ export default function ReconquistaChat() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => sendRawMessage(m.content)}
+                      onClick={() => sendRawMessage(m.content, msgAttachments)}
                       disabled={isLoading}
                       className="hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1"
                     >
@@ -744,8 +830,8 @@ export default function ReconquistaChat() {
                     </button>
                   </div>
                 </div>
-              )
-            )
+              );
+            })
           )}
 
           {isLoading && (
@@ -763,31 +849,9 @@ export default function ReconquistaChat() {
           <div ref={messagesEndRef} />
         </main>
 
-        {/* BARRA DE DIGITAÇÃO ESTILO CHATGPT */}
+        {/* BARRA DE DIGITAÇÃO COM MINIATURAS DE MÚLTIPLOS PRINTS E SEM SCROLLBAR BRANCA */}
         <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
-            {attachment && (
-              <div className="mb-2 flex items-center justify-between bg-rose-50 dark:bg-[#28121d] border border-rose-200 dark:border-rose-400/30 px-3.5 py-2 rounded-2xl text-xs text-rose-900 dark:text-rose-200">
-                <div className="flex items-center gap-2.5 truncate">
-                  {attachment.mimeType.startsWith("image/") ? (
-                    <img src={attachment.previewUrl} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-rose-300" />
-                  ) : (
-                    <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-                    </svg>
-                  )}
-                  <span className="font-medium truncate">{attachment.name}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setAttachment(null)}
-                  className="ml-2 text-rose-800 dark:text-rose-300 font-bold px-2 py-0.5 rounded-full"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
             {isLimitReached ? (
               <div className="bg-rose-950 text-white p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2.5 shadow-md">
                 <div className="text-center sm:text-left">
@@ -813,68 +877,113 @@ export default function ReconquistaChat() {
             ) : (
               <form
                 onSubmit={handleSend}
-                className="flex items-center gap-2 bg-white dark:bg-[#26121c] border border-stone-300/90 dark:border-rose-300/20 rounded-[28px] px-3 py-1.5 shadow-lg transition-all"
+                className="flex flex-col bg-white dark:bg-[#26121c] border border-stone-300/90 dark:border-rose-300/20 rounded-[28px] px-3 py-2 shadow-lg transition-all"
               >
                 <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   accept="image/*,audio/*,video/*"
+                  multiple
                   className="hidden"
                 />
 
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Adicionar Print, Foto ou Áudio"
-                  className="w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 flex items-center justify-center shrink-0 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
-                </button>
+                {attachments.length > 0 && (
+                  <div className="flex items-center gap-2.5 overflow-x-auto pb-2.5 pt-1 px-1 mb-1 border-b border-stone-200/60 dark:border-white/10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {attachments.map((att, idx) => (
+                      <div
+                        key={idx}
+                        className="relative group shrink-0 w-14 h-14 rounded-2xl overflow-hidden border border-rose-300/40 bg-black/20 shadow-sm"
+                      >
+                        {att.mimeType.startsWith("image/") ? (
+                          <img
+                            src={att.previewUrl}
+                            alt={`Print ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-rose-300 text-xs font-bold">
+                            Áudio
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeAttachment(idx)}
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/75 hover:bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center shadow transition-colors"
+                          title="Remover anexo"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    {attachments.length < 5 && (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-14 h-14 rounded-2xl border border-dashed border-stone-300 dark:border-rose-300/30 hover:border-rose-400 flex flex-col items-center justify-center text-stone-400 dark:text-rose-300/70 text-[10px] shrink-0 transition-colors"
+                        title="Adicionar mais um print"
+                      >
+                        <span className="text-base leading-none">+</span>
+                        <span>Print</span>
+                      </button>
+                    )}
+                  </div>
+                )}
 
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onPaste={handlePaste}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend();
-                    }
-                  }}
-                  rows={Math.min(4, Math.max(1, input.split("\n").length))}
-                  placeholder="Pergunte ao Reconquiste"
-                  style={{ border: "none", outline: "none", boxShadow: "none" }}
-                  className="flex-1 bg-transparent !border-0 !ring-0 !outline-none !shadow-none appearance-none text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400/80 px-1 py-1.5 text-sm sm:text-base resize-none max-h-32 overflow-y-auto leading-normal"
-                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    title="Adicionar Prints, Fotos ou Áudio"
+                    className="w-9 h-9 rounded-full hover:bg-stone-100 dark:hover:bg-white/10 text-stone-600 dark:text-stone-300 flex items-center justify-center shrink-0 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={toggleRecording}
-                  title={isRecording ? "Parar gravação" : "Gravar desabafo em áudio"}
-                  className={`h-9 rounded-full transition-all shrink-0 flex items-center justify-center gap-1 ${
-                    isRecording
-                      ? "bg-rose-600 text-white animate-pulse px-3"
-                      : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-500 dark:text-stone-300"
-                  }`}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-                  </svg>
-                  {isRecording && <span className="text-[11px] font-bold">{recordingSeconds}s</span>}
-                </button>
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onPaste={handlePaste}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    rows={Math.min(5, Math.max(1, input.split("\n").length))}
+                    placeholder="Pergunte ao Reconquiste (ou cole prints com Ctrl+V)"
+                    style={{ border: "none", outline: "none", boxShadow: "none" }}
+                    className="flex-1 bg-transparent !border-0 !ring-0 !outline-none !shadow-none appearance-none text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400/80 px-1 py-1 text-sm sm:text-base resize-none max-h-36 overflow-y-auto leading-normal [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                  />
 
-                <button
-                  type="submit"
-                  disabled={isLoading || (!input.trim() && !attachment)}
-                  className="w-9 h-9 bg-[#5c162e] hover:bg-[#731c3a] dark:bg-[#7a1c3a] dark:hover:bg-[#912246] text-white rounded-full disabled:opacity-40 flex items-center justify-center shrink-0 transition-all shadow-sm"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
-                  </svg>
-                </button>
+                  <button
+                    type="button"
+                    onClick={toggleRecording}
+                    title={isRecording ? "Parar gravação" : "Gravar desabafo em áudio"}
+                    className={`h-9 rounded-full transition-all shrink-0 flex items-center justify-center gap-1 ${
+                      isRecording
+                        ? "bg-rose-600 text-white animate-pulse px-3"
+                        : "w-9 hover:bg-stone-100 dark:hover:bg-white/10 text-stone-500 dark:text-stone-300"
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                    </svg>
+                    {isRecording && <span className="text-[11px] font-bold">{recordingSeconds}s</span>}
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading || (!input.trim() && attachments.length === 0)}
+                    className="w-9 h-9 bg-[#5c162e] hover:bg-[#731c3a] dark:bg-[#7a1c3a] dark:hover:bg-[#912246] text-white rounded-full disabled:opacity-40 flex items-center justify-center shrink-0 transition-all shadow-sm"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                    </svg>
+                  </button>
+                </div>
               </form>
             )}
           </div>
@@ -1018,7 +1127,7 @@ export default function ReconquistaChat() {
                   placeholder="Cole aqui a última troca de mensagens ou digite o que foi dito por último..."
                   value={quiz.ultimaConversa}
                   onChange={(e) => setQuiz({ ...quiz, ultimaConversa: e.target.value })}
-                  className="w-full rounded-xl px-3.5 py-2 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100"
+                  className="w-full rounded-xl px-3.5 py-2 bg-stone-50 dark:bg-[#28121d] border border-stone-200 dark:border-rose-300/15 text-stone-800 dark:text-stone-100 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 />
               </div>
 

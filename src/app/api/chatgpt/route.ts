@@ -27,6 +27,12 @@ export async function POST(req: Request) {
       modelConfirmation = "Entendido. Atuarei como o Astrólogo e Oráculo do Amor.";
     }
 
+    // Orientação extra para leitura visual de prints de WhatsApp / Instagram
+    systemPrompt += `\n\n[REGRA DE LEITURA DE PRINTS DE CONVERSA]:
+Quando o usuário enviar 1 ou mais imagens (prints de WhatsApp, Instagram, etc.):
+- Nos prints, as mensagens enviadas PELO USUÁRIO geralmente ficam nos balões do lado DIREITO (coloridos: verdes, azuis ou roxos), enquanto as mensagens da OUTRA PESSOA ficam nos balões do lado ESQUERDO (escuros/cinzas ou brancos).
+- Se houver vários prints na mesma mensagem, leia-os em ordem cronológica sequencial antes de dar o diagnóstico.`;
+
     if (isPremium) {
       systemPrompt = systemPrompt
         .replace(/Nunca entregue[\s\S]*$/i, "")
@@ -43,14 +49,12 @@ export async function POST(req: Request) {
       systemPrompt += `\n\n[REGRA DE SEGURANÇA — MODO GRATUITO]: Entregue análises psicológicas profundas sobre o relato, mas nunca entregue gratuitamente o texto exato da mensagem pronta nem o passo a passo final (exclusivos do Plano VIP Premium).`;
     }
 
-    // 1. Limpa mensagens de erro e remove duplicatas criadas pelo botão "Reenviar"
     const rawList = Array.isArray(messages) ? messages : [];
     const cleanedMessages: any[] = [];
 
     for (const m of rawList) {
       if (!m || typeof m.content !== "string") continue;
 
-      // Ignora avisos de erro anteriores da própria IA
       if (
         m.role === "assistant" &&
         (m.content.includes("Estou finalizando uma leitura intensa") ||
@@ -61,7 +65,6 @@ export async function POST(req: Request) {
       }
 
       const prev = cleanedMessages[cleanedMessages.length - 1];
-      // Se o botão "Reenviar" duplicou a mensagem do usuário seguida, mantém apenas uma cópia limpa!
       if (prev && prev.role === m.role) {
         cleanedMessages[cleanedMessages.length - 1] = m;
       } else {
@@ -71,7 +74,6 @@ export async function POST(req: Request) {
 
     const recentMessages = cleanedMessages.slice(-8);
 
-    // 2. Formato original exato que sempre rodou rápido nos seus testes
     const contents = [
       {
         role: "user",
@@ -88,7 +90,20 @@ export async function POST(req: Request) {
       ...recentMessages.map((m: any) => {
         const parts: any[] = [];
         if (m.content) parts.push({ text: m.content });
-        if (m.attachment && m.attachment.data && m.attachment.mimeType) {
+
+        // Suporte a múltiplos anexos (sequência de prints) na mesma mensagem
+        if (Array.isArray(m.attachments) && m.attachments.length > 0) {
+          for (const att of m.attachments) {
+            if (att && att.data && att.mimeType) {
+              parts.push({
+                inlineData: {
+                  mimeType: att.mimeType,
+                  data: att.data,
+                },
+              });
+            }
+          }
+        } else if (m.attachment && m.attachment.data && m.attachment.mimeType) {
           parts.push({
             inlineData: {
               mimeType: m.attachment.mimeType,
@@ -96,6 +111,7 @@ export async function POST(req: Request) {
             },
           });
         }
+
         return {
           role: m.role === "user" ? "user" : "model",
           parts: parts.length > 0 ? parts : [{ text: "..." }],
@@ -113,7 +129,6 @@ export async function POST(req: Request) {
       ],
     };
 
-    // Sua fila original de modelos rápidos
     const modelsToTry = [
       "gemini-flash-lite-latest",
       "gemini-flash-latest",
@@ -125,7 +140,7 @@ export async function POST(req: Request) {
 
     for (const modelName of modelsToTry) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 14000);
+      const timeoutId = setTimeout(() => controller.abort(), 16000);
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
