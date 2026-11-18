@@ -18,16 +18,16 @@ const EXEMPLOS_DEMONSTRACAO = [
   },
   {
     id: "flerte",
-    aba: "O que responder",
-    tag: "Inversão de Jogo",
-    recebida: "E aí, sumido(a)... vai fazer o que hoje?",
-    resposta: "Tava sem planos até você aparecer com essa energia suspeita... o que tem em mente?",
-    analise: "Sai do óbvio, devolve a iniciativa para a pessoa e cria tensão divertida na conversa.",
-    estilo: "Tom: magnético • Estilo: confiante",
+    aba: "Apps & Match",
+    tag: "Abertura Magnética",
+    recebida: "Bio do Tinder: 'Viciada em café, viagens e gente que sabe conversar'",
+    resposta: "Já ganhei no café e nas viagens. Só falta você provar que aguenta uma conversa sem respostas de 3 palavras.",
+    analise: "Usa desafio leve (Push-Pull) baseado no perfil dela, fugindo do 'Oi, tudo bem?'.",
+    estilo: "Tom: provocante • Estilo: confiante",
   },
   {
     id: "redflag",
-    aba: "Subtexto & Red Flags",
+    aba: "Red Flags",
     tag: "Leitura Fria de Print",
     recebida: "Tô super corrido essa semana, mas qualquer dia a gente marca algo!",
     resposta: "Desinteresse disfarçado de agenda cheia. Não cobre encontro: recue 100% e deixe investir.",
@@ -47,16 +47,16 @@ const DEPOIMENTOS = [
   {
     nome: "R. S., 34 anos",
     cidade: "Belo Horizonte, MG",
-    modulo: "Leitura de Print",
+    modulo: "Detector de Red Flags",
     texto:
       "Eu achava que ela estava só ocupada no trabalho, mas o Detector de Red Flags me mostrou na hora que ela estava me mantendo em banho-maria. Mudei minha postura com a mensagem da Lilith e o jogo virou.",
   },
   {
     nome: "C. A., 26 anos",
     cidade: "Curitiba, PR",
-    modulo: "Consultoria Lilith",
+    modulo: "Otimizador de Perfil",
     texto:
-      "Sempre fui muito ansiosa depois de sair com alguém e acabava sufocando. Mandei exatamente a provocação leve que a Lilith escreveu e ele ficou obcecado querendo marcar o segundo encontro logo na manhã seguinte!",
+      "Mandei prints do meu perfil no Bumble e Instagram. A Lilith mandou eu trocar a primeira foto, reescreveu minha bio e meus matches triplicaram no mesmo fim de semana!",
   },
 ];
 
@@ -82,13 +82,13 @@ export default function Home() {
 
       {isLoaded && userId ? (
         /* =====================================================================
-           EXPERIÊNCIA DO USUÁRIO LOGADO: PAINEL DIRETO DE FERRAMENTAS E ATALHOS
+           EXPERIÊNCIA DO USUÁRIO LOGADO: PAINEL ENXUTO E MAGNÉTICO
            ===================================================================== */
         <div className="relative w-full overflow-hidden flex-1">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-gradient-to-b from-rose-100/70 via-orange-50/40 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent" />
 
           <div className="relative w-full max-w-5xl px-6 py-12 sm:py-16 mx-auto flex flex-col items-center">
-            {/* Hero Direto do Painel Logado */}
+            {/* Hero Direto sem Botões Redundantes */}
             <div className="text-center max-w-3xl mb-12 mt-2">
               <span className="inline-flex items-center gap-2 rounded-full bg-rose-500/10 dark:bg-rose-500/15 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-rose-700 dark:text-rose-300 mb-5">
                 <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
@@ -99,68 +99,59 @@ export default function Home() {
                 LilithLove
               </h1>
               <p className="text-base sm:text-xl leading-relaxed text-stone-600 dark:text-stone-300 mb-9">
-                Sua conselheira amorosa e guia de inteligência emocional.
-                Analise conversas, melhore seus relacionamentos e saiba exatamente como agir.
+                Envie prints, desabafe ou peça uma estratégia. Descubra o que realmente está acontecendo e receba a resposta exata para virar o jogo.
               </p>
 
-              {/* Botões de Ação Rápida */}
-              <div className="flex flex-wrap justify-center gap-3.5">
-                <Link
-                  href="/chat/lilith?action=conselho"
-                  className="px-6 py-3.5 bg-gradient-to-r from-rose-900/90 to-rose-800/90 hover:from-rose-800 hover:to-rose-700 text-rose-50 rounded-2xl font-semibold text-sm transition-all shadow-lg shadow-rose-950/30 flex items-center gap-2.5"
-                >
-                  <svg className="w-4 h-4 text-rose-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                  <span>Preciso de um conselho</span>
-                </Link>
-
+              {/* 2 Ações Principais Diretas (Sem Redundância) */}
+              <div className="flex flex-col sm:flex-row justify-center gap-3.5 max-w-xl mx-auto">
                 <Link
                   href="/chat/lilith?action=analise"
-                  className="px-6 py-3.5 bg-amber-500/15 dark:bg-[#2a1710] hover:bg-amber-500/25 dark:hover:bg-[#381f15] text-amber-950 dark:text-amber-200 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2.5"
+                  className="flex-1 px-6 py-4 bg-gradient-to-r from-[#8f1d42] to-[#b52654] hover:from-[#a1224b] hover:to-[#c72c5e] text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-rose-950/30 flex items-center justify-center gap-2.5"
                 >
-                  <svg className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 text-rose-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                   </svg>
-                  <span>Analisar uma conversa</span>
+                  <span>Analisar Conversa & O Que Responder</span>
                 </Link>
 
                 <Link
-                  href="/chat/lilith?action=responder"
-                  className="px-6 py-3.5 bg-stone-200/70 dark:bg-white/[0.07] hover:bg-stone-300/70 dark:hover:bg-white/[0.12] text-stone-800 dark:text-stone-100 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center gap-2.5"
+                  href="/chat/lilith"
+                  className="px-6 py-4 bg-white dark:bg-white/[0.06] hover:bg-stone-100 dark:hover:bg-white/[0.12] border border-stone-200/80 dark:border-white/10 text-stone-800 dark:text-stone-100 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center justify-center gap-2"
                 >
                   <svg className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                  <span>O que respondo agora?</span>
+                  <span>Chat Livre com a Lilith</span>
                 </Link>
               </div>
             </div>
 
-            {/* Grade de Ferramentas Inteligentes */}
-            <div className="w-full mt-6">
+            {/* Grade de Ferramentas Inteligentes (5 Módulos Únicos) */}
+            <div className="w-full mt-4">
               <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8 text-center">
                 Ferramentas Inteligentes
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Primeiro Contato */}
+                {/* 1. Copiloto de Apps & Match */}
                 <Link
-                  href="/chat/lilith?action=primeiro_contato"
-                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
+                  href="/chat/lilith?action=apps_match"
+                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group relative overflow-hidden"
                 >
                   <div className="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-600 dark:text-rose-400">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Primeiro Contato</h3>
+                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
+                    Copiloto de Apps & Match
+                  </h3>
                   <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
-                    Mensagens e abordagens perfeitas para puxar assunto e gerar interesse real e recíproco.
+                    Para Tinder, Bumble, Facebook Namoro e Direct. Envie o print do perfil ou conversa, defina seu objetivo e receba a abertura ideal para gerar encontro.
                   </p>
                 </Link>
 
-                {/* Detector de Red Flags */}
+                {/* 2. Detector de Red Flags */}
                 <Link
                   href="/chat/lilith?action=red_flags"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -170,30 +161,34 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Detector de Red Flags</h3>
+                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
+                    Detector de Red Flags
+                  </h3>
                   <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
-                    Analise o perfil e o comportamento nas mensagens para identificar sinais de alerta precocemente.
+                    Escaneie prints e atitudes para identificar manipulação, narcisismo, jogos emocionais e falta de interesse real antes de se apegar.
                   </p>
                 </Link>
 
-                {/* Pós-Encontro */}
+                {/* 3. Otimizador de Perfil & Bio */}
                 <Link
-                  href="/chat/lilith?action=pos_encontro"
-                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
+                  href="/chat/lilith?action=otimizar_perfil"
+                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-amber-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
                 >
                   <div className="w-12 h-12 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-amber-600 dark:text-amber-400">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">Pós-Encontro</h3>
+                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
+                    Otimizador de Perfil & Bio
+                  </h3>
                   <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
-                    Saiba exatamente o que mandar depois de sair para manter a conexão viva sem parecer desesperado(a).
+                    Envie prints das suas fotos e perfil do Instagram, Tinder ou Bumble. A IA avalia sua imagem e cria bios magnéticas para multiplicar seus matches.
                   </p>
                 </Link>
 
-                {/* Oráculo do Amor & Sinastria */}
+                {/* 4. Oráculo do Amor & Sinastria */}
                 <Link
                   href="/chat/mistico"
                   className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-8 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/25 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
@@ -214,7 +209,7 @@ export default function Home() {
                   </p>
                 </Link>
 
-                {/* Destaque Principal: Reconectar / Reconquistar */}
+                {/* 5. Destaque Principal: Reconectar / Reconquistar */}
                 <Link
                   href="/chat/reconquista"
                   className="md:col-span-2 bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/75 dark:via-[#2b0916] dark:to-orange-950/60 p-8 sm:p-9 rounded-3xl shadow-md border border-rose-200 dark:border-rose-400/35 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
@@ -237,7 +232,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Trilhas de Aprendizado (Quando ativo no Admin) */}
             {tracksOpen && (
               <div className="w-full mt-16 pt-12 border-t border-stone-200 dark:border-white/10 text-center">
                 <span className="text-rose-600 dark:text-rose-300 font-semibold tracking-wider uppercase text-sm mb-4 block">
@@ -342,7 +336,7 @@ export default function Home() {
               <div className="p-5 sm:p-7 space-y-5">
                 <div className="max-w-md rounded-2xl rounded-tl-sm bg-stone-100 dark:bg-[#24121b] border border-stone-200/60 dark:border-white/[0.06] p-4">
                   <span className="text-[11px] font-medium text-stone-400 dark:text-stone-400 block mb-1">
-                    Mensagem recebida no WhatsApp / Direct
+                    Mensagem ou Perfil Analisado
                   </span>
                   <p className="text-sm sm:text-base text-stone-800 dark:text-stone-100">
                     &ldquo;{currentExample.recebida}&rdquo;
@@ -410,10 +404,10 @@ export default function Home() {
                   </svg>
                 </div>
                 <h2 className="text-lg font-bold text-stone-900 dark:text-white">
-                  Leitura de prints e áudios
+                  Otimizador de Perfil & Bio
                 </h2>
                 <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
-                  Envie até 5 prints seguidos ou grave um áudio desabafando para leitura completa.
+                  Avaliação de fotos e criação de bios magnéticas para Tinder, Bumble e Instagram.
                 </p>
               </div>
             </div>
@@ -448,14 +442,14 @@ export default function Home() {
                 </Link>
 
                 <Link
-                  href="/chat/lilith?action=primeiro_contato"
+                  href="/chat/lilith?action=apps_match"
                   className="bg-white dark:bg-white/[0.03] p-6 rounded-3xl border border-stone-200/70 dark:border-white/[0.07] hover:border-rose-500/30 transition-all flex flex-col items-start"
                 >
                   <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-1.5">
-                    Primeiro Contato & Pós-Encontro
+                    Copiloto de Apps & Perfil
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
-                    Aberturas magnéticas para Instagram/WhatsApp e mensagens estratégicas após sair com alguém.
+                    Aberturas magnéticas para Tinder/Instagram, avaliação de fotos e criação de bio de alto valor.
                   </p>
                 </Link>
 
