@@ -38,6 +38,7 @@ interface ToolConfig {
   buttonLabel: string;
   requireOrientation?: boolean;
   objectives?: string[];
+  extraFlags?: string[];
   fields: {
     id: "f1" | "f2" | "f3";
     label: string;
@@ -56,6 +57,12 @@ const ORIENTATION_OPTIONS = [
 
 function ToolSvgIcon({ type, className = "w-4 h-4" }: { type: string; className?: string }) {
   switch (type) {
+    case "instagram":
+      return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+        </svg>
+      );
     case "apps_match":
       return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -87,18 +94,22 @@ function ToolSvgIcon({ type, className = "w-4 h-4" }: { type: string; className?
 const TOOL_CONFIGS: Record<string, ToolConfig> = {
   analise: {
     key: "analise",
-    badge: "Especialidade Principal • Raio-X & Resposta",
-    title: "Analisar Conversa & O Que Responder",
-    desc: "Subtexto da conversa, conselho estratégico e a resposta exata para virar o jogo.",
+    badge: "Raio-X Completo • Subtexto, Conselho & Resposta",
+    title: "Analisar Conversa",
+    desc: "Leia as entrelinhas da conversa, detecte sinais ocultos e receba a resposta exata.",
     warning:
-      "Cole a conversa, envie prints do WhatsApp/Instagram ou desabafe abaixo. A Lilith vai analisar as intenções ocultas, te aconselhar e entregar a resposta ideal.",
-    buttonLabel: "Analisar Conversa e Gerar Resposta",
-    requireOrientation: true,
+      "Cole a conversa, envie prints do WhatsApp/Instagram ou conte o que está acontecendo. A Lilith vai analisar as intenções reais, aconselhar sua postura e entregar a resposta exata.",
+    buttonLabel: "Analisar Conversa Agora",
+    requireOrientation: false,
     objectives: [
-      "Decifrar o que a pessoa sente + Gerar resposta magnética",
-      "Virar o jogo (pessoa esfriou ou demora a responder)",
+      "Decifrar o que a pessoa realmente sente + O que responder agora",
+      "Virar o jogo (pessoa esfriou, sumiu ou demora a responder)",
       "Conduzir a conversa para um encontro presencial",
-      "Conselho estratégico após um encontro ou discussão",
+      "Saber como agir após um encontro ou discussão",
+    ],
+    extraFlags: [
+      "Analisar sinais de Red Flags e jogos emocionais",
+      "Analisar traços narcisistas, manipulação ou love bombing",
     ],
     fields: [
       {
@@ -108,48 +119,82 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f2",
-        label: "2. Cole aqui a conversa ou conte o que aconteceu (ou anexe prints abaixo):",
-        placeholder: "Cole as mensagens recebidas ou explique o contexto...",
+        label: "2. Cole aqui a conversa ou desabafe o que aconteceu (ou anexe prints abaixo):",
+        placeholder: "Cole as mensagens recebidas ou explique o contexto da situação...",
         multiline: true,
       },
       {
         id: "f3",
         label: "3. Qual dúvida específica você quer tirar?",
-        placeholder: "Ex: Quero saber se perdeu o interesse e o que responder agora sem parecer carente...",
+        placeholder: "Ex: Quero saber se perdeu o interesse e o que responder sem parecer carente...",
+      },
+    ],
+  },
+  instagram: {
+    key: "instagram",
+    badge: "Estratégia Social • Stories, Direct & Feed",
+    title: "Abordagem no Instagram",
+    desc: "Entre no radar e puxe assunto sem parecer mais um fã elogiando foto.",
+    warning:
+      "No Instagram, elogiar beleza ou mandar 'Oi, tudo bem?' coloca você na fila dos ignorados. Preencha seu perfil de interesse abaixo e envie o print do Story ou perfil para criar uma abertura magnética.",
+    buttonLabel: "Criar Abordagem para Instagram",
+    requireOrientation: true,
+    objectives: [
+      "Responder um Story gerando curiosidade imediata",
+      "Puxar assunto pelo Direct sem ter Story postado",
+      "Reativar alguém que já me segue mas nunca conversamos",
+      "Transformar conversa no Direct em WhatsApp / Encontro",
+    ],
+    fields: [
+      {
+        id: "f1",
+        label: "1. Vocês já se seguem ou já interagiram antes?",
+        placeholder: "Ex: Seguimos um ao outro e curtimos fotos / Nunca interagimos...",
+      },
+      {
+        id: "f2",
+        label: "2. O que está no Story, destaque ou perfil dessa pessoa (ou anexe o print abaixo)?",
+        placeholder: "Ex: Postou foto treinando, viajando, num café, com pet ou música...",
+        multiline: true,
+      },
+      {
+        id: "f3",
+        label: "3. Qual tom você prefere passar nessa primeira mensagem?",
+        placeholder: "Ex: Leve e bem-humorado(a), misterioso(a), direto(a) com charme...",
       },
     ],
   },
   apps_match: {
     key: "apps_match",
-    badge: "Copiloto de Apps • Tinder, Bumble, FB Namoro & Direct",
-    title: "Copiloto de Apps & Match",
-    desc: "Aberturas irresistíveis e condução de papo para apps de encontro e redes sociais.",
+    badge: "Apps de Encontro • Tinder, Bumble, Hinge & FB Namoro",
+    title: "Abordagem em Apps de Namoro",
+    desc: "Quebra-gelo irresistível após o match para se destacar da multidão.",
     warning:
-      "Selecione abaixo seu perfil de interesse e objetivo (obrigatório) e envie o print do perfil, fotos ou conversa da pessoa para a Lilith criar mensagens impossíveis de ignorar.",
-    buttonLabel: "Gerar Abordagem & Estratégia",
+      "Selecione seu perfil de interesse e objetivo abaixo (obrigatório) e envie o print da bio, fotos ou conversa do match para gerar uma abertura que prende a atenção na primeira linha.",
+    buttonLabel: "Gerar Mensagem de Match",
     requireOrientation: true,
     objectives: [
-      "Primeira mensagem irresistível (quebrar o gelo com humor/charme)",
-      "Responder um Match / Story sem cair no 'Oi, tudo bem?'",
+      "Primeira mensagem criativa baseada na bio ou fotos do match",
+      "Sair do papo morno e despertar tensão / interesse",
       "Tirar a conversa do app e levar para o WhatsApp / Encontro",
-      "Reativar um Match que parou de responder",
+      "Reativar um match que parou de responder",
     ],
     fields: [
       {
         id: "f1",
-        label: "1. Em qual aplicativo ou rede social vocês estão?",
-        placeholder: "Ex: Tinder, Bumble, Hinge, Facebook Namoro, Direct do Instagram...",
+        label: "1. Em qual aplicativo de namoro vocês deram match?",
+        placeholder: "Ex: Tinder, Bumble, Hinge, Facebook Namoro, Happn...",
       },
       {
         id: "f2",
-        label: "2. O que está escrito na Bio, fotos ou conversa (ou cole os prints abaixo)?",
-        placeholder: "Descreva detalhes do perfil/fotos ou cole o print da tela...",
+        label: "2. O que chama atenção na Bio ou fotos do perfil (ou anexe os prints abaixo)?",
+        placeholder: "Cole o texto da bio, descreva as fotos ou anexe o print do perfil...",
         multiline: true,
       },
       {
         id: "f3",
-        label: "3. Qual estilo de abordagem combina mais com você?",
-        placeholder: "Ex: Provocante e bem-humorado(a), misterioso(a), direto(a) ao ponto...",
+        label: "3. Qual estilo de conversa combina mais com você?",
+        placeholder: "Ex: Provocante e divertido(a), elegante, direto(a) ao ponto...",
       },
     ],
   },
@@ -157,16 +202,16 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
     key: "otimizar_perfil",
     badge: "Posicionamento & Atração • Fotos e Bio",
     title: "Otimizador de Perfil & Bio",
-    desc: "Avaliação das suas fotos e criação de bio magnética para Tinder, Bumble e Instagram.",
+    desc: "Avaliação das suas fotos e criação de bio magnética para multiplicar matches.",
     warning:
       "Anexe prints do seu perfil atual ou suas melhores fotos abaixo. A Lilith vai avaliar o que transmite alto valor, o que está afastando matches e escrever 3 opções de Bio prontas.",
     buttonLabel: "Avaliar Meu Perfil & Criar Bio",
     requireOrientation: true,
     objectives: [
-      "Criar uma Bio magnética e autêntica para Tinder / Bumble",
+      "Criar uma Bio magnética e autêntica para Apps de Namoro",
       "Otimizar perfil e destaques do Instagram para atrair interesse",
       "Avaliar minhas fotos atuais e escolher a melhor ordem",
-      "Passar uma imagem mais madura, confiante e interessante",
+      "Passar uma imagem mais confiante, madura e atraente",
     ],
     fields: [
       {
@@ -182,23 +227,23 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
       },
       {
         id: "f3",
-        label: "3. Que tipo de pessoa ou conexão você quer atrair com esse perfil?",
+        label: "3. Que tipo de conexão você quer atrair com esse perfil?",
         placeholder: "Ex: Pessoas interessantes para sair sem enrolação / Relacionamento sério...",
       },
     ],
   },
   red_flags: {
     key: "red_flags",
-    badge: "Scanner Comportamental • Leitura de Intenções",
+    badge: "Scanner Comportamental • Manipulação & Narcisismo",
     title: "Detector de Red Flags",
     desc: "Identificar joguinhos, narcisismo, mentiras ou manipulação nas mensagens.",
     warning:
-      "Pessoas manipuladoras ou indisponíveis dão sinais sutis logo nas primeiras conversas. Cole os prints ou mensagens suspeitas abaixo para uma leitura fria e sem filtro.",
+      "Pessoas manipuladoras ou narcisistas dão sinais sutis logo nas primeiras conversas. Cole os prints ou mensagens suspeitas abaixo para uma leitura fria e sem filtro.",
     buttonLabel: "Escanear Red Flags Agora",
-    requireOrientation: true,
+    requireOrientation: false,
     objectives: [
       "Verificar se a pessoa está fazendo joguinho ou manipulação",
-      "Identificar sinais de narcisismo, love bombing ou toxicidade",
+      "Identificar sinais de narcisismo, love bombing ou gaslighting",
       "Descobrir se sou apenas 'estepe emocional' ou contatinho reserva",
       "Saber se vale a pena insistir ou cortar contato agora",
     ],
@@ -228,7 +273,7 @@ const CLOUD_KEY = "lilith";
 const CHECKOUT_URL = "/planos";
 
 const cleanDisplayTitle = (rawTitle: string) =>
-  (rawTitle || "Nova Conversa").replace(/^[^\wÀ-ÿ]+/, "").trim() || "Nova Conversa";
+  (rawTitle || "Nova Consulta").replace(/^[^\wÀ-ÿ]+/, "").trim() || "Nova Consulta";
 
 export default function LilithChat() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -249,6 +294,7 @@ export default function LilithChat() {
   const [activeTool, setActiveTool] = useState<ToolConfig | null>(null);
   const [selectedOrientation, setSelectedOrientation] = useState<string>("");
   const [selectedObjective, setSelectedObjective] = useState<string>("");
+  const [selectedFlags, setSelectedFlags] = useState<string[]>([]);
   const [formError, setFormError] = useState<string>("");
   const [toolForm, setToolForm] = useState({ f1: "", f2: "", f3: "" });
 
@@ -339,8 +385,15 @@ export default function LilithChat() {
   const openToolModal = (tool: ToolConfig) => {
     setToolForm({ f1: "", f2: "", f3: "" });
     setSelectedObjective(tool.objectives?.[0] || "");
+    setSelectedFlags([]);
     setFormError("");
     setActiveTool(tool);
+  };
+
+  const toggleFlag = (flag: string) => {
+    setSelectedFlags((prev) =>
+      prev.includes(flag) ? prev.filter((item) => item !== flag) : [...prev, flag]
+    );
   };
 
   const syncToCloud = (nextSessions: ChatSession[]) => {
@@ -353,7 +406,7 @@ export default function LilithChat() {
 
   const saveToHistory = (updatedMsgs: Message[], newBonus = bonusLimit) => {
     setSessions((prev) => {
-      const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Nova Conversa";
+      const firstUserMsg = updatedMsgs.find((m) => m.role === "user")?.content || "Nova Consulta";
       const cleanTitle =
         firstUserMsg
           .replace(/^[^\wÀ-ÿ]+/, "")
@@ -368,7 +421,7 @@ export default function LilithChat() {
 
       const updatedSession: ChatSession = {
         id: activeSessionId || Date.now().toString(),
-        title: updatedMsgs.length > 0 ? cleanTitle : "Nova Conversa",
+        title: updatedMsgs.length > 0 ? cleanTitle : "Nova Consulta",
         updatedAt: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
         messages: lightMessages,
         bonusLimit: newBonus,
@@ -392,7 +445,7 @@ export default function LilithChat() {
     const newId = Date.now().toString();
     const newSession: ChatSession = {
       id: newId,
-      title: pickedTool ? pickedTool.title : "Nova Conversa",
+      title: pickedTool ? pickedTool.title : "Nova Consulta",
       updatedAt: "Agora",
       messages: [],
       bonusLimit: 0,
@@ -692,13 +745,20 @@ export default function LilithChat() {
     if (!activeTool) return;
 
     if (activeTool.requireOrientation && !selectedOrientation) {
-      setFormError("Por favor, selecione o seu perfil de interesse acima para a Lilith calibrar a estratégia corretamente.");
+      setFormError("Por favor, selecione o seu perfil de interesse acima para a Lilith calibrar a abordagem.");
       return;
     }
 
     const partes: string[] = [];
-    if (selectedOrientation) partes.push(`• Dinâmica / Perfil de Interesse: ${selectedOrientation}`);
-    if (selectedObjective) partes.push(`• Objetivo Principal: ${selectedObjective}`);
+    if (activeTool.requireOrientation && selectedOrientation) {
+      partes.push(`• Perfil / Interesse: ${selectedOrientation}`);
+    }
+    if (selectedObjective) {
+      partes.push(`• Objetivo Principal: ${selectedObjective}`);
+    }
+    if (selectedFlags.length > 0) {
+      partes.push(`• Radar Extra Solicitado: ${selectedFlags.join(" + ")}`);
+    }
 
     activeTool.fields.forEach((f) => {
       const val = toolForm[f.id]?.trim();
@@ -708,11 +768,13 @@ export default function LilithChat() {
     const currentTool = activeTool;
     setActiveTool(null);
 
+    if (partes.length === 0 && attachments.length === 0) return;
+
     const promptMontado = `MÓDULO LILITH: ${currentTool.title.toUpperCase()}\n${partes.join(
       "\n"
     )}\n\nAplique sua leitura comportamental e emocional para este cenário (${
       currentTool.title
-    }), respeitando exatamente a dinâmica informada e entregando orientações objetivas e magnéticas.`;
+    }), entregando diagnóstico objetivo, conselho de postura e mensagem magnética.`;
 
     await sendRawMessage(promptMontado, attachments);
   };
@@ -773,12 +835,12 @@ export default function LilithChat() {
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-[#381826] hover:bg-[#4a2033] text-rose-100 border border-rose-300/20 font-semibold text-xs transition-all shadow-sm ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Nova Conversa com a Lilith"
+            title="Nova Análise com a Lilith"
           >
             <svg className="w-4 h-4 text-rose-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Nova Conversa</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Nova Análise</span>
           </button>
 
           <button
@@ -790,12 +852,12 @@ export default function LilithChat() {
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Especialidades da Lilith"
+            title="Ferramentas da Lilith"
           >
             <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
             </svg>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Especialidades da Lilith</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Ferramentas da Lilith</span>
           </button>
 
           <Link
@@ -844,7 +906,7 @@ export default function LilithChat() {
           }`}
         >
           <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
-            Minhas Conversas
+            Minhas Consultas
           </p>
           {sessions.map((s) => (
             <div
@@ -869,7 +931,7 @@ export default function LilithChat() {
                 <button
                   onClick={(e) => deleteSession(s.id, e)}
                   className="opacity-60 lg:opacity-0 lg:group-hover:opacity-100 text-stone-400 hover:text-rose-700 text-xs px-1.5"
-                  title="Excluir conversa"
+                  title="Excluir consulta"
                 >
                   ✕
                 </button>
@@ -919,7 +981,7 @@ export default function LilithChat() {
               type="button"
               onClick={() => setShowCaseSelector(true)}
               className="w-8 h-8 rounded-lg bg-stone-100 dark:bg-[#28121d] border border-stone-200/70 dark:border-rose-300/15 hover:bg-rose-100 dark:hover:bg-[#381826] text-stone-700 dark:text-stone-200 flex items-center justify-center transition-colors"
-              title="Nova Conversa / Especialidades"
+              title="Escolher Ferramenta da Lilith"
             >
               <svg className="w-4 h-4 text-rose-500 dark:text-rose-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -964,10 +1026,10 @@ export default function LilithChat() {
                 </svg>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
-                Por onde quer começar?
+                Selecione a ferramenta para iniciar
               </h2>
               <p className="text-stone-500 dark:text-stone-300/80 max-w-md text-xs sm:text-sm leading-relaxed">
-                Selecione uma especialidade abaixo para calibrarmos seu perfil, grave um áudio ou aperte <strong>Ctrl+V para colar prints</strong> diretamente.
+                Cada módulo possui uma ficha exclusiva para calibrar o diagnóstico da Lilith com precisão cirúrgica:
               </p>
 
               <div className="flex flex-wrap justify-center gap-2.5 max-w-xl pt-2">
@@ -1076,7 +1138,7 @@ export default function LilithChat() {
           <div ref={messagesEndRef} />
         </main>
 
-        {/* BARRA DE DIGITAÇÃO COM MINIATURAS DE MÚLTIPLOS PRINTS E SEM SCROLLBAR */}
+        {/* BARRA DE DIGITAÇÃO */}
         <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
             {isLimitReached ? (
@@ -1176,7 +1238,7 @@ export default function LilithChat() {
                       }
                     }}
                     rows={Math.min(5, Math.max(1, input.split("\n").length))}
-                    placeholder="Pergunte a Lilith (ou cole prints com Ctrl+V)"
+                    placeholder="Envie mais detalhes ou cole novos prints (Ctrl+V)"
                     style={{ border: "none", outline: "none", boxShadow: "none" }}
                     className="flex-1 bg-transparent !border-0 !ring-0 !outline-none !shadow-none appearance-none text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400/80 px-1 py-1 text-sm sm:text-base resize-none max-h-36 overflow-y-auto leading-normal [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                   />
@@ -1213,7 +1275,7 @@ export default function LilithChat() {
         </footer>
       </div>
 
-      {/* MODAL DE ESCOLHA DE ESPECIALIDADE DA LILITH */}
+      {/* MODAL DE ESCOLHA DE FERRAMENTA DA LILITH */}
       {showCaseSelector && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-white dark:bg-[#1c0d15] border border-rose-200 dark:border-rose-300/20 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
@@ -1223,10 +1285,10 @@ export default function LilithChat() {
                   Consultoria da Lilith • LilithLove
                 </span>
                 <h3 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 dark:text-white mt-0.5">
-                  Qual situação vamos analisar agora?
+                  Qual ferramenta vamos ativar agora?
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
-                  Escolha a especialidade abaixo para calibrarmos o perfil e objetivo:
+                  Escolha a função abaixo para abrir a ficha exclusiva de calibragem:
                 </p>
               </div>
               <button
@@ -1261,7 +1323,7 @@ export default function LilithChat() {
               ))}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-3 border-t border-stone-100 dark:border-white/10 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-stone-100 dark:border-white/10 text-xs">
               <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                 <Link
                   href="/chat/reconquista"
@@ -1278,17 +1340,17 @@ export default function LilithChat() {
               </div>
               <button
                 type="button"
-                onClick={() => createNewSession(sessions, null)}
+                onClick={() => setShowCaseSelector(false)}
                 className="w-full sm:w-auto px-4 py-2 rounded-xl bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300 font-semibold hover:bg-stone-200"
               >
-                Conversa Livre com a Lilith →
+                Fechar
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL DO QUESTIONÁRIO DA ESPECIALIDADE (COM DINÂMICA OBRIGATÓRIA + OBJETIVOS + PRINTS) */}
+      {/* MODAL DA FICHA EXCLUSIVA DE CADA FERRAMENTA */}
       {activeTool && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-white dark:bg-[#1c0d15] border border-rose-200 dark:border-rose-300/25 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[92dvh] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -1311,43 +1373,45 @@ export default function LilithChat() {
                 onClick={() => setActiveTool(null)}
                 className="text-xs font-semibold px-3 py-1.5 rounded-full bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300 hover:bg-stone-200 shrink-0"
               >
-                Pular →
+                Fechar ✕
               </button>
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 rounded-2xl p-3 mb-5 text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
-              <strong>Calibragem da Lilith:</strong> {activeTool.warning}
+              <strong>Orientação:</strong> {activeTool.warning}
             </div>
 
             <form onSubmit={handleToolSubmit} className="space-y-4 text-xs sm:text-sm">
-              {/* Seleção Obrigatória de Perfil / Interesse */}
-              <div>
-                <label className="block font-bold text-stone-800 dark:text-stone-100 mb-2">
-                  Qual é o seu perfil e interesse? <span className="text-rose-500">* (Obrigatório)</span>
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {ORIENTATION_OPTIONS.map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => {
-                        setSelectedOrientation(opt);
-                        setFormError("");
-                      }}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                        selectedOrientation === opt
-                          ? "bg-rose-900 dark:bg-rose-600 text-white border-rose-500 shadow-sm"
-                          : "bg-stone-50 dark:bg-[#28121d] text-stone-700 dark:text-stone-300 border-stone-200 dark:border-rose-300/15 hover:border-rose-400/50"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
+              {/* Seleção Obrigatória de Perfil / Interesse (Apenas nas ferramentas de abordagem e perfil) */}
+              {activeTool.requireOrientation && (
+                <div>
+                  <label className="block font-bold text-stone-800 dark:text-stone-100 mb-2">
+                    Qual é o seu perfil e interesse? <span className="text-rose-500">* (Obrigatório)</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {ORIENTATION_OPTIONS.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => {
+                          setSelectedOrientation(opt);
+                          setFormError("");
+                        }}
+                        className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                          selectedOrientation === opt
+                            ? "bg-rose-900 dark:bg-rose-600 text-white border-rose-500 shadow-sm"
+                            : "bg-stone-50 dark:bg-[#28121d] text-stone-700 dark:text-stone-300 border-stone-200 dark:border-rose-300/15 hover:border-rose-400/50"
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                  {formError && (
+                    <p className="text-xs text-rose-500 font-semibold mt-1.5">{formError}</p>
+                  )}
                 </div>
-                {formError && (
-                  <p className="text-xs text-rose-500 font-semibold mt-1.5">{formError}</p>
-                )}
-              </div>
+              )}
 
               {/* Seleção de Objetivo */}
               {activeTool.objectives && activeTool.objectives.length > 0 && (
@@ -1402,10 +1466,47 @@ export default function LilithChat() {
                 </div>
               ))}
 
+              {/* Radar Extra Opcional (Red Flags & Comportamentos Narcisistas na Análise de Conversa) */}
+              {activeTool.extraFlags && activeTool.extraFlags.length > 0 && (
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1.5">
+                    Varredura Extra Opcional (Marque se desconfia de algo):
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {activeTool.extraFlags.map((flag) => {
+                      const isChecked = selectedFlags.includes(flag);
+                      return (
+                        <button
+                          key={flag}
+                          type="button"
+                          onClick={() => toggleFlag(flag)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
+                            isChecked
+                              ? "bg-rose-900/90 dark:bg-rose-600/30 text-white dark:text-rose-200 border-rose-400 shadow-sm"
+                              : "bg-stone-50 dark:bg-[#28121d] text-stone-600 dark:text-stone-300 border-stone-200 dark:border-rose-300/15 hover:border-rose-400/40"
+                          }`}
+                        >
+                          <span
+                            className={`w-4 h-4 rounded flex items-center justify-center text-[10px] border ${
+                              isChecked
+                                ? "bg-rose-500 border-rose-400 text-white"
+                                : "border-stone-400/60"
+                            }`}
+                          >
+                            {isChecked ? "✓" : ""}
+                          </span>
+                          <span>{flag}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Área de Anexar Prints dentro da Ficha */}
               <div>
                 <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1.5">
-                  Prints do Perfil, Fotos ou Conversa (Opcional • até 5 imagens)
+                  Anexar Prints (Opcional • até 5 imagens)
                 </label>
                 <input
                   type="file"
@@ -1442,19 +1543,12 @@ export default function LilithChat() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+              <div className="flex items-center gap-2.5 pt-2">
                 <button
                   type="submit"
-                  className="w-full sm:flex-1 py-3 px-5 bg-gradient-to-r from-[#6b1630] to-[#8a1c3e] hover:from-[#7d1a38] hover:to-[#9e2147] text-white font-bold rounded-2xl shadow-lg transition-all"
+                  className="w-full py-3.5 px-5 bg-gradient-to-r from-[#6b1630] to-[#8a1c3e] hover:from-[#7d1a38] hover:to-[#9e2147] text-white font-bold rounded-2xl shadow-lg transition-all"
                 >
                   {activeTool.buttonLabel} →
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTool(null)}
-                  className="w-full sm:w-auto py-3 px-4 bg-stone-100 dark:bg-white/5 text-stone-600 dark:text-stone-300 font-semibold rounded-2xl border border-stone-200 dark:border-white/10"
-                >
-                  Ir ao Chat Livre
                 </button>
               </div>
             </form>
