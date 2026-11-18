@@ -133,8 +133,8 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
   instagram: {
     key: "instagram",
     badge: "Estratégia Social • Stories, Direct & Feed",
-    title: "Abordagem no Instagram",
-    desc: "Entre no radar e puxe assunto sem parecer mais um fã elogiando foto.",
+    title: "Radar no Instagram: Do Story ao Encontro",
+    desc: "Saia da fila dos ignorados e transforme visualizações em conversa magnética.",
     warning:
       "No Instagram, elogiar beleza ou mandar 'Oi, tudo bem?' coloca você na fila dos ignorados. Preencha seu perfil de interesse abaixo e envie o print do Story ou perfil para criar uma abertura magnética.",
     buttonLabel: "Criar Abordagem para Instagram",
@@ -167,8 +167,8 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
   apps_match: {
     key: "apps_match",
     badge: "Apps de Encontro • Tinder, Bumble, Hinge & FB Namoro",
-    title: "Abordagem em Apps de Namoro",
-    desc: "Quebra-gelo irresistível após o match para se destacar da multidão.",
+    title: "Abertura Irresistível para Apps de Namoro",
+    desc: "Fuja do 'Oi, tudo bem?' e leve a conversa do app direto para o encontro.",
     warning:
       "Selecione seu perfil de interesse e objetivo abaixo (obrigatório) e envie o print da bio, fotos ou conversa do match para gerar uma abertura que prende a atenção na primeira linha.",
     buttonLabel: "Gerar Mensagem de Match",
@@ -201,8 +201,8 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
   otimizar_perfil: {
     key: "otimizar_perfil",
     badge: "Posicionamento & Atração • Fotos e Bio",
-    title: "Otimizador de Perfil & Bio",
-    desc: "Avaliação das suas fotos e criação de bio magnética para multiplicar matches.",
+    title: "Perfil Magnético: Fotos & Bio de Alto Valor",
+    desc: "Descubra quais fotos sabotam seus resultados e crie uma bio impossível de ignorar.",
     warning:
       "Anexe prints do seu perfil atual ou suas melhores fotos abaixo. A Lilith vai avaliar o que transmite alto valor, o que está afastando matches e escrever 3 opções de Bio prontas.",
     buttonLabel: "Avaliar Meu Perfil & Criar Bio",
@@ -235,8 +235,8 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
   red_flags: {
     key: "red_flags",
     badge: "Scanner Comportamental • Manipulação & Narcisismo",
-    title: "Detector de Red Flags",
-    desc: "Identificar joguinhos, narcisismo, mentiras ou manipulação nas mensagens.",
+    title: "Raio-X de Manipulação & Red Flags",
+    desc: "Desmascare joguinhos, narcisismo, love bombing e falta de interesse real.",
     warning:
       "Pessoas manipuladoras ou narcisistas dão sinais sutis logo nas primeiras conversas. Cole os prints ou mensagens suspeitas abaixo para uma leitura fria e sem filtro.",
     buttonLabel: "Escanear Red Flags Agora",
@@ -812,9 +812,14 @@ export default function LilithChat() {
             </svg>
           </button>
 
-          <span className={`font-serif font-bold text-stone-800 dark:text-stone-100 text-base truncate ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
+          <Link
+            href="/"
+            className={`font-serif font-bold text-stone-800 dark:text-stone-100 text-base truncate hover:text-rose-400 transition-colors ${
+              isDesktopCollapsed ? "lg:hidden" : ""
+            }`}
+          >
             LilithLove
-          </span>
+          </Link>
 
           <button
             type="button"
@@ -865,12 +870,12 @@ export default function LilithChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Reconquiste"
+            title="Operação Reconquista"
           >
             <svg className="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Reconquiste</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Operação Reconquista</span>
           </Link>
 
           <Link
@@ -884,19 +889,6 @@ export default function LilithChat() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
             </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Oráculo Astral</span>
-          </Link>
-
-          <Link
-            href="/"
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
-              isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
-            }`}
-            title="Voltar para a Página Inicial"
-          >
-            <svg className="w-4 h-4 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </svg>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Voltar ao Início</span>
           </Link>
         </div>
 
@@ -963,10 +955,22 @@ export default function LilithChat() {
               </svg>
             </button>
 
+            {/* Botão Direto "Voltar ao Início" no Topo (1 clique sem abrir menu) */}
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100/80 dark:bg-white/[0.06] hover:bg-rose-500/15 text-stone-700 dark:text-stone-200 hover:text-rose-600 dark:hover:text-rose-300 text-xs font-semibold transition-colors shrink-0"
+              title="Voltar para a Tela Inicial"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              <span>Início</span>
+            </Link>
+
             <button
               type="button"
               onClick={() => setShowCaseSelector(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
             >
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
                 Lilith
@@ -1329,7 +1333,7 @@ export default function LilithChat() {
                   href="/chat/reconquista"
                   className="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-[#28121d] text-rose-800 dark:text-rose-200 font-semibold border border-rose-200 dark:border-rose-400/25 flex items-center gap-1.5"
                 >
-                  <span>Ir para Reconquiste →</span>
+                  <span>Operação Reconquista →</span>
                 </Link>
                 <Link
                   href="/chat/mistico"
@@ -1382,7 +1386,6 @@ export default function LilithChat() {
             </div>
 
             <form onSubmit={handleToolSubmit} className="space-y-4 text-xs sm:text-sm">
-              {/* Seleção Obrigatória de Perfil / Interesse (Apenas nas ferramentas de abordagem e perfil) */}
               {activeTool.requireOrientation && (
                 <div>
                   <label className="block font-bold text-stone-800 dark:text-stone-100 mb-2">
@@ -1413,7 +1416,6 @@ export default function LilithChat() {
                 </div>
               )}
 
-              {/* Seleção de Objetivo */}
               {activeTool.objectives && activeTool.objectives.length > 0 && (
                 <div>
                   <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1.5">
@@ -1438,7 +1440,6 @@ export default function LilithChat() {
                 </div>
               )}
 
-              {/* Campos Específicos da Ferramenta */}
               {activeTool.fields.map((field) => (
                 <div key={field.id}>
                   <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1">
@@ -1466,7 +1467,6 @@ export default function LilithChat() {
                 </div>
               ))}
 
-              {/* Radar Extra Opcional (Red Flags & Comportamentos Narcisistas na Análise de Conversa) */}
               {activeTool.extraFlags && activeTool.extraFlags.length > 0 && (
                 <div>
                   <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1.5">
@@ -1503,7 +1503,6 @@ export default function LilithChat() {
                 </div>
               )}
 
-              {/* Área de Anexar Prints dentro da Ficha */}
               <div>
                 <label className="block font-semibold text-stone-700 dark:text-stone-200 mb-1.5">
                   Anexar Prints (Opcional • até 5 imagens)

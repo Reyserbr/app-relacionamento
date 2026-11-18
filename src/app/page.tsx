@@ -40,21 +40,21 @@ const DEPOIMENTOS = [
   {
     nome: "M. F., 29 anos",
     cidade: "São Paulo, SP",
-    modulo: "Reconquiste",
+    modulo: "Operação Reconquista",
     texto:
       "A gente estava há 11 dias sem se falar e eu já ia mandar um textão implorando. A IA leu o print da nossa última briga, me proibiu de mandar mensagem naquele dia e me deu uma frase curta 4 dias depois. Ele respondeu em 3 minutos.",
   },
   {
     nome: "R. S., 34 anos",
     cidade: "Belo Horizonte, MG",
-    modulo: "Detector de Red Flags",
+    modulo: "Raio-X de Red Flags",
     texto:
-      "Eu achava que ela estava só ocupada no trabalho, mas o Detector de Red Flags me mostrou na hora que ela estava me mantendo em banho-maria. Mudei minha postura com a mensagem da Lilith e o jogo virou.",
+      "Eu achava que ela estava só ocupada no trabalho, mas o Raio-X de Red Flags me mostrou na hora que ela estava me mantendo em banho-maria. Mudei minha postura com a mensagem da Lilith e o jogo virou.",
   },
   {
     nome: "C. A., 26 anos",
     cidade: "Curitiba, PR",
-    modulo: "Otimizador de Perfil",
+    modulo: "Perfil Magnético",
     texto:
       "Mandei prints do meu perfil no Bumble e Instagram. A Lilith mandou eu trocar a primeira foto, reescreveu minha bio e meus matches triplicaram no mesmo fim de semana!",
   },
@@ -82,7 +82,7 @@ export default function Home() {
 
       {isLoaded && userId ? (
         /* =====================================================================
-           EXPERIÊNCIA DO USUÁRIO LOGADO: BOTÕES CURTOS E FERRAMENTAS EXCLUSIVAS
+           EXPERIÊNCIA DO USUÁRIO LOGADO: COPY DE ALTA CONVERSÃO E AÇÃO DIRETA
            ===================================================================== */
         <div className="relative w-full overflow-hidden flex-1">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-gradient-to-b from-rose-100/70 via-orange-50/40 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent" />
@@ -98,10 +98,10 @@ export default function Home() {
                 LilithLove
               </h1>
               <p className="text-base sm:text-xl leading-relaxed text-stone-600 dark:text-stone-300 mb-9">
-                Envie prints, desabafe ou peça uma estratégia. Descubra o que realmente está acontecendo e receba a resposta exata para virar o jogo.
+                Pare de adivinhar o que se passa na cabeça dessa pessoa. Envie o print, descubra a real intenção por trás de cada palavra e receba a resposta exata para assumir o controle.
               </p>
 
-              {/* 2 Botões Curtos e Diretos (Cada um abre sua ficha exclusiva) */}
+              {/* 2 Botões Curtos e Diretos */}
               <div className="flex flex-col sm:flex-row justify-center gap-3.5 max-w-lg mx-auto">
                 <Link
                   href="/chat/lilith?action=analise"
@@ -125,14 +125,14 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Grade de Ferramentas Inteligentes (5 Módulos Distintos) */}
+            {/* Grade de Ferramentas Inteligentes */}
             <div className="w-full mt-4">
               <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8 text-center">
                 Ferramentas Inteligentes
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* 1. Abordagem no Instagram */}
+                {/* 1. Radar no Instagram */}
                 <Link
                   href="/chat/lilith?action=instagram"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group relative overflow-hidden"
@@ -143,14 +143,14 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Abordagem no Instagram
+                    Radar no Instagram: Do Story ao Encontro
                   </h3>
                   <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
-                    Estratégia para responder Stories, entrar no radar pelo Direct e puxar assunto pelo perfil sem parecer mais um fã elogiando foto.
+                    Saia da fila dos ignorados. Transforme uma simples visualização de Story ou curtida em uma conversa magnética — sem elogios óbvios e sem parecer mais um fã.
                   </p>
                 </Link>
 
-                {/* 2. Abordagem em Apps de Namoro */}
+                {/* 2. Abertura Irresistível para Apps de Namoro */}
                 <Link
                   href="/chat/lilith?action=apps_match"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group relative overflow-hidden"
@@ -161,14 +161,14 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Abordagem em Apps de Namoro
+                    Abertura Irresistível para Apps de Namoro
                   </h3>
                   <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
-                    Para Tinder, Bumble, Hinge e Facebook Namoro. Quebre o gelo após o match usando detalhes da bio ou fotos e leve a conversa para o encontro.
+                    Deu match e travou? Fuja do &ldquo;Oi, tudo bem?&rdquo; que morre em 3 mensagens. Use detalhes do perfil para criar tensão imediata e tirar a conversa do app direto para o encontro.
                   </p>
                 </Link>
 
-                {/* 3. Otimizador de Perfil & Bio */}
+                {/* 3. Perfil Magnético: Fotos & Bio de Alto Valor */}
                 <Link
                   href="/chat/lilith?action=otimizar_perfil"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-amber-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -180,14 +180,14 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Otimizador de Perfil & Bio
+                    Perfil Magnético: Fotos & Bio de Alto Valor
                   </h3>
                   <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
-                    Envie prints das suas fotos e perfil do Instagram, Tinder ou Bumble. A IA avalia sua imagem e cria bios magnéticas para multiplicar seus matches.
+                    Descubra em segundos quais fotos estão sabotando seus resultados. Nossa IA avalia sua imagem e escreve uma bio impossível de ignorar para multiplicar seus matches.
                   </p>
                 </Link>
 
-                {/* 4. Detector de Red Flags & Narcisismo */}
+                {/* 4. Raio-X de Manipulação & Red Flags */}
                 <Link
                   href="/chat/lilith?action=red_flags"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -198,14 +198,14 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Detector de Red Flags
+                    Raio-X de Manipulação & Red Flags
                   </h3>
                   <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
-                    Escaneie prints e atitudes para identificar manipulação, narcisismo, jogos emocionais e falta de interesse real antes de se apegar.
+                    Não entregue seu coração no escuro. Escaneie conversas e atitudes para desmascarar joguinhos, narcisismo, <em>love bombing</em> e falta de interesse antes de se machucar.
                   </p>
                 </Link>
 
-                {/* 5. Oráculo do Amor & Sinastria */}
+                {/* 5. Mapa Mental dos Signos & Oráculo do Amor */}
                 <Link
                   href="/chat/mistico"
                   className="md:col-span-2 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-7 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/25 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group w-full"
@@ -218,10 +218,10 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-50 mb-1">
-                        Oráculo do Amor & Sinastria
+                        Mapa Mental dos Signos & Oráculo do Amor
                       </h3>
                       <p className="text-sm text-purple-800/80 dark:text-purple-100/90 leading-relaxed">
-                        Descubra a compatibilidade dos signos, o Mapa Mental do parceiro(a) e faça tiragens de cartas.
+                        Descubra o ponto fraco emocional do signo dessa pessoa, o que ela esconde por trás do orgulho e o que as cartas revelam sobre o futuro de vocês.
                       </p>
                     </div>
                   </div>
@@ -230,7 +230,7 @@ export default function Home() {
                   </span>
                 </Link>
 
-                {/* 6. Destaque Principal: Reconectar / Reconquistar */}
+                {/* 6. Destaque Principal: Operação Reconquista: Reverta o Término */}
                 <Link
                   href="/chat/reconquista"
                   className="md:col-span-2 bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/75 dark:via-[#2b0916] dark:to-orange-950/60 p-8 sm:p-9 rounded-3xl shadow-md border border-rose-200 dark:border-rose-400/35 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
@@ -244,10 +244,10 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-2xl font-serif font-bold text-rose-950 dark:text-rose-50 mb-3">
-                    Reconectar / Reconquistar
+                    Operação Reconquista: Reverta o Término
                   </h3>
                   <p className="text-rose-900/80 dark:text-rose-100/90 leading-relaxed max-w-3xl">
-                    O módulo de emergência para reverter términos e esfriamentos. Diagnóstico comportamental completo, protocolo de Contato Zero, repaginação de postura e a mensagem cirúrgica para reativar a saudade sem parecer carente.
+                    Uma mensagem errada agora pode fechar essa porta para sempre. Ative o protocolo comportamental de Contato Zero, reconstrua seu valor e descubra a abordagem exata para reativar a saudade.
                   </p>
                 </Link>
               </div>
@@ -425,7 +425,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h2 className="text-lg font-bold text-stone-900 dark:text-white">
-                  Otimizador de Perfil & Bio
+                  Perfil Magnético & Bio
                 </h2>
                 <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
                   Avaliação de fotos e criação de bios magnéticas para Tinder, Bumble e Instagram.
@@ -455,10 +455,10 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-serif font-bold text-rose-950 dark:text-white mb-2">
-                    Reconectar / Reconquistar
+                    Operação Reconquista: Reverta o Término
                   </h3>
                   <p className="text-sm text-rose-900/80 dark:text-rose-100/85 leading-relaxed max-w-2xl">
-                    Diagnóstico comportamental completo para reverter términos e esfriamentos, protocolo de Contato Zero e a mensagem exata para reativar a saudade.
+                    Uma mensagem errada agora pode fechar essa porta para sempre. Ative o protocolo comportamental de Contato Zero, reconstrua seu valor e descubra a abordagem exata para reativar a saudade.
                   </p>
                 </Link>
 
@@ -467,7 +467,7 @@ export default function Home() {
                   className="bg-white dark:bg-white/[0.03] p-6 rounded-3xl border border-stone-200/70 dark:border-white/[0.07] hover:border-rose-500/30 transition-all flex flex-col items-start"
                 >
                   <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-1.5">
-                    Abordagem no Instagram & Apps
+                    Radar no Instagram & Apps
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
                     Aberturas magnéticas para Stories, Direct, Tinder e Bumble, além de avaliação de fotos e bio.
@@ -480,14 +480,14 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-between w-full mb-1.5">
                     <h3 className="text-lg font-bold text-purple-950 dark:text-purple-100">
-                      Oráculo do Amor & Sinastria
+                      Mapa Mental dos Signos & Oráculo
                     </h3>
                     <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300">
                       Signos & Tarot
                     </span>
                   </div>
                   <p className="text-xs sm:text-sm text-purple-900/80 dark:text-purple-200/80 leading-relaxed">
-                    Compatibilidade astral, mapa mental do parceiro(a) e leitura de cartas para o relacionamento.
+                    Compatibilidade astral, ponto fraco emocional do signo e leitura de cartas para o relacionamento.
                   </p>
                 </Link>
               </div>
