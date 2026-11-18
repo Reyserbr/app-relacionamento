@@ -517,9 +517,14 @@ export default function MisticoChat() {
             </svg>
           </button>
 
-          <span className={`font-serif font-bold text-stone-800 dark:text-stone-100 text-base truncate ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
-            Oráculo Astral
-          </span>
+          <Link
+            href="/"
+            className={`font-serif font-bold text-stone-800 dark:text-stone-100 text-base truncate hover:text-purple-400 transition-colors ${
+              isDesktopCollapsed ? "lg:hidden" : ""
+            }`}
+          >
+            LilithLove
+          </Link>
 
           <button
             type="button"
@@ -580,24 +585,13 @@ export default function MisticoChat() {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-2xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 text-xs font-medium transition-colors ${
               isDesktopCollapsed ? "lg:justify-center lg:px-0" : ""
             }`}
-            title="Reconquiste"
+            title="Operação Reconquista"
           >
             <svg className="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
-            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Reconquiste</span>
+            <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Operação Reconquista</span>
           </Link>
-
-          <Link
-  href="/"
-  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100/80 dark:bg-white/[0.06] hover:bg-purple-500/15 text-stone-700 dark:text-stone-200 hover:text-purple-600 dark:hover:text-purple-300 text-xs font-semibold transition-colors shrink-0"
-  title="Voltar para a Tela Inicial"
->
-  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-  </svg>
-  <span>Início</span>
-</Link>
         </div>
 
         <div
@@ -662,12 +656,24 @@ export default function MisticoChat() {
               </svg>
             </button>
 
+            {/* Botão Direto "Voltar ao Início" no Topo (1 clique sem abrir menu) */}
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100/80 dark:bg-white/[0.06] hover:bg-purple-500/15 text-stone-700 dark:text-stone-200 hover:text-purple-600 dark:hover:text-purple-300 text-xs font-semibold transition-colors shrink-0"
+              title="Voltar para a Tela Inicial"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              <span>Início</span>
+            </Link>
+
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#241230] transition-colors min-w-0"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#241230] transition-colors min-w-0"
             >
-              <svg className="w-4 h-4 text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 text-purple-400 shrink-0 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
               </svg>
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
@@ -834,7 +840,7 @@ export default function MisticoChat() {
           <div ref={messagesEndRef} />
         </main>
 
-        {/* BARRA DE DIGITAÇÃO COM MINIATURAS DE MÚLTIPLOS PRINTS E SEM SCROLLBAR BRANCA */}
+        {/* BARRA DE DIGITAÇÃO */}
         <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
             {isLimitReached ? (
@@ -1100,7 +1106,6 @@ export default function MisticoChat() {
         </div>
       )}
 
-      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS */}
       <RewardedAdModal
         isOpen={showPaywallModal && !isPremium}
         onClose={() => setShowPaywallModal(false)}

@@ -529,9 +529,14 @@ export default function ReconquistaChat() {
             </svg>
           </button>
 
-          <span className={`font-serif font-bold text-stone-800 dark:text-stone-100 text-base truncate ${isDesktopCollapsed ? "lg:hidden" : ""}`}>
-            Reconquiste
-          </span>
+          <Link
+            href="/"
+            className={`font-serif font-bold text-stone-800 dark:text-stone-100 text-base truncate hover:text-rose-400 transition-colors ${
+              isDesktopCollapsed ? "lg:hidden" : ""
+            }`}
+          >
+            LilithLove
+          </Link>
 
           <button
             type="button"
@@ -599,17 +604,6 @@ export default function ReconquistaChat() {
             </svg>
             <span className={isDesktopCollapsed ? "lg:hidden" : ""}>Oráculo Astral</span>
           </Link>
-
-          <Link
-  href="/"
-  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100/80 dark:bg-white/[0.06] hover:bg-rose-500/15 text-stone-700 dark:text-stone-200 hover:text-rose-600 dark:hover:text-rose-300 text-xs font-semibold transition-colors shrink-0"
-  title="Voltar para a Tela Inicial"
->
-  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-  </svg>
-  <span>Início</span>
-</Link>
         </div>
 
         <div
@@ -675,12 +669,24 @@ export default function ReconquistaChat() {
               </svg>
             </button>
 
+            {/* Botão Direto "Voltar ao Início" no Topo (1 clique sem abrir menu) */}
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100/80 dark:bg-white/[0.06] hover:bg-rose-500/15 text-stone-700 dark:text-stone-200 hover:text-rose-600 dark:hover:text-rose-300 text-xs font-semibold transition-colors shrink-0"
+              title="Voltar para a Tela Inicial"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              <span>Início</span>
+            </Link>
+
             <button
               type="button"
               onClick={() => setShowQuestionnaire(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-full hover:bg-stone-100 dark:hover:bg-[#28121d] transition-colors min-w-0"
             >
-              <svg className="w-4 h-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 text-rose-500 shrink-0 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
               <span className="font-serif font-bold text-stone-900 dark:text-white text-base sm:text-lg truncate">
@@ -740,7 +746,7 @@ export default function ReconquistaChat() {
                 </svg>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-800 dark:text-stone-100">
-                Módulo de Reconquista
+                Operação Reconquista
               </h2>
               <p className="text-stone-500 dark:text-stone-300/80 max-w-md text-xs sm:text-sm leading-relaxed">
                 Preencha a ficha de diagnóstico para uma análise cirúrgica, grave um áudio desabafando ou aperte <strong>Ctrl+V para colar um ou mais prints</strong> da conversa.
@@ -847,7 +853,7 @@ export default function ReconquistaChat() {
           <div ref={messagesEndRef} />
         </main>
 
-        {/* BARRA DE DIGITAÇÃO COM MINIATURAS DE MÚLTIPLOS PRINTS E SEM SCROLLBAR BRANCA */}
+        {/* BARRA DE DIGITAÇÃO */}
         <footer className="relative z-20 px-3 sm:px-6 pt-2 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-transparent shrink-0">
           <div className="max-w-3xl mx-auto">
             {isLimitReached ? (
@@ -1149,7 +1155,6 @@ export default function ReconquistaChat() {
         </div>
       )}
 
-      {/* MODAL DE PAYWALL + ANÚNCIO DE 10 SEGUNDOS */}
       <RewardedAdModal
         isOpen={showPaywallModal && !isPremium}
         onClose={() => setShowPaywallModal(false)}
