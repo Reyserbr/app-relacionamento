@@ -82,7 +82,7 @@ export default function Home() {
 
       {isLoaded && userId ? (
         /* =====================================================================
-           EXPERIÊNCIA DO USUÁRIO LOGADO: COPY DE ALTA CONVERSÃO E AÇÃO DIRETA
+           EXPERIÊNCIA DO USUÁRIO LOGADO: BOTÃO ÚNICO CENTRALIZADO + FERRAMENTAS
            ===================================================================== */
         <div className="relative w-full overflow-hidden flex-1">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-gradient-to-b from-rose-100/70 via-orange-50/40 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent" />
@@ -101,26 +101,16 @@ export default function Home() {
                 Pare de adivinhar o que se passa na cabeça dessa pessoa. Envie o print, descubra a real intenção por trás de cada palavra e receba a resposta exata para assumir o controle.
               </p>
 
-              {/* 2 Botões Curtos e Diretos */}
-              <div className="flex flex-col sm:flex-row justify-center gap-3.5 max-w-lg mx-auto">
+              {/* Botão Único Principal */}
+              <div className="flex justify-center">
                 <Link
                   href="/chat/lilith?action=analise"
-                  className="flex-1 px-6 py-4 bg-gradient-to-r from-[#8f1d42] to-[#b52654] hover:from-[#a1224b] hover:to-[#c72c5e] text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-rose-950/30 flex items-center justify-center gap-2.5"
+                  className="px-8 py-4 bg-gradient-to-r from-[#8f1d42] to-[#b52654] hover:from-[#a1224b] hover:to-[#c72c5e] text-white rounded-2xl font-bold text-sm sm:text-base transition-all shadow-lg shadow-rose-950/30 flex items-center justify-center gap-2.5 hover:-translate-y-0.5"
                 >
                   <svg className="w-4 h-4 text-rose-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                   </svg>
                   <span>Analisar Conversa</span>
-                </Link>
-
-                <Link
-                  href="/chat/lilith?action=apps_match"
-                  className="flex-1 px-6 py-4 bg-white dark:bg-white/[0.06] hover:bg-stone-100 dark:hover:bg-white/[0.12] border border-stone-200/80 dark:border-white/10 text-stone-800 dark:text-stone-100 rounded-2xl font-semibold text-sm transition-all shadow-sm flex items-center justify-center gap-2.5"
-                >
-                  <svg className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                  </svg>
-                  <span>Abordagem em Apps</span>
                 </Link>
               </div>
             </div>
