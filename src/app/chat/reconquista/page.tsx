@@ -5,6 +5,8 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import RewardedAdModal from "@/components/RewardedAdModal";
 import AssistantMessageCard from "@/components/AssistantMessageCard";
+import AdBanner from "@/components/AdBanner";
+import { showPostFormInterstitialOnce } from "@/lib/admob";
 
 interface Attachment {
   name: string;
@@ -492,9 +494,15 @@ export default function ReconquistaChat() {
 
     if (partes.length === 0 && attachments.length === 0) return;
 
+    if (!isPremium) {
+      showPostFormInterstitialOnce();
+    }
+
     const resumo = `DIAGNÓSTICO DO MEU CASO DE RECONQUISTA:\n${partes.join("\n")}\n\nAnalise meu cenário com precisão e me diga qual é o diagnóstico e a estratégia ideal.`;
     await sendRawMessage(resumo, attachments);
   };
+
+  const firstAssistantId = messages.find((msg) => msg.role === "assistant")?.id;
 
   return (
     <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#1a0b12] font-sans overflow-hidden transition-colors">
@@ -669,7 +677,6 @@ export default function ReconquistaChat() {
               </svg>
             </button>
 
-            {/* Botão Direto "Voltar ao Início" no Topo (1 clique sem abrir menu) */}
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100/80 dark:bg-white/[0.06] hover:bg-rose-500/15 text-stone-700 dark:text-stone-200 hover:text-rose-600 dark:hover:text-rose-300 text-xs font-semibold transition-colors shrink-0"
@@ -771,17 +778,21 @@ export default function ReconquistaChat() {
                   : [];
 
               return m.role === "assistant" ? (
-                <AssistantMessageCard
-                  key={m.id}
-                  messageId={m.id}
-                  content={m.content}
-                  agent="reconquista"
-                  isNew={m.id === streamingMsgId}
-                  copiedId={copiedId}
-                  onCopy={copyMessage}
-                  attachment={m.attachment}
-                  attachments={m.attachments}
-                />
+                <div key={m.id} className="space-y-3">
+                  <AssistantMessageCard
+                    messageId={m.id}
+                    content={m.content}
+                    agent="reconquista"
+                    isNew={m.id === streamingMsgId}
+                    copiedId={copiedId}
+                    onCopy={copyMessage}
+                    attachment={m.attachment}
+                    attachments={m.attachments}
+                  />
+                  {m.id === firstAssistantId && !isPremium && (
+                    <AdBanner format="rectangle" slotId="RECONQUISTA_CHAT_INLINE" />
+                  )}
+                </div>
               ) : (
                 <div key={m.id} className="flex flex-col items-end">
                   {msgAttachments.length > 0 && (

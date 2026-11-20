@@ -5,6 +5,8 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import RewardedAdModal from "@/components/RewardedAdModal";
 import AssistantMessageCard from "@/components/AssistantMessageCard";
+import AdBanner from "@/components/AdBanner";
+import { showPostFormInterstitialOnce } from "@/lib/admob";
 
 interface Attachment {
   name: string;
@@ -480,9 +482,15 @@ export default function MisticoChat() {
 
     if (partes.length === 0 && attachments.length === 0) return;
 
+    if (!isPremium) {
+      showPostFormInterstitialOnce();
+    }
+
     const resumo = `MAPA ASTRAL & SINASTRIA DO CASAL:\n${partes.join("\n")}\n\nFaça a leitura profunda da nossa compatibilidade, revele o mapa da mente dessa pessoa e abra as cartas para o nosso momento.`;
     await sendRawMessage(resumo, attachments);
   };
+
+  const firstAssistantId = messages.find((msg) => msg.role === "assistant")?.id;
 
   return (
     <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#160b1c] font-sans overflow-hidden transition-colors">
@@ -656,7 +664,6 @@ export default function MisticoChat() {
               </svg>
             </button>
 
-            {/* Botão Direto "Voltar ao Início" no Topo (1 clique sem abrir menu) */}
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100/80 dark:bg-white/[0.06] hover:bg-purple-500/15 text-stone-700 dark:text-stone-200 hover:text-purple-600 dark:hover:text-purple-300 text-xs font-semibold transition-colors shrink-0"
@@ -758,17 +765,21 @@ export default function MisticoChat() {
                   : [];
 
               return m.role === "assistant" ? (
-                <AssistantMessageCard
-                  key={m.id}
-                  messageId={m.id}
-                  content={m.content}
-                  agent="mistico"
-                  isNew={m.id === streamingMsgId}
-                  copiedId={copiedId}
-                  onCopy={copyMessage}
-                  attachment={m.attachment}
-                  attachments={m.attachments}
-                />
+                <div key={m.id} className="space-y-3">
+                  <AssistantMessageCard
+                    messageId={m.id}
+                    content={m.content}
+                    agent="mistico"
+                    isNew={m.id === streamingMsgId}
+                    copiedId={copiedId}
+                    onCopy={copyMessage}
+                    attachment={m.attachment}
+                    attachments={m.attachments}
+                  />
+                  {m.id === firstAssistantId && !isPremium && (
+                    <AdBanner format="rectangle" slotId="MISTICO_CHAT_INLINE" />
+                  )}
+                </div>
               ) : (
                 <div key={m.id} className="flex flex-col items-end">
                   {msgAttachments.length > 0 && (

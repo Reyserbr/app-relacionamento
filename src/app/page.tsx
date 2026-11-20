@@ -81,9 +81,6 @@ export default function Home() {
       <Navbar />
 
       {isLoaded && userId ? (
-        /* =====================================================================
-           EXPERIÊNCIA DO USUÁRIO LOGADO: BOTÃO ÚNICO CENTRALIZADO + FERRAMENTAS
-           ===================================================================== */
         <div className="relative w-full overflow-hidden flex-1">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-gradient-to-b from-rose-100/70 via-orange-50/40 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent" />
 
@@ -101,7 +98,6 @@ export default function Home() {
                 Pare de adivinhar o que se passa na cabeça dessa pessoa. Envie o print, descubra a real intenção por trás de cada palavra e receba a resposta exata para assumir o controle.
               </p>
 
-              {/* Botão Único Principal */}
               <div className="flex justify-center">
                 <Link
                   href="/chat/lilith?action=analise"
@@ -115,14 +111,12 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Grade de Ferramentas Inteligentes */}
             <div className="w-full mt-4">
               <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8 text-center">
                 Ferramentas Inteligentes
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* 1. Radar no Instagram */}
                 <Link
                   href="/chat/lilith?action=instagram"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group relative overflow-hidden"
@@ -140,7 +134,6 @@ export default function Home() {
                   </p>
                 </Link>
 
-                {/* 2. Abertura Irresistível para Apps de Namoro */}
                 <Link
                   href="/chat/lilith?action=apps_match"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group relative overflow-hidden"
@@ -158,7 +151,6 @@ export default function Home() {
                   </p>
                 </Link>
 
-                {/* 3. Perfil Magnético: Fotos & Bio de Alto Valor */}
                 <Link
                   href="/chat/lilith?action=otimizar_perfil"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-amber-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -177,7 +169,6 @@ export default function Home() {
                   </p>
                 </Link>
 
-                {/* 4. Raio-X de Manipulação & Red Flags */}
                 <Link
                   href="/chat/lilith?action=red_flags"
                   className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
@@ -195,7 +186,6 @@ export default function Home() {
                   </p>
                 </Link>
 
-                {/* 5. Mapa Mental dos Signos & Oráculo do Amor */}
                 <Link
                   href="/chat/mistico"
                   className="md:col-span-2 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-7 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/25 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group w-full"
@@ -220,7 +210,6 @@ export default function Home() {
                   </span>
                 </Link>
 
-                {/* 6. Destaque Principal: Operação Reconquista: Reverta o Término */}
                 <Link
                   href="/chat/reconquista"
                   className="md:col-span-2 bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/75 dark:via-[#2b0916] dark:to-orange-950/60 p-8 sm:p-9 rounded-3xl shadow-md border border-rose-200 dark:border-rose-400/35 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
@@ -260,14 +249,11 @@ export default function Home() {
             )}
 
             <div className="w-full max-w-4xl mx-auto mt-12">
-              <AdBanner format="horizontal" slotId="HOME_BOTTOM_SLOT" />
+              <AdBanner format="rectangle" slotId="HOME_BOTTOM_SLOT" />
             </div>
           </div>
         </div>
       ) : (
-        /* =====================================================================
-           EXPERIÊNCIA DO VISITANTE DESLOGADO: PÁGINA DE VENDAS DE ALTA CONVERSÃO
-           ===================================================================== */
         <div className="relative w-full overflow-hidden flex-1">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-gradient-to-b from-rose-200/50 via-rose-100/20 to-transparent dark:from-[#361122]/60 dark:via-[#1f0b14]/30 dark:to-transparent" />
 
@@ -318,7 +304,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Cartão Interativo de Demonstração */}
             <div className="w-full max-w-2xl bg-white dark:bg-[#1a0d14] rounded-3xl border border-stone-200/80 dark:border-rose-300/15 shadow-2xl overflow-hidden mb-16">
               <div className="px-4 sm:px-6 py-3.5 bg-stone-50/90 dark:bg-[#14090f] border-b border-stone-200/70 dark:border-white/[0.07] flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-semibold text-stone-700 dark:text-stone-200">
@@ -378,7 +363,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 3 Pilares */}
             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 py-10 border-y border-stone-200/70 dark:border-white/[0.08] mb-16">
               <div className="space-y-2.5">
                 <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
@@ -423,7 +407,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Módulos */}
             <div className="w-full mb-16">
               <div className="text-center mb-8">
                 <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-white">
@@ -483,7 +466,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Depoimentos */}
             <div className="w-full mb-16">
               <h2 className="text-2xl font-serif font-bold text-center text-stone-900 dark:text-white mb-8">
                 Quem seguiu a estratégia, virou o jogo
@@ -514,7 +496,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Banner Final */}
             <div className="w-full rounded-3xl bg-white dark:bg-[#1a0d14] border border-stone-200/80 dark:border-rose-300/15 p-7 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg mb-8">
               <div className="text-center sm:text-left">
                 <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-white mb-1.5">
@@ -533,13 +514,12 @@ export default function Home() {
             </div>
 
             <div className="w-full">
-              <AdBanner format="horizontal" slotId="HOME_BOTTOM_SLOT" />
+              <AdBanner format="rectangle" slotId="HOME_BOTTOM_SLOT" />
             </div>
           </div>
         </div>
       )}
 
-      {/* RODAPÉ INSTITUCIONAL COMPLETO */}
       <footer className="w-full border-t border-stone-200 dark:border-white/10 bg-white/60 dark:bg-[#10070b] py-10 px-6 text-xs text-stone-500 dark:text-stone-400">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
