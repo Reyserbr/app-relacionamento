@@ -2,6 +2,12 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
+import {
+  isNativeApp,
+  showGlobalBottomBanner,
+  hideGlobalBottomBanner,
+  showInlineMrecBanner,
+} from "@/lib/admob";
 
 interface AdBannerProps {
   slotId?: string;
@@ -18,6 +24,7 @@ export default function AdBanner({
   const isChatRoute = pathname?.startsWith("/chat");
 
   const [isPremium, setIsPremium] = useState(true);
+  const [nativeMode, setNativeMode] = useState(false);
   const [adConfig, setAdConfig] = useState<{
     adsEnabled: boolean;
     adsProvider: "adsense" | "custom";
@@ -29,8 +36,11 @@ export default function AdBanner({
   } | null>(null);
 
   const customContainerRef = useRef<HTMLDivElement>(null);
+  const mrecBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setNativeMode(isNativeApp());
+
     const checkVip = async () => {
       if (typeof window !== "undefined" && localStorage.getItem("lilith_vip_test") === "true") {
         setIsPremium(true);
@@ -67,11 +77,32 @@ export default function AdBanner({
 
     checkVip();
     loadConfig();
-  }, [forceShow]);
+  }, [forceShow, pathname]);
 
-  // Carrega o script do AdSense apenas fora das telas de chat (ou quando o modal de recompensa abrir),
-  // protegendo o layout mobile do chat contra "Auto Ads" flutuantes invasivos!
+  // Aciona o AdMob Nativo quando estiver rodando dentro do App Android
   useEffect(() => {
+    if (!nativeMode || !adConfig || !adConfig.adsEnabled) return;
+
+    if (isPremium && !forceShow) {
+      hideGlobalBottomBanner();
+      return;
+    }
+
+    if (format === "rectangle" && mrecBoxRef.current) {
+      const rect = mrecBoxRef.current.getBoundingClientRect();
+      const topPos = Math.max(80, Math.round(rect.top));
+      showInlineMrecBanner(topPos);
+      return () => {
+        showGlobalBottomBanner();
+      };
+    } else {
+      showGlobalBottomBanner();
+    }
+  }, [nativeMode, adConfig, isPremium, forceShow, format, pathname]);
+
+  // Web: Carrega AdSense apenas no navegador fora do app nativo
+  useEffect(() => {
+    if (nativeMode) return;
     if (!adConfig || !adConfig.adsEnabled) return;
     if (isPremium && !forceShow) return;
 
@@ -90,10 +121,11 @@ export default function AdBanner({
         } catch (_) {}
       }
     }
-  }, [adConfig, isPremium, forceShow, isChatRoute]);
+  }, [nativeMode, adConfig, isPremium, forceShow, isChatRoute]);
 
-  // Executa scripts de redes alternativas (Monetag / Adsterra / Banners HTML) se configurado no Admin
+  // Web: Executa scripts customizados (Monetag / AdSterra) se configurado no Admin
   useEffect(() => {
+    if (nativeMode) return;
     if (!adConfig || !adConfig.adsEnabled || adConfig.adsProvider !== "custom") return;
     if (isPremium && !forceShow) return;
 
@@ -109,10 +141,27 @@ export default function AdBanner({
       const fragment = range.createContextualFragment(rawHtml);
       customContainerRef.current.appendChild(fragment);
     }
-  }, [adConfig, isPremium, forceShow, format]);
+  }, [nativeMode, adConfig, isPremium, forceShow, format]);
 
   if (!adConfig || !adConfig.adsEnabled) return null;
   if (isPremium && !forceShow) return null;
+
+  // No App Android: reserva espaço limpo apenas para o bloco MREC Inline (300x250)
+  if (nativeMode) {
+    if (format === "rectangle") {
+      return (
+        <div
+          ref={mrecBoxRef}
+          className="w-full my-4 flex flex-col items-center justify-center min-h-[260px] rounded-2xl bg-stone-100/50 dark:bg-white/[0.02] border border-stone-200/50 dark:border-white/[0.06]"
+        >
+          <span className="text-[9px] uppercase tracking-widest text-stone-400 dark:text-stone-500">
+            Patrocinado • LilithLove
+          </span>
+        </div>
+      );
+    }
+    return null;
+  }
 
   const activeSlot =
     format === "rectangle"
@@ -151,7 +200,6 @@ export default function AdBanner({
             className="w-full h-full flex items-center justify-center overflow-hidden p-2 text-center"
           />
         ) : (
-          /* Banner interno elegante de autopromoção VIP enquanto não preenche os códigos no Admin */
           <div className="p-4 text-center">
             <p className="text-xs font-semibold text-stone-700 dark:text-stone-200">
               👑 Desbloqueie a LilithLove sem anúncios e sem limites

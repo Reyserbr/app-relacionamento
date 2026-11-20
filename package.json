@@ -12,9 +12,13 @@
     "export-to-character": "node src/scripts/exportToCharacter.mjs"
   },
   "dependencies": {
-    "@google/generative-ai": "latest",
+    "@capacitor-community/admob": "^8.4.2",
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
     "@clerk/clerk-sdk-node": "^4.10.12",
     "@clerk/nextjs": "^4.21.9-snapshot.56dc3e3",
+    "@google/generative-ai": "latest",
     "@headlessui/react": "^1.7.15",
     "@pinecone-database/pinecone": "^0.1.6",
     "@supabase/supabase-js": "^2.25.0",

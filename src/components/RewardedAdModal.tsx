@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import AdBanner from "@/components/AdBanner";
+import { isNativeApp, showNativeRewardedAd } from "@/lib/admob";
 
 export interface RewardedAdModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export default function RewardedAdModal({
   maxReachedText = "Você atingiu o limite máximo de 10 análises com anúncios neste módulo. Desbloqueie o Acesso VIP para liberar sua estratégia completa.",
 }: RewardedAdModalProps) {
   const [watchingAd, setWatchingAd] = useState(false);
+  const [loadingNativeAd, setLoadingNativeAd] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(10);
   const [adsEnabled, setAdsEnabled] = useState(true);
 
@@ -52,6 +54,7 @@ export default function RewardedAdModal({
   useEffect(() => {
     if (!isOpen) {
       setWatchingAd(false);
+      setLoadingNativeAd(false);
       setSecondsLeft(10);
     }
   }, [isOpen]);
@@ -70,6 +73,23 @@ export default function RewardedAdModal({
   if (!isOpen) return null;
 
   const isPurple = theme === "purple";
+
+  const handleWatchSponsorClick = async () => {
+    // Se estiver no App Android, dispara o Vídeo Premiado Nativo do AdMob
+    if (isNativeApp()) {
+      setLoadingNativeAd(true);
+      const earned = await showNativeRewardedAd();
+      setLoadingNativeAd(false);
+      if (earned) {
+        onRewardEarned();
+      }
+      return;
+    }
+
+    // Se estiver no Navegador Web, usa o modal de 10s
+    setSecondsLeft(10);
+    setWatchingAd(true);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
@@ -137,14 +157,16 @@ export default function RewardedAdModal({
             {adsEnabled && canWatchAd ? (
               <button
                 type="button"
-                onClick={() => {
-                  setSecondsLeft(10);
-                  setWatchingAd(true);
-                }}
-                className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 hover:bg-stone-200 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10"
+                disabled={loadingNativeAd}
+                onClick={handleWatchSponsorClick}
+                className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 hover:bg-stone-200 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10 disabled:opacity-60"
               >
                 <span>📺</span>
-                <span>Ver Patrocinador (10s) para liberar {rewardLabel}</span>
+                <span>
+                  {loadingNativeAd
+                    ? "Carregando vídeo premiado..."
+                    : `Ver Patrocinador para liberar ${rewardLabel}`}
+                </span>
               </button>
             ) : !canWatchAd ? (
               <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 text-[11px] text-amber-900 dark:text-amber-200 text-center leading-relaxed">
