@@ -3,6 +3,7 @@ import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Suspense } from "react";
 import { RefTracker } from "@/components/ref-tracker";
+import AdBanner from "@/components/AdBanner";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -54,6 +55,7 @@ export default function RootLayout({
             <RefTracker />
           </Suspense>
           {children}
+          <AdBanner format="horizontal" slotId="GLOBAL_BOTTOM_SLOT" />
         </body>
       </html>
     </ClerkProvider>

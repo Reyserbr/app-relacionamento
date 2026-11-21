@@ -1,13 +1,21 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { SignIn } from "@clerk/nextjs";
 import Link from "next/link";
+import { isNativeApp } from "@/lib/admob";
 
 export default function SignInPage() {
+  const [nativeMode, setNativeMode] = useState(false);
+
+  useEffect(() => {
+    setNativeMode(isNativeApp());
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#faf7f5] dark:bg-[#140a0f] text-stone-800 dark:text-stone-100 font-sans transition-colors">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#140a0f] text-stone-100 font-sans">
       {/* LADO ESQUERDO — APRESENTAÇÃO */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-[#6b1229] via-[#4c0d1f] to-[#2b0712] dark:from-[#260710] dark:via-[#1a050c] dark:to-[#110308] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-rose-900/30">
+      <div className="lg:w-1/2 bg-gradient-to-br from-[#260710] via-[#1a050c] to-[#110308] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-rose-900/30">
         <div className="relative z-10">
           <Link href="/" className="inline-flex items-center gap-3 mb-10 group">
             <img
@@ -36,7 +44,7 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <div className="relative z-10 bg-white/10 dark:bg-white/5 backdrop-blur-md border border-white/15 rounded-2xl p-5 max-w-xl">
+        <div className="relative z-10 bg-white/5 backdrop-blur-md border border-white/15 rounded-2xl p-5 max-w-xl">
           <div className="flex items-start gap-3.5">
             <span className="text-2xl mt-0.5">🔍</span>
             <div>
@@ -52,49 +60,53 @@ export default function SignInPage() {
       </div>
 
       {/* LADO DIREITO — FORMULÁRIO DE LOGIN */}
-      <div className="lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 bg-[#faf7f5] dark:bg-[#140a0f] transition-colors">
+      <div className="lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 bg-[#140a0f]">
         <div className="w-full max-w-md flex flex-col items-center">
           <div className="text-center mb-6">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-stone-50 mb-2">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-50 mb-2">
               Acesse sua Consultoria
             </h2>
-            <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400">
-              Entre com sua conta Google em 1 clique para escolher sua ferramenta
+            <p className="text-xs sm:text-sm text-stone-400">
+              {nativeMode
+                ? "Entre com seu e-mail e senha cadastrados abaixo"
+                : "Entre com sua conta Google ou e-mail para escolher sua ferramenta"}
             </p>
           </div>
 
-          {/* Parâmetros compatíveis com a versão do Clerk instalada */}
           <SignIn
             routing="path"
             path="/sign-in"
+            signUpUrl="/sign-up"
             redirectUrl="/"
             afterSignInUrl="/"
             afterSignUpUrl="/"
             appearance={{
               elements: {
                 rootBox: "w-full flex justify-center",
-                card: "bg-white dark:bg-[#1c1016] border border-stone-200/80 dark:border-rose-400/20 shadow-xl rounded-3xl text-stone-800 dark:text-stone-100",
+                card: "bg-[#1c1016] border border-rose-400/20 shadow-xl rounded-3xl text-stone-100",
                 headerTitle: "hidden",
                 headerSubtitle: "hidden",
-                socialButtonsBlockButton:
-                  "bg-white dark:bg-white/10 border border-stone-200 dark:border-white/15 text-stone-700 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-white/20",
-                socialButtonsBlockButtonText: "text-stone-700 dark:text-stone-100 font-semibold",
-                dividerLine: "bg-stone-200 dark:bg-white/15",
-                dividerText: "text-stone-400 dark:text-stone-400",
-                formFieldLabel: "text-stone-700 dark:text-stone-200",
+                socialButtonsBlockButton: nativeMode
+                  ? "hidden"
+                  : "bg-white/10 border border-white/15 text-stone-100 hover:bg-white/20",
+                socialButtonsBlockButtonText: "text-stone-100 font-semibold",
+                dividerRow: nativeMode ? "hidden" : "",
+                dividerLine: "bg-white/15",
+                dividerText: "text-stone-400",
+                formFieldLabel: "text-stone-200",
                 formFieldInput:
-                  "bg-stone-50 dark:bg-white/5 border-stone-200 dark:border-white/15 text-stone-900 dark:text-white",
+                  "bg-white/5 border-white/15 text-white placeholder:text-stone-500",
                 formButtonPrimary:
-                  "bg-rose-900 hover:bg-rose-800 dark:bg-rose-600 dark:hover:bg-rose-500 text-white font-bold rounded-xl",
-                footerActionText: "text-stone-500 dark:text-stone-400",
-                footerActionLink: "text-rose-700 dark:text-rose-400 font-semibold",
+                  "bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl",
+                footerActionText: "text-stone-400",
+                footerActionLink: "text-rose-400 hover:text-rose-300 font-bold underline",
               },
             }}
           />
 
           <Link
             href="/"
-            className="mt-6 text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-rose-700 dark:hover:text-rose-300 transition-colors"
+            className="mt-6 text-xs font-medium text-stone-400 hover:text-rose-300 transition-colors"
           >
             ← Voltar para a Página Inicial
           </Link>

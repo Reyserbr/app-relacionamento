@@ -6,7 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import {
   isNativeApp,
   showGlobalBottomBanner,
-  hideGlobalBottomBanner,
+  removeAnyBanner,
   showInlineMrecBanner,
 } from "@/lib/admob";
 
@@ -45,10 +45,9 @@ export default function AdBanner({
 
     if (!isLoaded) return;
 
-    // Se o usuário NÃO estiver logado, garante que nenhum banner nativo fique ativo e não exibe blocos
     if (!userId && !forceShow) {
       setIsPremium(true);
-      hideGlobalBottomBanner();
+      removeAnyBanner();
       return;
     }
 
@@ -93,7 +92,7 @@ export default function AdBanner({
   useEffect(() => {
     if (!nativeMode || !adConfig || !adConfig.adsEnabled) return;
     if ((!userId && !forceShow) || (isPremium && !forceShow)) {
-      hideGlobalBottomBanner();
+      removeAnyBanner();
       return;
     }
 
@@ -169,6 +168,8 @@ export default function AdBanner({
     }
     return null;
   }
+
+  if (isChatRoute && !forceShow) return null;
 
   const activeSlot =
     format === "rectangle"

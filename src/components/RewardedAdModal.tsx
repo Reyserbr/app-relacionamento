@@ -75,18 +75,20 @@ export default function RewardedAdModal({
   const isPurple = theme === "purple";
 
   const handleWatchSponsorClick = async () => {
-    // Se estiver no App Android, dispara o Vídeo Premiado Nativo do AdMob
     if (isNativeApp()) {
       setLoadingNativeAd(true);
-      const earned = await showNativeRewardedAd();
+      const result = await showNativeRewardedAd();
       setLoadingNativeAd(false);
-      if (earned) {
+
+      if (result === "rewarded") {
         onRewardEarned();
+        return;
       }
-      return;
+      if (result === "closed") {
+        return;
+      }
     }
 
-    // Se estiver no Navegador Web, usa o modal de 10s
     setSecondsLeft(10);
     setWatchingAd(true);
   };

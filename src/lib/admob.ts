@@ -9,19 +9,16 @@ import {
   RewardAdPluginEvents,
 } from "@capacitor-community/admob";
 
-// ============================================================================
-// BLOCOS DE ANÚNCIO ADMOB (IDs OFICIAIS DE TESTE DO GOOGLE)
-// Quando criar os blocos no painel do AdMob, substitua apenas estas 4 strings:
-// ============================================================================
 export const ADMOB_IDS = {
   BANNER_BOTTOM: "ca-app-pub-3940256099942544/6300978111",      // Banner Adaptativo Rodapé
-  MREC_INLINE: "ca-app-pub-3940256099942544/6300978111",        // Bloco Inline 300x250 ("Nativo")
+  MREC_INLINE: "ca-app-pub-3940256099942544/6300978111",        // Bloco Inline 300x250
   INTERSTITIAL_FICHA: "ca-app-pub-3940256099942544/1033173712", // Intersticial Pós-Ficha (1x/sessão)
   REWARDED_VIDEO: "ca-app-pub-3940256099942544/5224354917",     // Vídeo Premiado (+Mensagens)
 };
 
 let initialized = false;
-let bottomBannerActive = false;
+let initPromise: Promise<void> | null = null;
+let activeBannerType: "none" | "bottom" | "mrec" = "none";
 
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
@@ -29,21 +26,50 @@ export function isNativeApp(): boolean {
 }
 
 export async function initAdMob(): Promise<void> {
-  if (!isNativeApp() || initialized) return;
+  if (!isNativeApp()) return;
+  if (initialized) return;
+  if (initPromise) return initPromise;
+
+  initPromise = (async () => {
+    try {
+      await AdMob.initialize({
+        initializeForTesting: true,
+      });
+      initialized = true;
+    } catch (err) {
+      console.error("[AdMob] Falha no initialize:", err);
+    } finally {
+      initPromise = null;
+    }
+  })();
+
+  return initPromise;
+}
+
+export async function removeAnyBanner(): Promise<void> {
+  if (!isNativeApp() || activeBannerType === "none") return;
   try {
-    await AdMob.initialize({
-      initializeForTesting: true,
-    });
-    initialized = true;
-  } catch (err) {
-    console.error("Erro ao iniciar AdMob:", err);
+    await AdMob.removeBanner();
+  } catch (_) {
+    try {
+      await AdMob.hideBanner();
+    } catch (_) {}
+  }
+  activeBannerType = "none";
+  if (typeof document !== "undefined") {
+    document.body.style.paddingBottom = "0px";
   }
 }
 
-// 1. BANNER FIXO NO RODAPÉ DE TODAS AS PÁGINAS
 export async function showGlobalBottomBanner(): Promise<void> {
-  if (!isNativeApp() || bottomBannerActive) return;
+  if (!isNativeApp()) return;
+  if (activeBannerType === "bottom") return;
+
   await initAdMob();
+  if (activeBannerType === "mrec") {
+    await removeAnyBanner();
+  }
+
   try {
     const options: BannerAdOptions = {
       adId: ADMOB_IDS.BANNER_BOTTOM,
@@ -53,41 +79,39 @@ export async function showGlobalBottomBanner(): Promise<void> {
       isTesting: true,
     };
     await AdMob.showBanner(options);
-    bottomBannerActive = true;
-    document.body.style.paddingBottom = "62px";
+    activeBannerType = "bottom";
+    if (typeof document !== "undefined") {
+      document.body.style.paddingBottom = "62px";
+    }
   } catch (err) {
-    console.error("Erro ao exibir Banner AdMob:", err);
+    console.error("[AdMob] Erro Banner Bottom:", err);
   }
 }
 
-export async function hideGlobalBottomBanner(): Promise<void> {
-  if (!isNativeApp() || !bottomBannerActive) return;
-  try {
-    await AdMob.hideBanner();
-    bottomBannerActive = false;
-    document.body.style.paddingBottom = "0px";
-  } catch (_) {}
-}
-
-// 2. BLOCO INLINE MREC 300x250 (PARA O MEIO DO CONTEÚDO)
-export async function showInlineMrecBanner(marginTop = 120): Promise<void> {
+export async function showInlineMrecBanner(marginTop = 180): Promise<void> {
   if (!isNativeApp()) return;
   await initAdMob();
+
+  if (activeBannerType !== "none") {
+    await removeAnyBanner();
+  }
+
   try {
+    const safeTop = Math.max(72, Math.min(marginTop, 360));
     const options: BannerAdOptions = {
       adId: ADMOB_IDS.MREC_INLINE,
       adSize: BannerAdSize.MEDIUM_RECTANGLE,
       position: BannerAdPosition.TOP_CENTER,
-      margin: marginTop,
+      margin: safeTop,
       isTesting: true,
     };
     await AdMob.showBanner(options);
+    activeBannerType = "mrec";
   } catch (err) {
-    console.error("Erro ao exibir MREC Inline:", err);
+    console.error("[AdMob] Erro MREC Inline:", err);
   }
 }
 
-// 3. INTERSTICIAL PÓS-ENVIO DA FICHA (DISPARA NO MÁXIMO 1 VEZ POR SESSÃO)
 export async function showPostFormInterstitialOnce(): Promise<void> {
   if (!isNativeApp()) return;
   if (typeof window !== "undefined" && sessionStorage.getItem("lilith_interstitial_shown") === "true") {
@@ -104,17 +128,32 @@ export async function showPostFormInterstitialOnce(): Promise<void> {
     await AdMob.prepareInterstitial(options);
     await AdMob.showInterstitial();
   } catch (err) {
-    console.error("Erro ao exibir Intersticial:", err);
+    console.error("[AdMob] Erro Intersticial:", err);
   }
 }
 
-// 4. INTERSTICIAL PREMIADO (REWARDED VIDEO PARA GANHAR MENSAGENS)
-export async function showNativeRewardedAd(): Promise<boolean> {
-  if (!isNativeApp()) return false;
+export async function showNativeRewardedAd(): Promise<"rewarded" | "closed" | "unavailable"> {
+  if (!isNativeApp()) return "unavailable";
   await initAdMob();
 
   return new Promise(async (resolve) => {
+    let settled = false;
     let rewarded = false;
+
+    const finish = (status: "rewarded" | "closed" | "unavailable") => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(safetyTimer);
+      rewardListener?.remove();
+      dismissListener?.remove();
+      failedLoadListener?.remove();
+      failedShowListener?.remove();
+      resolve(status);
+    };
+
+    const safetyTimer = setTimeout(() => {
+      finish("unavailable");
+    }, 7000);
 
     const rewardListener = await AdMob.addListener(
       RewardAdPluginEvents.Rewarded,
@@ -126,19 +165,21 @@ export async function showNativeRewardedAd(): Promise<boolean> {
     const dismissListener = await AdMob.addListener(
       RewardAdPluginEvents.Dismissed,
       () => {
-        rewardListener.remove();
-        dismissListener.remove();
-        resolve(rewarded);
+        finish(rewarded ? "rewarded" : "closed");
       }
     );
 
-    const failedListener = await AdMob.addListener(
+    const failedLoadListener = await AdMob.addListener(
+      RewardAdPluginEvents.FailedToLoad,
+      () => {
+        finish("unavailable");
+      }
+    );
+
+    const failedShowListener = await AdMob.addListener(
       RewardAdPluginEvents.FailedToShow,
       () => {
-        rewardListener.remove();
-        dismissListener.remove();
-        failedListener.remove();
-        resolve(false);
+        finish("unavailable");
       }
     );
 
@@ -150,11 +191,7 @@ export async function showNativeRewardedAd(): Promise<boolean> {
       await AdMob.prepareRewardVideoAd(options);
       await AdMob.showRewardVideoAd();
     } catch (err) {
-      console.error("Erro no Vídeo Premiado AdMob:", err);
-      rewardListener.remove();
-      dismissListener.remove();
-      failedListener.remove();
-      resolve(false);
+      finish("unavailable");
     }
   });
 }
