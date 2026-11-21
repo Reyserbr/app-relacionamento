@@ -9,9 +9,6 @@ import {
   RewardAdPluginEvents,
 } from "@capacitor-community/admob";
 
-// ============================================================================
-// BLOCOS DE ANÚNCIO ADMOB (IDs OFICIAIS DE TESTE DO GOOGLE)
-// ============================================================================
 export const ADMOB_IDS = {
   BANNER_BOTTOM: "ca-app-pub-3940256099942544/6300978111",      // Banner Rodapé (320x50)
   INTERSTITIAL_FICHA: "ca-app-pub-3940256099942544/1033173712", // Intersticial Pós-Ficha (1x/sessão)
@@ -33,13 +30,20 @@ export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform() || platform === "android" || platform === "ios";
 }
 
+function getRegisteredPluginsDebug(): string {
+  if (typeof window === "undefined") return "";
+  const cap = (window as any).Capacitor;
+  const plugins = cap?.Plugins ? Object.keys(cap.Plugins) : [];
+  return `Plugins ativos: [${plugins.join(", ") || "nenhum"}]`;
+}
+
 export async function initAdMob(): Promise<void> {
   if (!isNativeApp() || initialized) return;
   try {
     await AdMob.initialize();
     initialized = true;
   } catch (err: any) {
-    lastAdMobError = `Init: ${err?.message || String(err)}`;
+    lastAdMobError = `Init: ${err?.message || String(err)} | ${getRegisteredPluginsDebug()}`;
     console.error("[AdMob] Falha no initialize:", err);
   }
 }
@@ -59,7 +63,6 @@ export async function removeAnyBanner(): Promise<void> {
   }
 }
 
-// 1. BANNER FIXO NO RODAPÉ (TENTA EXIBIR DIRETAMENTE SEM ABORTAR)
 export async function showGlobalBottomBanner(): Promise<{ ok: boolean; error?: string }> {
   if (!isNativeApp()) return { ok: false, error: "Not native" };
   if (bannerVisible) return { ok: true };
@@ -87,8 +90,8 @@ export async function showGlobalBottomBanner(): Promise<{ ok: boolean; error?: s
     return { ok: true };
   } catch (err: any) {
     bannerVisible = false;
-    const msg = err?.message || String(err);
-    lastAdMobError = `Banner: ${msg}`;
+    const msg = `${err?.message || String(err)} (${getRegisteredPluginsDebug()})`;
+    lastAdMobError = msg;
     console.error("[AdMob] Falha ao exibir banner:", err);
     return { ok: false, error: msg };
   } finally {
@@ -96,7 +99,6 @@ export async function showGlobalBottomBanner(): Promise<{ ok: boolean; error?: s
   }
 }
 
-// 2. INTERSTICIAL PÓS-ENVIO DA FICHA (1x POR SESSÃO)
 export async function showPostFormInterstitialOnce(): Promise<void> {
   if (!isNativeApp()) return;
   if (typeof window !== "undefined" && sessionStorage.getItem("lilith_interstitial_shown") === "true") {
@@ -118,7 +120,6 @@ export async function showPostFormInterstitialOnce(): Promise<void> {
   }
 }
 
-// 3. VÍDEO PREMIADO (+MENSAGENS)
 export async function showNativeRewardedAd(): Promise<{
   status: "rewarded" | "closed" | "unavailable";
   error?: string;
@@ -186,8 +187,8 @@ export async function showNativeRewardedAd(): Promise<{
       await AdMob.prepareRewardVideoAd(options);
       await AdMob.showRewardVideoAd();
     } catch (err: any) {
-      const msg = err?.message || String(err);
-      lastAdMobError = `RewardCatch: ${msg}`;
+      const msg = `${err?.message || String(err)} (${getRegisteredPluginsDebug()})`;
+      lastAdMobError = msg;
       finish("unavailable", msg);
     }
   });
