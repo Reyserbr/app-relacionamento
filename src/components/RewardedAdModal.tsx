@@ -39,6 +39,7 @@ export default function RewardedAdModal({
 }: RewardedAdModalProps) {
   const [watchingAd, setWatchingAd] = useState(false);
   const [loadingNativeAd, setLoadingNativeAd] = useState(false);
+  const [nativeErrorMsg, setNativeErrorMsg] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(10);
   const [adsEnabled, setAdsEnabled] = useState(true);
 
@@ -55,6 +56,7 @@ export default function RewardedAdModal({
     if (!isOpen) {
       setWatchingAd(false);
       setLoadingNativeAd(false);
+      setNativeErrorMsg("");
       setSecondsLeft(10);
     }
   }, [isOpen]);
@@ -75,17 +77,22 @@ export default function RewardedAdModal({
   const isPurple = theme === "purple";
 
   const handleWatchSponsorClick = async () => {
+    setNativeErrorMsg("");
+
     if (isNativeApp()) {
       setLoadingNativeAd(true);
-      const result = await showNativeRewardedAd();
+      const res = await showNativeRewardedAd();
       setLoadingNativeAd(false);
 
-      if (result === "rewarded") {
+      if (res.status === "rewarded") {
         onRewardEarned();
         return;
       }
-      if (result === "closed") {
+      if (res.status === "closed") {
         return;
+      }
+      if (res.error) {
+        setNativeErrorMsg(res.error);
       }
     }
 
@@ -94,16 +101,16 @@ export default function RewardedAdModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <div
-        className={`bg-white dark:bg-[#1c0d15] border ${
-          isPurple ? "border-purple-200 dark:border-purple-400/25" : "border-rose-100 dark:border-rose-400/20"
+        className={`bg-[#1c0d15] border ${
+          isPurple ? "border-purple-400/25" : "border-rose-400/20"
         } rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative my-auto`}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center text-stone-600 dark:text-stone-300 font-bold"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-stone-300 font-bold"
         >
           ✕
         </button>
@@ -113,8 +120,8 @@ export default function RewardedAdModal({
             <div
               className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-4 ${
                 isPurple
-                  ? "bg-purple-100 dark:bg-purple-500/15 text-purple-900 dark:text-purple-300"
-                  : "bg-rose-100 dark:bg-rose-500/15 text-rose-900 dark:text-rose-300"
+                  ? "bg-purple-500/15 text-purple-300"
+                  : "bg-rose-500/15 text-rose-300"
               }`}
             >
               👑
@@ -122,22 +129,22 @@ export default function RewardedAdModal({
 
             <span
               className={`text-[11px] font-bold uppercase tracking-widest ${
-                isPurple ? "text-purple-600 dark:text-purple-400" : "text-rose-600 dark:text-rose-400"
+                isPurple ? "text-purple-400" : "text-rose-400"
               }`}
             >
               {badgeText}
             </span>
-            <h3 className="text-2xl font-serif font-bold text-stone-900 dark:text-white mt-1 mb-2">
+            <h3 className="text-2xl font-serif font-bold text-white mt-1 mb-2">
               {titleText}
             </h3>
-            <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-5">
+            <p className="text-sm text-stone-300 leading-relaxed mb-5">
               {descriptionText}
             </p>
 
-            <ul className="space-y-2.5 text-sm text-stone-700 dark:text-stone-300 mb-6">
+            <ul className="space-y-2.5 text-sm text-stone-300 mb-6">
               {benefits.map((b, idx) => (
                 <li key={idx} className="flex items-start gap-2.5">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+                  <span className="text-emerald-400 font-bold">✓</span>
                   <span>
                     <strong>{b.title}</strong> {b.desc}
                   </span>
@@ -161,7 +168,7 @@ export default function RewardedAdModal({
                 type="button"
                 disabled={loadingNativeAd}
                 onClick={handleWatchSponsorClick}
-                className="w-full py-3 px-4 bg-stone-100 dark:bg-white/5 hover:bg-stone-200 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-stone-200 dark:border-white/10 disabled:opacity-60"
+                className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 text-stone-200 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-white/10 disabled:opacity-60"
               >
                 <span>📺</span>
                 <span>
@@ -171,14 +178,14 @@ export default function RewardedAdModal({
                 </span>
               </button>
             ) : !canWatchAd ? (
-              <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-400/30 text-[11px] text-amber-900 dark:text-amber-200 text-center leading-relaxed">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-[11px] text-amber-200 text-center leading-relaxed">
                 🔒 {maxReachedText}
               </div>
             ) : null}
           </>
         ) : (
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-300 text-xs font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 text-xs font-bold">
               <span>⏳</span>
               <span>
                 {secondsLeft > 0
@@ -187,11 +194,17 @@ export default function RewardedAdModal({
               </span>
             </div>
 
-            <h4 className="text-lg font-serif font-bold text-stone-900 dark:text-white">
+            <h4 className="text-lg font-serif font-bold text-white">
               Apoio de Patrocinador Oficial
             </h4>
 
-            <div className="w-full h-2 bg-stone-200 dark:bg-white/10 rounded-full overflow-hidden">
+            {nativeErrorMsg && (
+              <p className="text-[10px] text-amber-300/90 bg-amber-950/60 border border-amber-500/30 rounded-lg px-2.5 py-1">
+                Diagnóstico AdMob: {nativeErrorMsg}
+              </p>
+            )}
+
+            <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-rose-600 to-amber-500 transition-all duration-1000"
                 style={{ width: `${((10 - secondsLeft) / 10) * 100}%` }}
@@ -204,7 +217,7 @@ export default function RewardedAdModal({
               <button
                 type="button"
                 disabled
-                className="w-full py-3.5 px-6 rounded-2xl bg-stone-200 dark:bg-white/10 text-stone-500 dark:text-stone-400 font-bold text-xs cursor-not-allowed"
+                className="w-full py-3.5 px-6 rounded-2xl bg-white/10 text-stone-400 font-bold text-xs cursor-not-allowed"
               >
                 Aguarde {secondsLeft} segundos para resgatar...
               </button>

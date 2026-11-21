@@ -26,6 +26,7 @@ export default function AdBanner({
 
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [nativeMode, setNativeMode] = useState(false);
+  const [nativeBannerError, setNativeBannerError] = useState("");
   const [adConfig, setAdConfig] = useState<{
     adsEnabled: boolean;
     adsProvider: "adsense" | "custom";
@@ -93,7 +94,7 @@ export default function AdBanner({
     checkVipAndConfig();
   }, [forceShow, pathname, userId, isLoaded]);
 
-  // Gerencia o Banner Nativo único no rodapé do App Android
+  // Aciona o Banner Nativo no rodapé do App Android
   useEffect(() => {
     if (!nativeMode || !isLoaded || isPremium === null) return;
 
@@ -103,7 +104,13 @@ export default function AdBanner({
     }
 
     if (format === "horizontal") {
-      showGlobalBottomBanner();
+      showGlobalBottomBanner().then((res) => {
+        if (!res.ok && res.error && res.error !== "Busy") {
+          setNativeBannerError(res.error);
+        } else if (res.ok) {
+          setNativeBannerError("");
+        }
+      });
     }
   }, [nativeMode, isLoaded, isPremium, userId, forceShow, adConfig.adsEnabled, format, pathname]);
 
@@ -153,18 +160,20 @@ export default function AdBanner({
   if (!adConfig.adsEnabled) return null;
   if (isPremium !== false && !forceShow) return null;
 
-  // No App Android, o banner horizontal é nativo no rodapé (não ocupa caixa vazia no HTML)
-  if (nativeMode && format === "horizontal") {
-    return null;
+  // No App Android:
+  if (nativeMode) {
+    // Se houve erro nativo no banner de rodapé, mostra um aviso discreto para diagnóstico imediato
+    if (format === "horizontal" && nativeBannerError) {
+      return (
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-amber-950/95 border-t border-amber-500/40 px-3 py-1.5 text-[10px] text-amber-200 text-center">
+          AdMob Status: {nativeBannerError}
+        </div>
+      );
+    }
+    if (format === "horizontal") return null;
   }
 
-  // Na Web, oculta o banner global dentro dos chats
   if (!nativeMode && isChatRoute && !forceShow) {
-    return null;
-  }
-
-  // No App Android, se não for o modal de recompensa (forceShow), não renderiza caixa vazia no meio da tela
-  if (nativeMode && !forceShow) {
     return null;
   }
 
@@ -182,7 +191,7 @@ export default function AdBanner({
   return (
     <div className="w-full my-3 flex flex-col items-center justify-center">
       <span className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">
-        Publicidade • LilithLove Free
+        {nativeMode ? "Patrocinado • LilithLove" : "Publicidade • LilithLove Free"}
       </span>
 
       <div
@@ -190,7 +199,7 @@ export default function AdBanner({
           format === "rectangle" ? "min-h-[250px]" : "min-h-[90px]"
         }`}
       >
-        {adConfig.adsProvider === "adsense" && adConfig.adsenseClientId && activeSlot ? (
+        {!nativeMode && adConfig.adsProvider === "adsense" && adConfig.adsenseClientId && activeSlot ? (
           <ins
             className="adsbygoogle"
             style={{ display: "block", width: "100%" }}
@@ -199,22 +208,22 @@ export default function AdBanner({
             data-ad-format="auto"
             data-full-width-responsive="true"
           />
-        ) : adConfig.adsProvider === "custom" && hasCustomCode ? (
+        ) : !nativeMode && adConfig.adsProvider === "custom" && hasCustomCode ? (
           <div
             ref={customContainerRef}
             className="w-full h-full flex items-center justify-center overflow-hidden p-2 text-center"
           />
         ) : (
-          <div className="p-4 text-center">
-            <p className="text-xs font-semibold text-stone-200">
+          <div className="p-5 text-center max-w-md">
+            <p className="text-sm font-bold text-stone-100">
               👑 Desbloqueie a LilithLove sem anúncios e sem limites
             </p>
-            <p className="text-[11px] text-stone-400 mt-0.5">
+            <p className="text-xs text-stone-400 mt-1 leading-relaxed">
               Tenha acesso imediato às mensagens cirúrgicas, protocolos de reconquista e leituras completas.
             </p>
             <a
               href="/planos"
-              className="inline-block mt-2 px-4 py-1.5 rounded-full bg-rose-600 text-white text-[11px] font-bold shadow-sm hover:opacity-90 transition-opacity"
+              className="inline-block mt-3 px-5 py-2 rounded-full bg-rose-600 text-white text-xs font-bold shadow-sm hover:bg-rose-500 transition-colors"
             >
               Conhecer Acesso VIP Premium →
             </a>

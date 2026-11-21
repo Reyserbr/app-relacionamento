@@ -19,9 +19,13 @@ export const ADMOB_IDS = {
 };
 
 let initialized = false;
-let initPromise: Promise<void> | null = null;
 let bannerVisible = false;
 let bannerBusy = false;
+let lastAdMobError = "";
+
+export function getLastAdMobError(): string {
+  return lastAdMobError;
+}
 
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
@@ -29,33 +33,19 @@ export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform() || platform === "android" || platform === "ios";
 }
 
-export async function initAdMob(): Promise<boolean> {
-  if (!isNativeApp()) return false;
-  if (initialized) return true;
-
-  if (!initPromise) {
-    initPromise = (async () => {
-      try {
-        await AdMob.initialize({
-          initializeForTesting: true,
-        });
-        initialized = true;
-      } catch (err) {
-        console.error("[AdMob] Erro ao inicializar:", err);
-      } finally {
-        initPromise = null;
-      }
-    })();
+export async function initAdMob(): Promise<void> {
+  if (!isNativeApp() || initialized) return;
+  try {
+    await AdMob.initialize();
+    initialized = true;
+  } catch (err: any) {
+    lastAdMobError = `Init: ${err?.message || String(err)}`;
+    console.error("[AdMob] Falha no initialize:", err);
   }
-
-  await initPromise;
-  return initialized;
 }
 
 export async function removeAnyBanner(): Promise<void> {
   if (!isNativeApp()) return;
-  if (!bannerVisible && !bannerBusy) return;
-
   try {
     await AdMob.removeBanner();
   } catch (_) {
@@ -63,22 +53,21 @@ export async function removeAnyBanner(): Promise<void> {
       await AdMob.hideBanner();
     } catch (_) {}
   }
-
   bannerVisible = false;
   if (typeof document !== "undefined") {
     document.body.style.paddingBottom = "0px";
   }
 }
 
-// 1. BANNER ÚNICO FIXO NO RODAPÉ (SEM CONFLITO DE SOBREPOSIÇÃO)
-export async function showGlobalBottomBanner(): Promise<void> {
-  if (!isNativeApp()) return;
-  if (bannerVisible || bannerBusy) return;
+// 1. BANNER FIXO NO RODAPÉ (TENTA EXIBIR DIRETAMENTE SEM ABORTAR)
+export async function showGlobalBottomBanner(): Promise<{ ok: boolean; error?: string }> {
+  if (!isNativeApp()) return { ok: false, error: "Not native" };
+  if (bannerVisible) return { ok: true };
+  if (bannerBusy) return { ok: false, error: "Busy" };
 
   bannerBusy = true;
   try {
-    const ok = await initAdMob();
-    if (!ok) return;
+    await initAdMob();
 
     const options: BannerAdOptions = {
       adId: ADMOB_IDS.BANNER_BOTTOM,
@@ -90,13 +79,18 @@ export async function showGlobalBottomBanner(): Promise<void> {
 
     await AdMob.showBanner(options);
     bannerVisible = true;
+    lastAdMobError = "";
 
     if (typeof document !== "undefined") {
       document.body.style.paddingBottom = "56px";
     }
-  } catch (err) {
+    return { ok: true };
+  } catch (err: any) {
     bannerVisible = false;
+    const msg = err?.message || String(err);
+    lastAdMobError = `Banner: ${msg}`;
     console.error("[AdMob] Falha ao exibir banner:", err);
+    return { ok: false, error: msg };
   } finally {
     bannerBusy = false;
   }
@@ -109,9 +103,7 @@ export async function showPostFormInterstitialOnce(): Promise<void> {
     return;
   }
 
-  const ok = await initAdMob();
-  if (!ok) return;
-
+  await initAdMob();
   try {
     sessionStorage.setItem("lilith_interstitial_shown", "true");
     const options: AdOptions = {
@@ -120,75 +112,83 @@ export async function showPostFormInterstitialOnce(): Promise<void> {
     };
     await AdMob.prepareInterstitial(options);
     await AdMob.showInterstitial();
-  } catch (err) {
+  } catch (err: any) {
+    lastAdMobError = `Interstitial: ${err?.message || String(err)}`;
     console.error("[AdMob] Erro Intersticial:", err);
   }
 }
 
-// 3. VÍDEO PREMIADO (+MENSAGENS) COM RETORNO GARANTIDO
-export async function showNativeRewardedAd(): Promise<"rewarded" | "closed" | "unavailable"> {
-  if (!isNativeApp()) return "unavailable";
+// 3. VÍDEO PREMIADO (+MENSAGENS)
+export async function showNativeRewardedAd(): Promise<{
+  status: "rewarded" | "closed" | "unavailable";
+  error?: string;
+}> {
+  if (!isNativeApp()) return { status: "unavailable", error: "Not native" };
 
-  const ok = await initAdMob();
-  if (!ok) return "unavailable";
+  await initAdMob();
 
   return new Promise(async (resolve) => {
     let settled = false;
     let rewarded = false;
+    let rewardListener: any = null;
+    let dismissListener: any = null;
+    let failedLoadListener: any = null;
+    let failedShowListener: any = null;
 
-    const finish = (status: "rewarded" | "closed" | "unavailable") => {
+    const finish = (status: "rewarded" | "closed" | "unavailable", error?: string) => {
       if (settled) return;
       settled = true;
       clearTimeout(safetyTimer);
-      rewardListener?.remove();
-      dismissListener?.remove();
-      failedLoadListener?.remove();
-      failedShowListener?.remove();
-      resolve(status);
+      try {
+        rewardListener?.remove();
+        dismissListener?.remove();
+        failedLoadListener?.remove();
+        failedShowListener?.remove();
+      } catch (_) {}
+      resolve({ status, error });
     };
 
     const safetyTimer = setTimeout(() => {
-      finish("unavailable");
-    }, 8000);
-
-    const rewardListener = await AdMob.addListener(
-      RewardAdPluginEvents.Rewarded,
-      () => {
-        rewarded = true;
-      }
-    );
-
-    const dismissListener = await AdMob.addListener(
-      RewardAdPluginEvents.Dismissed,
-      () => {
-        finish(rewarded ? "rewarded" : "closed");
-      }
-    );
-
-    const failedLoadListener = await AdMob.addListener(
-      RewardAdPluginEvents.FailedToLoad,
-      () => {
-        finish("unavailable");
-      }
-    );
-
-    const failedShowListener = await AdMob.addListener(
-      RewardAdPluginEvents.FailedToShow,
-      () => {
-        finish("unavailable");
-      }
-    );
+      finish("unavailable", "Timeout de 10s aguardando resposta do Google AdMob");
+    }, 10000);
 
     try {
+      rewardListener = await AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+        rewarded = true;
+      });
+
+      dismissListener = await AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
+        finish(rewarded ? "rewarded" : "closed");
+      });
+
+      failedLoadListener = await AdMob.addListener(
+        RewardAdPluginEvents.FailedToLoad,
+        (err: any) => {
+          const msg = err?.message || JSON.stringify(err) || "FailedToLoad";
+          lastAdMobError = `RewardLoad: ${msg}`;
+          finish("unavailable", msg);
+        }
+      );
+
+      failedShowListener = await AdMob.addListener(
+        RewardAdPluginEvents.FailedToShow,
+        (err: any) => {
+          const msg = err?.message || JSON.stringify(err) || "FailedToShow";
+          lastAdMobError = `RewardShow: ${msg}`;
+          finish("unavailable", msg);
+        }
+      );
+
       const options: RewardAdOptions = {
         adId: ADMOB_IDS.REWARDED_VIDEO,
         isTesting: true,
       };
       await AdMob.prepareRewardVideoAd(options);
       await AdMob.showRewardVideoAd();
-    } catch (err) {
-      console.error("[AdMob] Erro Vídeo Premiado:", err);
-      finish("unavailable");
+    } catch (err: any) {
+      const msg = err?.message || String(err);
+      lastAdMobError = `RewardCatch: ${msg}`;
+      finish("unavailable", msg);
     }
   });
 }
