@@ -22,7 +22,7 @@ export const metadata = {
   description: "Sua conselheira amorosa e guia de inteligência emocional.",
 };
 
-const themeScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d){document.documentElement.classList.add('dark');}}catch(e){}})();`;
+const forceDarkScript = `(function(){try{document.documentElement.classList.add('dark');localStorage.setItem('theme','dark');}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -33,24 +33,23 @@ export default function RootLayout({
     <ClerkProvider>
       <html
         lang="pt-BR"
-        className={`${jakarta.variable} ${fraunces.variable}`}
+        className={`dark ${jakarta.variable} ${fraunces.variable}`}
         suppressHydrationWarning
       >
         <head>
-          <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+          <script dangerouslySetInnerHTML={{ __html: forceDarkScript }} />
           <link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#140a0f" />
-<link rel="apple-touch-icon" href="/logo.png" />
-{process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
-  <script
-    async
-    src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
-    crossOrigin="anonymous"
-  />
-)}
+          <meta name="theme-color" content="#140a0f" />
+          <link rel="apple-touch-icon" href="/logo.png" />
+          {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+              crossOrigin="anonymous"
+            />
+          )}
         </head>
-        <body className="font-sans antialiased">
-          {/* Captura o ?ref= (indicação de afiliado) em qualquer página e salva por 30 dias */}
+        <body className="font-sans antialiased bg-[#140a0f] text-stone-200">
           <Suspense fallback={null}>
             <RefTracker />
           </Suspense>

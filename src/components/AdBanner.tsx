@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import {
   isNativeApp,
   showGlobalBottomBanner,
@@ -21,6 +22,7 @@ export default function AdBanner({
   forceShow = false,
 }: AdBannerProps) {
   const pathname = usePathname();
+  const { userId, isLoaded } = useAuth();
   const isChatRoute = pathname?.startsWith("/chat");
 
   const [isPremium, setIsPremium] = useState(true);
@@ -40,6 +42,15 @@ export default function AdBanner({
 
   useEffect(() => {
     setNativeMode(isNativeApp());
+
+    if (!isLoaded) return;
+
+    // Se o usuário NÃO estiver logado, garante que nenhum banner nativo fique ativo e não exibe blocos
+    if (!userId && !forceShow) {
+      setIsPremium(true);
+      hideGlobalBottomBanner();
+      return;
+    }
 
     const checkVip = async () => {
       if (typeof window !== "undefined" && localStorage.getItem("lilith_vip_test") === "true") {
@@ -77,13 +88,11 @@ export default function AdBanner({
 
     checkVip();
     loadConfig();
-  }, [forceShow, pathname]);
+  }, [forceShow, pathname, userId, isLoaded]);
 
-  // Aciona o AdMob Nativo quando estiver rodando dentro do App Android
   useEffect(() => {
     if (!nativeMode || !adConfig || !adConfig.adsEnabled) return;
-
-    if (isPremium && !forceShow) {
+    if ((!userId && !forceShow) || (isPremium && !forceShow)) {
       hideGlobalBottomBanner();
       return;
     }
@@ -98,13 +107,12 @@ export default function AdBanner({
     } else {
       showGlobalBottomBanner();
     }
-  }, [nativeMode, adConfig, isPremium, forceShow, format, pathname]);
+  }, [nativeMode, adConfig, isPremium, forceShow, format, pathname, userId]);
 
-  // Web: Carrega AdSense apenas no navegador fora do app nativo
   useEffect(() => {
     if (nativeMode) return;
     if (!adConfig || !adConfig.adsEnabled) return;
-    if (isPremium && !forceShow) return;
+    if ((!userId && !forceShow) || (isPremium && !forceShow)) return;
 
     if (adConfig.adsProvider === "adsense" && adConfig.adsenseClientId) {
       if (!isChatRoute || forceShow) {
@@ -121,13 +129,12 @@ export default function AdBanner({
         } catch (_) {}
       }
     }
-  }, [nativeMode, adConfig, isPremium, forceShow, isChatRoute]);
+  }, [nativeMode, adConfig, isPremium, forceShow, isChatRoute, userId]);
 
-  // Web: Executa scripts customizados (Monetag / AdSterra) se configurado no Admin
   useEffect(() => {
     if (nativeMode) return;
     if (!adConfig || !adConfig.adsEnabled || adConfig.adsProvider !== "custom") return;
-    if (isPremium && !forceShow) return;
+    if ((!userId && !forceShow) || (isPremium && !forceShow)) return;
 
     const rawHtml =
       format === "rectangle"
@@ -141,20 +148,20 @@ export default function AdBanner({
       const fragment = range.createContextualFragment(rawHtml);
       customContainerRef.current.appendChild(fragment);
     }
-  }, [nativeMode, adConfig, isPremium, forceShow, format]);
+  }, [nativeMode, adConfig, isPremium, forceShow, format, userId]);
 
+  if (!isLoaded || (!userId && !forceShow)) return null;
   if (!adConfig || !adConfig.adsEnabled) return null;
   if (isPremium && !forceShow) return null;
 
-  // No App Android: reserva espaço limpo apenas para o bloco MREC Inline (300x250)
   if (nativeMode) {
     if (format === "rectangle") {
       return (
         <div
           ref={mrecBoxRef}
-          className="w-full my-4 flex flex-col items-center justify-center min-h-[260px] rounded-2xl bg-stone-100/50 dark:bg-white/[0.02] border border-stone-200/50 dark:border-white/[0.06]"
+          className="w-full my-4 flex flex-col items-center justify-center min-h-[260px] rounded-2xl bg-white/[0.02] border border-white/[0.06]"
         >
-          <span className="text-[9px] uppercase tracking-widest text-stone-400 dark:text-stone-500">
+          <span className="text-[9px] uppercase tracking-widest text-stone-500">
             Patrocinado • LilithLove
           </span>
         </div>
@@ -176,12 +183,12 @@ export default function AdBanner({
 
   return (
     <div className="w-full my-3 flex flex-col items-center justify-center">
-      <span className="text-[9px] uppercase tracking-widest text-stone-400 dark:text-stone-500 mb-1">
+      <span className="text-[9px] uppercase tracking-widest text-stone-500 mb-1">
         Publicidade • LilithLove Free
       </span>
 
       <div
-        className={`w-full max-w-2xl rounded-2xl bg-stone-100/80 dark:bg-white/[0.03] border border-stone-200/70 dark:border-white/10 flex items-center justify-center overflow-hidden ${
+        className={`w-full max-w-2xl rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center overflow-hidden ${
           format === "rectangle" ? "min-h-[250px]" : "min-h-[90px]"
         }`}
       >
@@ -201,15 +208,15 @@ export default function AdBanner({
           />
         ) : (
           <div className="p-4 text-center">
-            <p className="text-xs font-semibold text-stone-700 dark:text-stone-200">
+            <p className="text-xs font-semibold text-stone-200">
               👑 Desbloqueie a LilithLove sem anúncios e sem limites
             </p>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+            <p className="text-[11px] text-stone-400 mt-0.5">
               Tenha acesso imediato às mensagens cirúrgicas, protocolos de reconquista e leituras completas.
             </p>
             <a
               href="/planos"
-              className="inline-block mt-2 px-4 py-1.5 rounded-full bg-rose-900 dark:bg-rose-600 text-white text-[11px] font-bold shadow-sm hover:opacity-90 transition-opacity"
+              className="inline-block mt-2 px-4 py-1.5 rounded-full bg-rose-600 text-white text-[11px] font-bold shadow-sm hover:opacity-90 transition-opacity"
             >
               Conhecer Acesso VIP Premium →
             </a>
