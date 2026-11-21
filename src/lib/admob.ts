@@ -22,7 +22,8 @@ let activeBannerType: "none" | "bottom" | "mrec" = "none";
 
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
-  return Capacitor.isNativePlatform();
+  const platform = Capacitor.getPlatform();
+  return Capacitor.isNativePlatform() || platform === "android" || platform === "ios";
 }
 
 export async function initAdMob(): Promise<void> {
@@ -153,7 +154,7 @@ export async function showNativeRewardedAd(): Promise<"rewarded" | "closed" | "u
 
     const safetyTimer = setTimeout(() => {
       finish("unavailable");
-    }, 7000);
+    }, 6000);
 
     const rewardListener = await AdMob.addListener(
       RewardAdPluginEvents.Rewarded,

@@ -77,24 +77,24 @@ export default function Home() {
   const currentExample = EXEMPLOS_DEMONSTRACAO[activeExampleIdx];
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-[#faf7f5] text-stone-800 dark:bg-[#140a0f] dark:text-stone-200 font-sans selection:bg-rose-500 selection:text-white">
+    <main className="flex min-h-screen flex-col items-center bg-[#140a0f] text-stone-200 font-sans selection:bg-rose-500 selection:text-white">
       <Navbar />
 
       {isLoaded && userId ? (
         <div className="relative w-full overflow-hidden flex-1">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-gradient-to-b from-rose-100/70 via-orange-50/40 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-gradient-to-b from-rose-500/10 via-rose-500/5 to-transparent" />
 
-          <div className="relative w-full max-w-5xl px-6 py-12 sm:py-16 mx-auto flex flex-col items-center">
-            <div className="text-center max-w-3xl mb-12 mt-2">
-              <span className="inline-flex items-center gap-2 rounded-full bg-rose-500/10 dark:bg-rose-500/15 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-rose-700 dark:text-rose-300 mb-5">
+          <div className="relative w-full max-w-5xl px-5 sm:px-6 py-10 sm:py-16 mx-auto flex flex-col items-center">
+            <div className="text-center max-w-3xl mb-10 mt-2">
+              <span className="inline-flex items-center gap-2 rounded-full bg-rose-500/15 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-rose-300 mb-5">
                 <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
                 Inteligência emocional guiada por IA
               </span>
 
-              <h1 className="text-5xl sm:text-7xl font-serif font-bold tracking-tight text-stone-900 dark:text-stone-50 mb-5">
+              <h1 className="text-4xl sm:text-7xl font-serif font-bold tracking-tight text-stone-50 mb-4">
                 LilithLove
               </h1>
-              <p className="text-base sm:text-xl leading-relaxed text-stone-600 dark:text-stone-300 mb-9">
+              <p className="text-sm sm:text-xl leading-relaxed text-stone-300 mb-8">
                 Pare de adivinhar o que se passa na cabeça dessa pessoa. Envie o print, descubra a real intenção por trás de cada palavra e receba a resposta exata para assumir o controle.
               </p>
 
@@ -111,121 +111,139 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="w-full mt-4">
-              <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8 text-center">
+            <div className="w-full mt-2">
+              <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-stone-100 mb-6 text-center">
                 Ferramentas Inteligentes
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* 1. Radar no Instagram */}
                 <Link
                   href="/chat/lilith?action=instagram"
-                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group relative overflow-hidden"
+                  className="bg-white/[0.04] p-6 sm:p-8 rounded-3xl shadow-sm border border-white/[0.08] hover:border-rose-500/35 hover:-translate-y-1 transition-all cursor-pointer flex flex-col gap-3.5 group"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-600 dark:text-rose-400">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                    </svg>
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0 text-rose-400">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-stone-100 leading-snug">
+                      Radar no Instagram: Do Story ao Encontro
+                    </h3>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Radar no Instagram: Do Story ao Encontro
-                  </h3>
-                  <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
+                  <p className="text-sm text-stone-300 leading-relaxed">
                     Saia da fila dos ignorados. Transforme uma simples visualização de Story ou curtida em uma conversa magnética — sem elogios óbvios e sem parecer mais um fã.
                   </p>
                 </Link>
 
+                {/* 2. Apps de Namoro */}
                 <Link
                   href="/chat/lilith?action=apps_match"
-                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group relative overflow-hidden"
+                  className="bg-white/[0.04] p-6 sm:p-8 rounded-3xl shadow-sm border border-white/[0.08] hover:border-rose-500/35 hover:-translate-y-1 transition-all cursor-pointer flex flex-col gap-3.5 group"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-600 dark:text-rose-400">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                    </svg>
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0 text-rose-400">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-stone-100 leading-snug">
+                      Abertura Irresistível para Apps de Namoro
+                    </h3>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Abertura Irresistível para Apps de Namoro
-                  </h3>
-                  <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
+                  <p className="text-sm text-stone-300 leading-relaxed">
                     Deu match e travou? Fuja do &ldquo;Oi, tudo bem?&rdquo; que morre em 3 mensagens. Use detalhes do perfil para criar tensão imediata e tirar a conversa do app direto para o encontro.
                   </p>
                 </Link>
 
+                {/* 3. Perfil Magnético */}
                 <Link
                   href="/chat/lilith?action=otimizar_perfil"
-                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-amber-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
+                  className="bg-white/[0.04] p-6 sm:p-8 rounded-3xl shadow-sm border border-white/[0.08] hover:border-amber-500/35 hover:-translate-y-1 transition-all cursor-pointer flex flex-col gap-3.5 group"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-amber-600 dark:text-amber-400">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-                    </svg>
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center shrink-0 text-amber-400">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-stone-100 leading-snug">
+                      Perfil Magnético: Fotos & Bio de Alto Valor
+                    </h3>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Perfil Magnético: Fotos & Bio de Alto Valor
-                  </h3>
-                  <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
+                  <p className="text-sm text-stone-300 leading-relaxed">
                     Descubra em segundos quais fotos estão sabotando seus resultados. Nossa IA avalia sua imagem e escreve uma bio impossível de ignorar para multiplicar seus matches.
                   </p>
                 </Link>
 
+                {/* 4. Raio-X de Red Flags */}
                 <Link
                   href="/chat/lilith?action=red_flags"
-                  className="bg-white dark:bg-white/[0.04] p-8 rounded-3xl shadow-sm border border-stone-200/60 dark:border-white/[0.07] hover:border-rose-500/30 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start group"
+                  className="bg-white/[0.04] p-6 sm:p-8 rounded-3xl shadow-sm border border-white/[0.08] hover:border-rose-500/35 hover:-translate-y-1 transition-all cursor-pointer flex flex-col gap-3.5 group"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-600 dark:text-rose-400">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
-                    </svg>
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0 text-rose-400">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-stone-100 leading-snug">
+                      Raio-X de Manipulação & Red Flags
+                    </h3>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-stone-800 dark:text-stone-100">
-                    Raio-X de Manipulação & Red Flags
-                  </h3>
-                  <p className="text-stone-500 dark:text-stone-300 leading-relaxed">
+                  <p className="text-sm text-stone-300 leading-relaxed">
                     Não entregue seu coração no escuro. Escaneie conversas e atitudes para desmascarar joguinhos, narcisismo, <em>love bombing</em> e falta de interesse antes de se machucar.
                   </p>
                 </Link>
 
+                {/* 5. Oráculo Astral */}
                 <Link
                   href="/chat/mistico"
-                  className="md:col-span-2 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/60 dark:to-indigo-950/50 p-7 rounded-3xl shadow-sm border border-purple-200 dark:border-purple-400/25 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group w-full"
+                  className="md:col-span-2 bg-gradient-to-br from-purple-950/65 to-indigo-950/55 p-6 sm:p-7 rounded-3xl shadow-sm border border-purple-400/25 hover:border-purple-400/50 transition-all cursor-pointer flex flex-col gap-3.5 group w-full"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-400/25 flex items-center justify-center shrink-0 text-purple-700 dark:text-purple-300">
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-50 mb-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-11 h-11 rounded-2xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-300">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-semibold text-purple-50 leading-snug">
                         Mapa Mental dos Signos & Oráculo do Amor
                       </h3>
-                      <p className="text-sm text-purple-800/80 dark:text-purple-100/90 leading-relaxed">
-                        Descubra o ponto fraco emocional do signo dessa pessoa, o que ela esconde por trás do orgulho e o que as cartas revelam sobre o futuro de vocês.
-                      </p>
                     </div>
+                    <span className="hidden sm:inline-block bg-purple-500 text-purple-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shrink-0">
+                      Astrologia & Tarot →
+                    </span>
                   </div>
-                  <span className="self-start sm:self-center bg-purple-900 dark:bg-purple-500 text-purple-50 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shrink-0">
-                    Astrologia & Tarot →
-                  </span>
+                  <p className="text-sm text-purple-100/90 leading-relaxed">
+                    Descubra o ponto fraco emocional do signo dessa pessoa, o que ela esconde por trás do orgulho e o que as cartas revelam sobre o futuro de vocês.
+                  </p>
                 </Link>
 
+                {/* 6. Operação Reconquista */}
                 <Link
                   href="/chat/reconquista"
-                  className="md:col-span-2 bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/75 dark:via-[#2b0916] dark:to-orange-950/60 p-8 sm:p-9 rounded-3xl shadow-md border border-rose-200 dark:border-rose-400/35 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col items-start relative overflow-hidden group w-full"
+                  className="md:col-span-2 bg-gradient-to-br from-rose-950/80 via-[#2b0916] to-orange-950/60 p-6 sm:p-8 rounded-3xl shadow-md border border-rose-400/35 hover:border-rose-400/60 transition-all cursor-pointer flex flex-col gap-3.5 group w-full"
                 >
-                  <div className="absolute top-6 right-6 bg-rose-900 dark:bg-rose-500 text-rose-50 text-[10px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
-                    Alta Eficácia • Módulo Urgente
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-11 h-11 rounded-2xl bg-rose-500/20 border border-rose-400/35 flex items-center justify-center shrink-0 text-rose-300">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-serif font-bold text-rose-50 leading-snug">
+                        Operação Reconquista: Reverta o Término
+                      </h3>
+                    </div>
+                    <span className="bg-rose-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                      Alta Eficácia • Urgente
+                    </span>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-400/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform text-rose-700 dark:text-rose-300">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-serif font-bold text-rose-950 dark:text-rose-50 mb-3">
-                    Operação Reconquista: Reverta o Término
-                  </h3>
-                  <p className="text-rose-900/80 dark:text-rose-100/90 leading-relaxed max-w-3xl">
+                  <p className="text-sm text-rose-100/90 leading-relaxed max-w-3xl">
                     Uma mensagem errada agora pode fechar essa porta para sempre. Ative o protocolo comportamental de Contato Zero, reconstrua seu valor e descubra a abordagem exata para reativar a saudade.
                   </p>
                 </Link>
@@ -233,39 +251,39 @@ export default function Home() {
             </div>
 
             {tracksOpen && (
-              <div className="w-full mt-16 pt-12 border-t border-stone-200 dark:border-white/10 text-center">
-                <span className="text-rose-600 dark:text-rose-300 font-semibold tracking-wider uppercase text-sm mb-4 block">
+              <div className="w-full mt-14 pt-10 border-t border-white/10 text-center">
+                <span className="text-rose-300 font-semibold tracking-wider uppercase text-xs mb-3 block">
                   Exclusivo Assinantes • Aulas & Guias
                 </span>
-                <h2 className="text-3xl font-serif font-semibold text-stone-800 dark:text-stone-100 mb-8">
+                <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-stone-100 mb-6">
                   Trilhas de Desenvolvimento
                 </h2>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Link href="/trilhas?track=amor_proprio" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">Ame a Si Mesmo Primeiro</Link>
-                  <Link href="/trilhas?track=contato_zero" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">Contato Zero na Prática</Link>
-                  <Link href="/trilhas?track=confianca" className="px-6 py-4 bg-white dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-white/10 transition-colors border border-stone-100 dark:border-white/10 shadow-sm rounded-2xl text-stone-600 dark:text-stone-300 font-medium">Desperte sua Confiança</Link>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link href="/trilhas?track=amor_proprio" className="px-5 py-3.5 bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-2xl text-stone-200 text-sm font-medium">Ame a Si Mesmo Primeiro</Link>
+                  <Link href="/trilhas?track=contato_zero" className="px-5 py-3.5 bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-2xl text-stone-200 text-sm font-medium">Contato Zero na Prática</Link>
+                  <Link href="/trilhas?track=confianca" className="px-5 py-3.5 bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-2xl text-stone-200 text-sm font-medium">Desperte sua Confiança</Link>
                 </div>
               </div>
             )}
 
-            <div className="w-full max-w-4xl mx-auto mt-12">
+            <div className="w-full max-w-4xl mx-auto mt-10">
               <AdBanner format="rectangle" slotId="HOME_BOTTOM_SLOT" />
             </div>
           </div>
         </div>
       ) : (
         <div className="relative w-full overflow-hidden flex-1">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-gradient-to-b from-rose-200/50 via-rose-100/20 to-transparent dark:from-[#361122]/60 dark:via-[#1f0b14]/30 dark:to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-gradient-to-b from-[#361122]/60 via-[#1f0b14]/30 to-transparent" />
 
           <div className="relative w-full max-w-4xl px-5 sm:px-6 pt-10 pb-16 sm:pt-16 sm:pb-24 mx-auto flex flex-col items-center">
             <div className="text-center max-w-2xl flex flex-col items-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-rose-500/10 dark:bg-white/[0.05] px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-rose-700 dark:text-rose-300 mb-7">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-rose-300 mb-6">
                 <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
                 Inteligência Emocional & Reconquista
               </span>
 
               <div className="mb-4 relative">
-                <div className="absolute -inset-3 rounded-full bg-rose-500/20 blur-xl dark:bg-rose-500/25 pointer-events-none" />
+                <div className="absolute -inset-3 rounded-full bg-rose-500/25 blur-xl pointer-events-none" />
                 <img
                   src="/logo.png"
                   alt="LilithLove"
@@ -276,18 +294,18 @@ export default function Home() {
                 />
               </div>
 
-              <h1 className="text-4xl sm:text-6xl font-serif font-bold tracking-tight text-stone-900 dark:text-white mb-4">
+              <h1 className="text-4xl sm:text-6xl font-serif font-bold tracking-tight text-white mb-4">
                 LilithLove
               </h1>
 
-              <p className="text-base sm:text-xl leading-relaxed text-stone-600 dark:text-stone-300/90 mb-8 max-w-xl">
+              <p className="text-base sm:text-xl leading-relaxed text-stone-300/90 mb-8 max-w-xl">
                 Seu conselheiro amoroso guiado por IA. Decifre prints, reverta términos e encontre as palavras exatas para virar o jogo com confiança.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto mb-12">
                 <Link
                   href="/sign-up?redirect_url=/chat/lilith?action=analise"
-                  className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#8f1d42] via-[#a8224e] to-[#c43b5a] hover:from-[#a1224b] hover:to-[#d44464] text-white font-bold text-sm sm:text-base shadow-lg shadow-rose-950/40 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                  className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#8f1d42] via-[#a8224e] to-[#c43b5a] text-white font-bold text-sm sm:text-base shadow-lg shadow-rose-950/40 transition-all flex items-center justify-center gap-2"
                 >
                   <span>Começar agora</span>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -297,16 +315,17 @@ export default function Home() {
 
                 <Link
                   href="/sign-in?redirect_url=/chat/lilith?action=analise"
-                  className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white dark:bg-white/[0.05] hover:bg-stone-100 dark:hover:bg-white/[0.1] border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100 font-semibold text-sm sm:text-base transition-all text-center"
+                  className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-stone-100 font-semibold text-sm sm:text-base transition-all text-center"
                 >
                   Já tenho conta
                 </Link>
               </div>
             </div>
 
-            <div className="w-full max-w-2xl bg-white dark:bg-[#1a0d14] rounded-3xl border border-stone-200/80 dark:border-rose-300/15 shadow-2xl overflow-hidden mb-16">
-              <div className="px-4 sm:px-6 py-3.5 bg-stone-50/90 dark:bg-[#14090f] border-b border-stone-200/70 dark:border-white/[0.07] flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-xs font-semibold text-stone-700 dark:text-stone-200">
+            {/* Cartão Interativo de Demonstração */}
+            <div className="w-full max-w-2xl bg-[#1a0d14] rounded-3xl border border-rose-300/15 shadow-2xl overflow-hidden mb-14">
+              <div className="px-4 sm:px-6 py-3.5 bg-[#14090f] border-b border-white/[0.07] flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-stone-200">
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                   <span>Uma conversa, novas possibilidades</span>
                 </div>
@@ -319,8 +338,8 @@ export default function Home() {
                       onClick={() => setActiveExampleIdx(idx)}
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
                         activeExampleIdx === idx
-                          ? "bg-rose-900 dark:bg-rose-600 text-white shadow-sm"
-                          : "text-stone-500 dark:text-stone-400 hover:bg-stone-200/60 dark:hover:bg-white/5"
+                          ? "bg-rose-600 text-white shadow-sm"
+                          : "text-stone-400 hover:bg-white/5"
                       }`}
                     >
                       {ex.aba}
@@ -330,32 +349,32 @@ export default function Home() {
               </div>
 
               <div className="p-5 sm:p-7 space-y-5">
-                <div className="max-w-md rounded-2xl rounded-tl-sm bg-stone-100 dark:bg-[#24121b] border border-stone-200/60 dark:border-white/[0.06] p-4">
-                  <span className="text-[11px] font-medium text-stone-400 dark:text-stone-400 block mb-1">
+                <div className="max-w-md rounded-2xl rounded-tl-sm bg-[#24121b] border border-white/[0.06] p-4">
+                  <span className="text-[11px] font-medium text-stone-400 block mb-1">
                     Mensagem ou Perfil Analisado
                   </span>
-                  <p className="text-sm sm:text-base text-stone-800 dark:text-stone-100">
+                  <p className="text-sm sm:text-base text-stone-100">
                     &ldquo;{currentExample.recebida}&rdquo;
                   </p>
                 </div>
 
                 <div className="pl-4 border-l-2 border-rose-500 space-y-1.5">
-                  <span className="text-xs font-bold text-rose-600 dark:text-rose-400 block">
+                  <span className="text-xs font-bold text-rose-400 block">
                     ✦ {currentExample.tag} • Sugestão da Lilith
                   </span>
-                  <p className="text-base sm:text-lg font-medium text-stone-900 dark:text-white leading-snug">
+                  <p className="text-base sm:text-lg font-medium text-white leading-snug">
                     {currentExample.resposta}
                   </p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 pt-1">
+                  <p className="text-xs text-stone-400 pt-1">
                     {currentExample.analise}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-stone-100 dark:border-white/[0.07] flex items-center justify-between text-[11px] text-stone-400 dark:text-stone-500">
+                <div className="pt-3 border-t border-white/[0.07] flex items-center justify-between text-[11px] text-stone-400">
                   <span>{currentExample.estilo}</span>
                   <Link
                     href="/sign-up?redirect_url=/chat/lilith?action=analise"
-                    className="text-rose-600 dark:text-rose-400 font-semibold hover:underline"
+                    className="text-rose-400 font-semibold hover:underline"
                   >
                     Testar com meu print →
                   </Link>
@@ -363,53 +382,61 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 py-10 border-y border-stone-200/70 dark:border-white/[0.08] mb-16">
+            {/* 3 Pilares com ícone alinhado ao lado do título */}
+            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 py-10 border-y border-white/[0.08] mb-14">
               <div className="space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-lg font-bold text-white">
+                    Respostas estratégicas
+                  </h2>
                 </div>
-                <h2 className="text-lg font-bold text-stone-900 dark:text-white">
-                  Respostas estratégicas
-                </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
+                <p className="text-sm text-stone-400 leading-relaxed">
                   Sugestões humanas, magnéticas e sem parecer textão pronto ou carência.
                 </p>
               </div>
 
               <div className="space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                  </svg>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-lg font-bold text-white">
+                    Reversão e Reconquista
+                  </h2>
                 </div>
-                <h2 className="text-lg font-bold text-stone-900 dark:text-white">
-                  Reversão e Reconquista
-                </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
+                <p className="text-sm text-stone-400 leading-relaxed">
                   Diagnóstico cirúrgico para términos, afastamentos e aplicação do Contato Zero.
                 </p>
               </div>
 
               <div className="space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-lg font-bold text-white">
+                    Perfil Magnético & Bio
+                  </h2>
                 </div>
-                <h2 className="text-lg font-bold text-stone-900 dark:text-white">
-                  Perfil Magnético & Bio
-                </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
+                <p className="text-sm text-stone-400 leading-relaxed">
                   Avaliação de fotos e criação de bios magnéticas para Tinder, Bumble e Instagram.
                 </p>
               </div>
             </div>
 
-            <div className="w-full mb-16">
+            {/* Módulos Deslogado */}
+            <div className="w-full mb-14">
               <div className="text-center mb-8">
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-white">
+                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">
                   Escolha o módulo ideal para o seu momento
                 </h2>
               </div>
@@ -417,78 +444,83 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <Link
                   href="/chat/reconquista"
-                  className="md:col-span-2 bg-gradient-to-br from-rose-50 to-orange-50 dark:from-[#2b0b18] dark:via-[#220913] dark:to-[#1c0a12] p-7 sm:p-8 rounded-3xl border border-rose-200 dark:border-rose-400/30 hover:border-rose-400/60 shadow-md hover:-translate-y-0.5 transition-all flex flex-col items-start relative overflow-hidden group"
+                  className="md:col-span-2 bg-gradient-to-br from-[#2b0b18] via-[#220913] to-[#1c0a12] p-6 sm:p-8 rounded-3xl border border-rose-400/30 hover:border-rose-400/60 shadow-md transition-all flex flex-col gap-3.5 group"
                 >
-                  <div className="absolute top-6 right-6 bg-rose-900 dark:bg-rose-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                    Alta Eficácia • Urgente
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-11 h-11 rounded-2xl bg-rose-500/20 border border-rose-400/30 flex items-center justify-center shrink-0 text-rose-300">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-serif font-bold text-white leading-snug">
+                        Operação Reconquista: Reverta o Término
+                      </h3>
+                    </div>
+                    <span className="bg-rose-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                      Alta Eficácia • Urgente
+                    </span>
                   </div>
-                  <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-400/30 flex items-center justify-center mb-4 text-rose-600 dark:text-rose-300">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-rose-950 dark:text-white mb-2">
-                    Operação Reconquista: Reverta o Término
-                  </h3>
-                  <p className="text-sm text-rose-900/80 dark:text-rose-100/85 leading-relaxed max-w-2xl">
+                  <p className="text-sm text-rose-100/85 leading-relaxed max-w-2xl">
                     Uma mensagem errada agora pode fechar essa porta para sempre. Ative o protocolo comportamental de Contato Zero, reconstrua seu valor e descubra a abordagem exata para reativar a saudade.
                   </p>
                 </Link>
 
                 <Link
                   href="/chat/lilith?action=instagram"
-                  className="bg-white dark:bg-white/[0.03] p-6 rounded-3xl border border-stone-200/70 dark:border-white/[0.07] hover:border-rose-500/30 transition-all flex flex-col items-start"
+                  className="bg-white/[0.03] p-6 rounded-3xl border border-white/[0.08] hover:border-rose-500/30 transition-all flex flex-col items-start"
                 >
-                  <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-1.5">
+                  <h3 className="text-lg font-bold text-white mb-1.5">
                     Radar no Instagram & Apps
                   </h3>
-                  <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
                     Aberturas magnéticas para Stories, Direct, Tinder e Bumble, além de avaliação de fotos e bio.
                   </p>
                 </Link>
 
                 <Link
                   href="/chat/mistico"
-                  className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/50 dark:to-indigo-950/40 p-6 rounded-3xl border border-purple-200 dark:border-purple-400/25 hover:border-purple-400/50 transition-all flex flex-col items-start"
+                  className="bg-gradient-to-br from-purple-950/50 to-indigo-950/40 p-6 rounded-3xl border border-purple-400/25 hover:border-purple-400/50 transition-all flex flex-col items-start"
                 >
                   <div className="flex items-center justify-between w-full mb-1.5">
-                    <h3 className="text-lg font-bold text-purple-950 dark:text-purple-100">
+                    <h3 className="text-lg font-bold text-purple-100">
                       Mapa Mental dos Signos & Oráculo
                     </h3>
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300">
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
                       Signos & Tarot
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-purple-900/80 dark:text-purple-200/80 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-purple-200/80 leading-relaxed">
                     Compatibilidade astral, ponto fraco emocional do signo e leitura de cartas para o relacionamento.
                   </p>
                 </Link>
               </div>
             </div>
 
-            <div className="w-full mb-16">
-              <h2 className="text-2xl font-serif font-bold text-center text-stone-900 dark:text-white mb-8">
+            {/* Depoimentos */}
+            <div className="w-full mb-14">
+              <h2 className="text-2xl font-serif font-bold text-center text-white mb-8">
                 Quem seguiu a estratégia, virou o jogo
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {DEPOIMENTOS.map((dep, idx) => (
                   <div
                     key={idx}
-                    className="bg-white dark:bg-white/[0.03] p-6 rounded-3xl border border-stone-200/70 dark:border-white/[0.07] flex flex-col justify-between"
+                    className="bg-white/[0.03] p-6 rounded-3xl border border-white/[0.08] flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-amber-400 text-xs">★★★★★</span>
-                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-300">
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300">
                           {dep.modulo}
                         </span>
                       </div>
-                      <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed italic mb-4">
+                      <p className="text-xs sm:text-sm text-stone-300 leading-relaxed italic mb-4">
                         &ldquo;{dep.texto}&rdquo;
                       </p>
                     </div>
-                    <div className="text-[11px] text-stone-400 dark:text-stone-500 pt-3 border-t border-stone-100 dark:border-white/[0.06] flex justify-between">
-                      <strong className="text-stone-700 dark:text-stone-200">{dep.nome}</strong>
+                    <div className="text-[11px] text-stone-400 pt-3 border-t border-white/[0.06] flex justify-between">
+                      <strong className="text-stone-200">{dep.nome}</strong>
                       <span>{dep.cidade}</span>
                     </div>
                   </div>
@@ -496,12 +528,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="w-full rounded-3xl bg-white dark:bg-[#1a0d14] border border-stone-200/80 dark:border-rose-300/15 p-7 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg mb-8">
+            {/* Banner Final */}
+            <div className="w-full rounded-3xl bg-[#1a0d14] border border-rose-300/15 p-7 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg mb-8">
               <div className="text-center sm:text-left">
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-white mb-1.5">
+                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-1.5">
                   Uma boa conversa muda tudo.
                 </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400">
+                <p className="text-sm text-stone-400">
                   A LilithLove ajuda você a encontrar a resposta exata e retomar o controle emocional.
                 </p>
               </div>
@@ -512,48 +545,45 @@ export default function Home() {
                 Começar agora →
               </Link>
             </div>
-
-            <div className="w-full">
-              <AdBanner format="rectangle" slotId="HOME_BOTTOM_SLOT" />
-            </div>
           </div>
         </div>
       )}
 
-      <footer className="w-full border-t border-stone-200 dark:border-white/10 bg-white/60 dark:bg-[#10070b] py-10 px-6 text-xs text-stone-500 dark:text-stone-400">
+      {/* RODAPÉ INSTITUCIONAL */}
+      <footer className="w-full border-t border-white/10 bg-[#10070b] py-10 px-6 text-xs text-stone-400">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
             <div className="space-y-1.5">
-              <p className="font-serif font-bold text-sm text-stone-800 dark:text-white">LilithLove</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="font-serif font-bold text-sm text-white">LilithLove</p>
+              <p className="text-xs text-stone-400">
                 Confiança para responder. Estratégia para reconquistar.
               </p>
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 pt-1">
+              <p className="text-[11px] text-emerald-400 pt-1">
                 🔒 Pagamento seguro via PIX e Cartão • Cakto
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <p className="font-bold text-stone-800 dark:text-stone-200">Contato e suporte</p>
-              <p className="text-rose-600 dark:text-rose-400 font-medium">suporte@lilithlove.site</p>
+              <p className="font-bold text-stone-200">Contato e suporte</p>
+              <p className="text-rose-400 font-medium">suporte@lilithlove.site</p>
               <p className="text-[11px] opacity-80">
                 Respondemos em até 24h úteis. Dúvidas sobre assinatura ou acesso? Fale com a gente.
               </p>
             </div>
 
             <div className="flex flex-col space-y-1.5 font-medium">
-              <Link href="/sobre" className="hover:text-rose-500 transition-colors">Como Funciona</Link>
-              <Link href="/planos" className="hover:text-rose-500 transition-colors">Planos VIP</Link>
+              <Link href="/sobre" className="hover:text-rose-400 transition-colors">Como Funciona</Link>
+              <Link href="/planos" className="hover:text-rose-400 transition-colors">Planos VIP</Link>
               {tracksOpen && (
-                <Link href="/trilhas" className="hover:text-rose-500 transition-colors">Aulas & Guias</Link>
+                <Link href="/trilhas" className="hover:text-rose-400 transition-colors">Aulas & Guias</Link>
               )}
-              <Link href="/termos" className="hover:text-rose-500 transition-colors">Termos de Uso</Link>
-              <Link href="/privacidade" className="hover:text-rose-500 transition-colors">Política de Privacidade</Link>
-              <Link href="/contato" className="hover:text-rose-500 transition-colors">Fale Conosco</Link>
+              <Link href="/termos" className="hover:text-rose-400 transition-colors">Termos de Uso</Link>
+              <Link href="/privacidade" className="hover:text-rose-400 transition-colors">Política de Privacidade</Link>
+              <Link href="/contato" className="hover:text-rose-400 transition-colors">Fale Conosco</Link>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-stone-200/70 dark:border-white/5 text-center space-y-2">
+          <div className="pt-6 border-t border-white/5 text-center space-y-2">
             <p className="max-w-3xl mx-auto leading-relaxed text-[11px] opacity-75">
               <strong>Aviso Legal e Isenção de Responsabilidade:</strong> A LilithLove utiliza inteligência artificial para fornecer análises comportamentais e sugestões estratégicas. As orientações não substituem acompanhamento psicológico ou médico profissional. Como relacionamentos dependem do livre-arbítrio de terceiros, não garantimos 100% de eficácia ou resultados específicos. Exclusivo para maiores de 18 anos.
             </p>
