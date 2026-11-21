@@ -9,16 +9,19 @@ import {
   RewardAdPluginEvents,
 } from "@capacitor-community/admob";
 
+// ============================================================================
+// BLOCOS DE ANÚNCIO ADMOB (IDs OFICIAIS DE TESTE DO GOOGLE)
+// ============================================================================
 export const ADMOB_IDS = {
-  BANNER_BOTTOM: "ca-app-pub-3940256099942544/6300978111",      // Banner Adaptativo Rodapé
-  MREC_INLINE: "ca-app-pub-3940256099942544/6300978111",        // Bloco Inline 300x250
+  BANNER_BOTTOM: "ca-app-pub-3940256099942544/6300978111",      // Banner Rodapé (320x50)
   INTERSTITIAL_FICHA: "ca-app-pub-3940256099942544/1033173712", // Intersticial Pós-Ficha (1x/sessão)
   REWARDED_VIDEO: "ca-app-pub-3940256099942544/5224354917",     // Vídeo Premiado (+Mensagens)
 };
 
 let initialized = false;
 let initPromise: Promise<void> | null = null;
-let activeBannerType: "none" | "bottom" | "mrec" = "none";
+let bannerVisible = false;
+let bannerBusy = false;
 
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
@@ -26,29 +29,33 @@ export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform() || platform === "android" || platform === "ios";
 }
 
-export async function initAdMob(): Promise<void> {
-  if (!isNativeApp()) return;
-  if (initialized) return;
-  if (initPromise) return initPromise;
+export async function initAdMob(): Promise<boolean> {
+  if (!isNativeApp()) return false;
+  if (initialized) return true;
 
-  initPromise = (async () => {
-    try {
-      await AdMob.initialize({
-        initializeForTesting: true,
-      });
-      initialized = true;
-    } catch (err) {
-      console.error("[AdMob] Falha no initialize:", err);
-    } finally {
-      initPromise = null;
-    }
-  })();
+  if (!initPromise) {
+    initPromise = (async () => {
+      try {
+        await AdMob.initialize({
+          initializeForTesting: true,
+        });
+        initialized = true;
+      } catch (err) {
+        console.error("[AdMob] Erro ao inicializar:", err);
+      } finally {
+        initPromise = null;
+      }
+    })();
+  }
 
-  return initPromise;
+  await initPromise;
+  return initialized;
 }
 
 export async function removeAnyBanner(): Promise<void> {
-  if (!isNativeApp() || activeBannerType === "none") return;
+  if (!isNativeApp()) return;
+  if (!bannerVisible && !bannerBusy) return;
+
   try {
     await AdMob.removeBanner();
   } catch (_) {
@@ -56,70 +63,55 @@ export async function removeAnyBanner(): Promise<void> {
       await AdMob.hideBanner();
     } catch (_) {}
   }
-  activeBannerType = "none";
+
+  bannerVisible = false;
   if (typeof document !== "undefined") {
     document.body.style.paddingBottom = "0px";
   }
 }
 
+// 1. BANNER ÚNICO FIXO NO RODAPÉ (SEM CONFLITO DE SOBREPOSIÇÃO)
 export async function showGlobalBottomBanner(): Promise<void> {
   if (!isNativeApp()) return;
-  if (activeBannerType === "bottom") return;
+  if (bannerVisible || bannerBusy) return;
 
-  await initAdMob();
-  if (activeBannerType === "mrec") {
-    await removeAnyBanner();
-  }
-
+  bannerBusy = true;
   try {
+    const ok = await initAdMob();
+    if (!ok) return;
+
     const options: BannerAdOptions = {
       adId: ADMOB_IDS.BANNER_BOTTOM,
-      adSize: BannerAdSize.ADAPTIVE_BANNER,
+      adSize: BannerAdSize.BANNER,
       position: BannerAdPosition.BOTTOM_CENTER,
       margin: 0,
       isTesting: true,
     };
+
     await AdMob.showBanner(options);
-    activeBannerType = "bottom";
+    bannerVisible = true;
+
     if (typeof document !== "undefined") {
-      document.body.style.paddingBottom = "62px";
+      document.body.style.paddingBottom = "56px";
     }
   } catch (err) {
-    console.error("[AdMob] Erro Banner Bottom:", err);
+    bannerVisible = false;
+    console.error("[AdMob] Falha ao exibir banner:", err);
+  } finally {
+    bannerBusy = false;
   }
 }
 
-export async function showInlineMrecBanner(marginTop = 180): Promise<void> {
-  if (!isNativeApp()) return;
-  await initAdMob();
-
-  if (activeBannerType !== "none") {
-    await removeAnyBanner();
-  }
-
-  try {
-    const safeTop = Math.max(72, Math.min(marginTop, 360));
-    const options: BannerAdOptions = {
-      adId: ADMOB_IDS.MREC_INLINE,
-      adSize: BannerAdSize.MEDIUM_RECTANGLE,
-      position: BannerAdPosition.TOP_CENTER,
-      margin: safeTop,
-      isTesting: true,
-    };
-    await AdMob.showBanner(options);
-    activeBannerType = "mrec";
-  } catch (err) {
-    console.error("[AdMob] Erro MREC Inline:", err);
-  }
-}
-
+// 2. INTERSTICIAL PÓS-ENVIO DA FICHA (1x POR SESSÃO)
 export async function showPostFormInterstitialOnce(): Promise<void> {
   if (!isNativeApp()) return;
   if (typeof window !== "undefined" && sessionStorage.getItem("lilith_interstitial_shown") === "true") {
     return;
   }
 
-  await initAdMob();
+  const ok = await initAdMob();
+  if (!ok) return;
+
   try {
     sessionStorage.setItem("lilith_interstitial_shown", "true");
     const options: AdOptions = {
@@ -133,9 +125,12 @@ export async function showPostFormInterstitialOnce(): Promise<void> {
   }
 }
 
+// 3. VÍDEO PREMIADO (+MENSAGENS) COM RETORNO GARANTIDO
 export async function showNativeRewardedAd(): Promise<"rewarded" | "closed" | "unavailable"> {
   if (!isNativeApp()) return "unavailable";
-  await initAdMob();
+
+  const ok = await initAdMob();
+  if (!ok) return "unavailable";
 
   return new Promise(async (resolve) => {
     let settled = false;
@@ -154,7 +149,7 @@ export async function showNativeRewardedAd(): Promise<"rewarded" | "closed" | "u
 
     const safetyTimer = setTimeout(() => {
       finish("unavailable");
-    }, 6000);
+    }, 8000);
 
     const rewardListener = await AdMob.addListener(
       RewardAdPluginEvents.Rewarded,
@@ -192,6 +187,7 @@ export async function showNativeRewardedAd(): Promise<"rewarded" | "closed" | "u
       await AdMob.prepareRewardVideoAd(options);
       await AdMob.showRewardVideoAd();
     } catch (err) {
+      console.error("[AdMob] Erro Vídeo Premiado:", err);
       finish("unavailable");
     }
   });

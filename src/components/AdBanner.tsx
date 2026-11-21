@@ -7,7 +7,6 @@ import {
   isNativeApp,
   showGlobalBottomBanner,
   removeAnyBanner,
-  showInlineMrecBanner,
 } from "@/lib/admob";
 
 interface AdBannerProps {
@@ -25,7 +24,7 @@ export default function AdBanner({
   const { userId, isLoaded } = useAuth();
   const isChatRoute = pathname?.startsWith("/chat");
 
-  const [isPremium, setIsPremium] = useState(true);
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const [nativeMode, setNativeMode] = useState(false);
   const [adConfig, setAdConfig] = useState<{
     adsEnabled: boolean;
@@ -35,13 +34,21 @@ export default function AdBanner({
     adsenseModalSlot: string;
     customBannerHtml: string;
     customModalHtml: string;
-  } | null>(null);
+  }>({
+    adsEnabled: true,
+    adsProvider: "adsense",
+    adsenseClientId: process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "",
+    adsenseBannerSlot: "",
+    adsenseModalSlot: "",
+    customBannerHtml: "",
+    customModalHtml: "",
+  });
 
   const customContainerRef = useRef<HTMLDivElement>(null);
-  const mrecBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setNativeMode(isNativeApp());
+    const isNative = isNativeApp();
+    setNativeMode(isNative);
 
     if (!isLoaded) return;
 
@@ -51,25 +58,23 @@ export default function AdBanner({
       return;
     }
 
-    const checkVip = async () => {
-      if (typeof window !== "undefined" && localStorage.getItem("lilith_vip_test") === "true") {
-        setIsPremium(true);
-        return;
-      }
-      if (forceShow) {
-        setIsPremium(false);
-        return;
-      }
-      try {
-        const r = await fetch("/api/status");
-        const d = await r.json();
-        setIsPremium(Boolean(d?.isPremium));
-      } catch (_) {
-        setIsPremium(false);
-      }
-    };
+    const checkVipAndConfig = async () => {
+      let userIsVip = false;
 
-    const loadConfig = async () => {
+      if (typeof window !== "undefined" && localStorage.getItem("lilith_vip_test") === "true") {
+        userIsVip = true;
+      } else if (!forceShow) {
+        try {
+          const r = await fetch("/api/status");
+          const d = await r.json();
+          userIsVip = Boolean(d?.isPremium);
+        } catch (_) {
+          userIsVip = false;
+        }
+      }
+
+      setIsPremium(userIsVip);
+
       try {
         const r = await fetch("/api/affiliate/config");
         const cfg = await r.json();
@@ -85,33 +90,28 @@ export default function AdBanner({
       } catch (_) {}
     };
 
-    checkVip();
-    loadConfig();
+    checkVipAndConfig();
   }, [forceShow, pathname, userId, isLoaded]);
 
+  // Gerencia o Banner Nativo único no rodapé do App Android
   useEffect(() => {
-    if (!nativeMode || !adConfig || !adConfig.adsEnabled) return;
-    if ((!userId && !forceShow) || (isPremium && !forceShow)) {
+    if (!nativeMode || !isLoaded || isPremium === null) return;
+
+    if ((!userId && !forceShow) || (isPremium && !forceShow) || !adConfig.adsEnabled) {
       removeAnyBanner();
       return;
     }
 
-    if (format === "rectangle" && mrecBoxRef.current) {
-      const rect = mrecBoxRef.current.getBoundingClientRect();
-      const topPos = Math.max(80, Math.round(rect.top));
-      showInlineMrecBanner(topPos);
-      return () => {
-        showGlobalBottomBanner();
-      };
-    } else {
+    if (format === "horizontal") {
       showGlobalBottomBanner();
     }
-  }, [nativeMode, adConfig, isPremium, forceShow, format, pathname, userId]);
+  }, [nativeMode, isLoaded, isPremium, userId, forceShow, adConfig.adsEnabled, format, pathname]);
 
+  // Carregamento Web (AdSense / HTML Customizado)
   useEffect(() => {
     if (nativeMode) return;
-    if (!adConfig || !adConfig.adsEnabled) return;
-    if ((!userId && !forceShow) || (isPremium && !forceShow)) return;
+    if (!adConfig.adsEnabled) return;
+    if ((!userId && !forceShow) || (isPremium !== false && !forceShow)) return;
 
     if (adConfig.adsProvider === "adsense" && adConfig.adsenseClientId) {
       if (!isChatRoute || forceShow) {
@@ -132,8 +132,8 @@ export default function AdBanner({
 
   useEffect(() => {
     if (nativeMode) return;
-    if (!adConfig || !adConfig.adsEnabled || adConfig.adsProvider !== "custom") return;
-    if ((!userId && !forceShow) || (isPremium && !forceShow)) return;
+    if (!adConfig.adsEnabled || adConfig.adsProvider !== "custom") return;
+    if ((!userId && !forceShow) || (isPremium !== false && !forceShow)) return;
 
     const rawHtml =
       format === "rectangle"
@@ -150,26 +150,23 @@ export default function AdBanner({
   }, [nativeMode, adConfig, isPremium, forceShow, format, userId]);
 
   if (!isLoaded || (!userId && !forceShow)) return null;
-  if (!adConfig || !adConfig.adsEnabled) return null;
-  if (isPremium && !forceShow) return null;
+  if (!adConfig.adsEnabled) return null;
+  if (isPremium !== false && !forceShow) return null;
 
-  if (nativeMode) {
-    if (format === "rectangle") {
-      return (
-        <div
-          ref={mrecBoxRef}
-          className="w-full my-4 flex flex-col items-center justify-center min-h-[260px] rounded-2xl bg-white/[0.02] border border-white/[0.06]"
-        >
-          <span className="text-[9px] uppercase tracking-widest text-stone-500">
-            Patrocinado • LilithLove
-          </span>
-        </div>
-      );
-    }
+  // No App Android, o banner horizontal é nativo no rodapé (não ocupa caixa vazia no HTML)
+  if (nativeMode && format === "horizontal") {
     return null;
   }
 
-  if (isChatRoute && !forceShow) return null;
+  // Na Web, oculta o banner global dentro dos chats
+  if (!nativeMode && isChatRoute && !forceShow) {
+    return null;
+  }
+
+  // No App Android, se não for o modal de recompensa (forceShow), não renderiza caixa vazia no meio da tela
+  if (nativeMode && !forceShow) {
+    return null;
+  }
 
   const activeSlot =
     format === "rectangle"
