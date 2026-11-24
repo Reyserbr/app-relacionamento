@@ -502,8 +502,6 @@ export default function ReconquistaChat() {
     await sendRawMessage(resumo, attachments);
   };
 
-  const firstAssistantId = messages.find((msg) => msg.role === "assistant")?.id;
-
   return (
     <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#1a0b12] font-sans overflow-hidden transition-colors">
       {isSidebarOpen && (
@@ -789,7 +787,7 @@ export default function ReconquistaChat() {
                     attachment={m.attachment}
                     attachments={m.attachments}
                   />
-                  {m.id === firstAssistantId && !isPremium && (
+                  {!isPremium && (
                     <AdBanner format="rectangle" slotId="RECONQUISTA_CHAT_INLINE" />
                   )}
                 </div>

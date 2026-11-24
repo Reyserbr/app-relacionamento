@@ -786,8 +786,6 @@ export default function LilithChat() {
     await sendRawMessage(promptMontado, attachments);
   };
 
-  const firstAssistantId = messages.find((msg) => msg.role === "assistant")?.id;
-
   return (
     <div className="fixed inset-0 flex h-[100dvh] w-full bg-[#faf7f5] dark:bg-[#1a0b12] font-sans overflow-hidden transition-colors">
       {isSidebarOpen && (
@@ -1079,8 +1077,8 @@ export default function LilithChat() {
                     attachment={m.attachment}
                     attachments={m.attachments}
                   />
-                  {/* Bloco Inline 300x250 ("Nativo") após a 1ª resposta da IA */}
-                  {m.id === firstAssistantId && !isPremium && (
+                  {/* Bloco Inline 300x250 ("Nativo") após cada resposta da IA */}
+                  {!isPremium && (
                     <AdBanner format="rectangle" slotId="LILITH_CHAT_INLINE" />
                   )}
                 </div>
