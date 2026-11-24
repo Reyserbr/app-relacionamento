@@ -1,19 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
+import { isNativeApp } from "@/lib/admob";
 
 export default function ContatoPage() {
+  const [supportEmail, setSupportEmail] = useState("suporte@lilithlove.site");
+  const [nativeMode, setNativeMode] = useState(false);
+  const [hideAndroidCheckout, setHideAndroidCheckout] = useState(true);
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [assunto, setAssunto] = useState("Dúvida sobre Assinatura VIP");
   const [mensagem, setMensagem] = useState("");
   const [enviado, setEnviado] = useState(false);
 
+  useEffect(() => {
+    const isNative = isNativeApp();
+    setNativeMode(isNative);
+
+    fetch("/api/affiliate/config")
+      .then((r) => r.json())
+      .then((cfg) => {
+        if (typeof cfg?.supportEmail === "string" && cfg.supportEmail.trim()) {
+          setSupportEmail(cfg.supportEmail.trim());
+        }
+        const shouldHide =
+          typeof cfg?.hideAndroidCheckout === "boolean" ? cfg.hideAndroidCheckout : true;
+        setHideAndroidCheckout(shouldHide);
+
+        if (isNative && shouldHide) {
+          setAssunto("Suporte Técnico");
+        }
+      })
+      .catch(() => {
+        if (isNative) setAssunto("Suporte Técnico");
+      });
+  }, []);
+
+  const hideSalesOnAndroid = nativeMode && hideAndroidCheckout;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome.trim() || !email.trim() || !mensagem.trim()) return;
+
+    const subject = encodeURIComponent(`[LilithLove] ${assunto} — ${nome.trim()}`);
+    const body = encodeURIComponent(
+      `Nome: ${nome.trim()}\nE-mail da conta: ${email.trim()}\nAssunto: ${assunto}\n\nMensagem:\n${mensagem.trim()}`
+    );
+    window.location.href = `mailto:${supportEmail}?subject=${subject}&body=${body}`;
+
     setEnviado(true);
     setNome("");
     setEmail("");
@@ -33,7 +70,9 @@ export default function ContatoPage() {
             Fale Conosco
           </h1>
           <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 max-w-xl mx-auto">
-            Precisa de ajuda com sua assinatura Premium, parceria de afiliados ou dúvidas sobre a plataforma? Envie sua mensagem abaixo.
+            {hideSalesOnAndroid
+              ? "Precisa de ajuda com sua conta, suporte técnico ou dúvidas sobre o aplicativo? Envie sua mensagem abaixo."
+              : "Precisa de ajuda com sua assinatura Premium, parceria de afiliados ou dúvidas sobre a plataforma? Envie sua mensagem abaixo."}
           </p>
         </div>
 
@@ -44,10 +83,11 @@ export default function ContatoPage() {
                 ✓
               </div>
               <h2 className="text-xl font-serif font-bold text-stone-900 dark:text-white">
-                Mensagem Recebida com Sucesso!
+                Mensagem Preparada com Sucesso!
               </h2>
               <p className="text-sm text-stone-600 dark:text-stone-300 max-w-md mx-auto">
-                Nossa equipe de suporte analisará sua solicitação e responderá no e-mail informado em até 24 horas úteis.
+                Caso seu aplicativo de e-mail não tenha aberto automaticamente, envie sua mensagem diretamente para{" "}
+                <strong className="text-rose-600 dark:text-rose-400">{supportEmail}</strong>. Respondemos em até 24 horas úteis.
               </p>
               <button
                 type="button"
@@ -97,8 +137,12 @@ export default function ContatoPage() {
                   onChange={(e) => setAssunto(e.target.value)}
                   className="w-full rounded-xl px-3.5 py-2.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-800 dark:text-stone-100"
                 >
-                  <option value="Dúvida sobre Assinatura VIP">Dúvida sobre Assinatura VIP / Pagamento</option>
-                  <option value="Programa de Afiliados">Programa de Afiliados</option>
+                  {!hideSalesOnAndroid && (
+                    <option value="Dúvida sobre Assinatura VIP">Dúvida sobre Assinatura VIP / Pagamento</option>
+                  )}
+                  {!hideSalesOnAndroid && (
+                    <option value="Programa de Afiliados">Programa de Afiliados</option>
+                  )}
                   <option value="Suporte Técnico">Suporte Técnico</option>
                   <option value="Privacidade e Exclusão de Dados">Privacidade e Exclusão de Dados (LGPD)</option>
                   <option value="Outros">Outros Assuntos</option>
@@ -130,13 +174,20 @@ export default function ContatoPage() {
         </div>
 
         <div className="mt-8 text-center text-xs text-stone-500 dark:text-stone-400 space-y-2">
-          <p>E-mail direto de suporte: <strong>suporte@lilithlove.site</strong></p>
-          <div className="flex justify-center gap-4 pt-2 font-semibold text-rose-700 dark:text-rose-400">
+          <p>
+            E-mail direto de suporte:{" "}
+            <a href={`mailto:${supportEmail}`} className="font-bold text-rose-600 dark:text-rose-400 hover:underline">
+              {supportEmail}
+            </a>
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 pt-2 font-semibold text-rose-700 dark:text-rose-400">
             <Link href="/" className="hover:underline">Início</Link>
             <span>•</span>
             <Link href="/termos" className="hover:underline">Termos de Uso</Link>
             <span>•</span>
             <Link href="/privacidade" className="hover:underline">Política de Privacidade</Link>
+            <span>•</span>
+            <Link href="/excluir-conta" className="hover:underline">Excluir Conta</Link>
           </div>
         </div>
       </div>
