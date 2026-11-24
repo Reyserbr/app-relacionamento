@@ -11,6 +11,7 @@ export default function Navbar() {
   const { userId } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [nativeMode, setNativeMode] = useState(false);
+  const [hideAndroidCheckout, setHideAndroidCheckout] = useState(true);
   const [showAffiliateMenu, setShowAffiliateMenu] = useState(false);
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
   const [showTracksMenu, setShowTracksMenu] = useState(false);
@@ -26,6 +27,9 @@ export default function Navbar() {
     fetch("/api/affiliate/config")
       .then((r) => r.json())
       .then((cfg) => {
+        if (typeof cfg?.hideAndroidCheckout === "boolean") {
+          setHideAndroidCheckout(cfg.hideAndroidCheckout);
+        }
         if (cfg?.communityOpen) setShowCommunityMenu(true);
         if (cfg?.tracksOpen) setShowTracksMenu(true);
         if (userId) {
@@ -50,6 +54,8 @@ export default function Navbar() {
         .catch(() => {});
     }
   }, [userId]);
+
+  const hideSalesOnAndroid = nativeMode && hideAndroidCheckout;
 
   return (
     <>
@@ -117,15 +123,17 @@ export default function Navbar() {
                 <span>Premium</span>
               </span>
             ) : (
-              <Link
-                href="/planos"
-                className="text-sm font-medium px-2.5 py-1.5 rounded-lg text-stone-300 hover:bg-white/[0.05] hover:text-rose-300 transition-all whitespace-nowrap"
-              >
-                Planos
-              </Link>
+              !hideSalesOnAndroid && (
+                <Link
+                  href="/planos"
+                  className="text-sm font-medium px-2.5 py-1.5 rounded-lg text-stone-300 hover:bg-white/[0.05] hover:text-rose-300 transition-all whitespace-nowrap"
+                >
+                  Planos
+                </Link>
+              )
             )}
 
-            {userId && showAffiliateMenu && (
+            {userId && showAffiliateMenu && !hideSalesOnAndroid && (
               <Link
                 href="/dashboard/afiliado"
                 className="text-sm font-medium px-2.5 py-1.5 rounded-lg text-stone-300 hover:bg-white/[0.05] hover:text-rose-300 transition-all whitespace-nowrap"
@@ -160,12 +168,14 @@ export default function Navbar() {
                 <span>VIP</span>
               </span>
             ) : (
-              <Link
-                href="/planos"
-                className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-500/15 text-rose-300 whitespace-nowrap"
-              >
-                Planos
-              </Link>
+              !hideSalesOnAndroid && (
+                <Link
+                  href="/planos"
+                  className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-500/15 text-rose-300 whitespace-nowrap"
+                >
+                  Planos
+                </Link>
+              )
             )}
 
             {userId ? (
@@ -242,7 +252,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            {userId && showAffiliateMenu && (
+            {userId && showAffiliateMenu && !hideSalesOnAndroid && (
               <Link
                 href="/dashboard/afiliado"
                 onClick={() => setMobileMenuOpen(false)}
@@ -251,6 +261,23 @@ export default function Navbar() {
                 Painel de Afiliados
               </Link>
             )}
+
+            <div className="pt-2.5 mt-2 border-t border-white/10 flex items-center justify-between px-3.5 text-xs text-stone-400">
+              <Link
+                href="/privacidade"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-rose-300 transition-colors"
+              >
+                Privacidade
+              </Link>
+              <Link
+                href="/excluir-conta"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-rose-300 transition-colors"
+              >
+                Excluir Conta
+              </Link>
+            </div>
 
             {!nativeMode && (
               <div className="pt-2.5 mt-2 border-t border-white/10 flex items-center px-1">
@@ -261,7 +288,7 @@ export default function Navbar() {
         )}
       </header>
 
-      <SalesNotification />
+      {!hideSalesOnAndroid && <SalesNotification />}
     </>
   );
 }

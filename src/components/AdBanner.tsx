@@ -211,7 +211,13 @@ export default function AdBanner({
           format === "rectangle" ? "min-h-[250px]" : "min-h-[90px]"
         }`}
       >
-        {!nativeMode && adConfig.adsProvider === "adsense" && adConfig.adsenseClientId && activeSlot ? (
+        {nativeMode ? (
+          <div className="p-5 text-center max-w-xs">
+            <p className="text-xs font-medium text-stone-500">
+              Espaço patrocinado
+            </p>
+          </div>
+        ) : adConfig.adsProvider === "adsense" && adConfig.adsenseClientId && activeSlot ? (
           <ins
             className="adsbygoogle"
             style={{ display: "block", width: "100%" }}
@@ -220,7 +226,7 @@ export default function AdBanner({
             data-ad-format="auto"
             data-full-width-responsive="true"
           />
-        ) : !nativeMode && adConfig.adsProvider === "custom" && hasCustomCode ? (
+        ) : adConfig.adsProvider === "custom" && hasCustomCode ? (
           <div
             ref={customContainerRef}
             className="w-full h-full flex items-center justify-center overflow-hidden p-2 text-center"

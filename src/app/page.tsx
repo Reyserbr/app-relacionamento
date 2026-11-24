@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import AdBanner from "@/components/AdBanner";
+import { isNativeApp } from "@/lib/admob";
 
 const EXEMPLOS_DEMONSTRACAO = [
   {
@@ -63,18 +64,30 @@ const DEPOIMENTOS = [
 export default function Home() {
   const { userId, isLoaded } = useAuth();
   const [tracksOpen, setTracksOpen] = useState(false);
+  const [nativeMode, setNativeMode] = useState(false);
+  const [hideAndroidCheckout, setHideAndroidCheckout] = useState(true);
+  const [supportEmail, setSupportEmail] = useState("suporte@lilithlove.site");
   const [activeExampleIdx, setActiveExampleIdx] = useState(0);
 
   useEffect(() => {
+    setNativeMode(isNativeApp());
+
     fetch("/api/affiliate/config")
       .then((r) => r.json())
       .then((cfg) => {
         if (cfg?.tracksOpen) setTracksOpen(true);
+        if (typeof cfg?.hideAndroidCheckout === "boolean") {
+          setHideAndroidCheckout(cfg.hideAndroidCheckout);
+        }
+        if (typeof cfg?.supportEmail === "string" && cfg.supportEmail.trim()) {
+          setSupportEmail(cfg.supportEmail.trim());
+        }
       })
       .catch(() => {});
   }, []);
 
   const currentExample = EXEMPLOS_DEMONSTRACAO[activeExampleIdx];
+  const hideSalesOnAndroid = nativeMode && hideAndroidCheckout;
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-[#140a0f] text-stone-200 font-sans selection:bg-rose-500 selection:text-white">
@@ -558,14 +571,21 @@ export default function Home() {
               <p className="text-xs text-stone-400">
                 Confiança para responder. Estratégia para reconquistar.
               </p>
-              <p className="text-[11px] text-emerald-400 pt-1">
-                🔒 Pagamento seguro via PIX e Cartão • Cakto
-              </p>
+              {!hideSalesOnAndroid && (
+                <p className="text-[11px] text-emerald-400 pt-1">
+                  🔒 Pagamento seguro via PIX e Cartão • Cakto
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
               <p className="font-bold text-stone-200">Contato e suporte</p>
-              <p className="text-rose-400 font-medium">suporte@lilithlove.site</p>
+              <a
+                href={`mailto:${supportEmail}`}
+                className="text-rose-400 font-medium hover:underline block break-all"
+              >
+                {supportEmail}
+              </a>
               <p className="text-[11px] opacity-80">
                 Respondemos em até 24h úteis. Dúvidas sobre assinatura ou acesso? Fale com a gente.
               </p>
@@ -573,12 +593,15 @@ export default function Home() {
 
             <div className="flex flex-col space-y-1.5 font-medium">
               <Link href="/sobre" className="hover:text-rose-400 transition-colors">Como Funciona</Link>
-              <Link href="/planos" className="hover:text-rose-400 transition-colors">Planos VIP</Link>
+              {!hideSalesOnAndroid && (
+                <Link href="/planos" className="hover:text-rose-400 transition-colors">Planos VIP</Link>
+              )}
               {tracksOpen && (
                 <Link href="/trilhas" className="hover:text-rose-400 transition-colors">Aulas & Guias</Link>
               )}
               <Link href="/termos" className="hover:text-rose-400 transition-colors">Termos de Uso</Link>
               <Link href="/privacidade" className="hover:text-rose-400 transition-colors">Política de Privacidade</Link>
+              <Link href="/excluir-conta" className="hover:text-rose-400 transition-colors">Excluir Conta</Link>
               <Link href="/contato" className="hover:text-rose-400 transition-colors">Fale Conosco</Link>
             </div>
           </div>

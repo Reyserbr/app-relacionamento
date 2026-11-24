@@ -78,13 +78,19 @@ export default function AdminAffiliates() {
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [feedbackStats, setFeedbackStats] = useState<{ likes: number; dislikes: number }>({ likes: 0, dislikes: 0 });
 
-  // 5 Alavancas Globais
+  // 6 Alavancas Globais
   const [programOpen, setProgramOpen] = useState(true);
   const [communityOpen, setCommunityOpen] = useState(false);
   const [tracksOpen, setTracksOpen] = useState(false);
   const [salesPopupOpen, setSalesPopupOpen] = useState(true);
   const [adsEnabled, setAdsEnabled] = useState(true);
+  const [hideAndroidCheckout, setHideAndroidCheckout] = useState(true);
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
+
+  // E-mail oficial de suporte
+  const [supportEmail, setSupportEmail] = useState('suporte@lilithlove.site');
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [emailSavedMsg, setEmailSavedMsg] = useState('');
 
   // Configurações de Rede de Anúncios
   const [adsProvider, setAdsProvider] = useState<'adsense' | 'custom'>('adsense');
@@ -115,6 +121,8 @@ export default function AdminAffiliates() {
         if (typeof d.tracksOpen === 'boolean') setTracksOpen(d.tracksOpen);
         if (typeof d.salesPopupOpen === 'boolean') setSalesPopupOpen(d.salesPopupOpen);
         if (typeof d.adsEnabled === 'boolean') setAdsEnabled(d.adsEnabled);
+        if (typeof d.hideAndroidCheckout === 'boolean') setHideAndroidCheckout(d.hideAndroidCheckout);
+        if (typeof d.supportEmail === 'string' && d.supportEmail.trim()) setSupportEmail(d.supportEmail.trim());
         if (d.adsProvider === 'custom' || d.adsProvider === 'adsense') setAdsProvider(d.adsProvider);
         if (typeof d.adsenseClientId === 'string') setAdsenseClientId(d.adsenseClientId);
         if (typeof d.adsenseBannerSlot === 'string') setAdsenseBannerSlot(d.adsenseBannerSlot);
@@ -154,6 +162,8 @@ export default function AdminAffiliates() {
     communityOpen?: boolean;
     tracksOpen?: boolean;
     salesPopupOpen?: boolean;
+    hideAndroidCheckout?: boolean;
+    supportEmail?: string;
     adsEnabled?: boolean;
     adsProvider?: 'adsense' | 'custom';
     adsenseClientId?: string;
@@ -169,6 +179,8 @@ export default function AdminAffiliates() {
       communityOpen: overrides.communityOpen ?? communityOpen,
       tracksOpen: overrides.tracksOpen ?? tracksOpen,
       salesPopupOpen: overrides.salesPopupOpen ?? salesPopupOpen,
+      hideAndroidCheckout: overrides.hideAndroidCheckout ?? hideAndroidCheckout,
+      supportEmail: overrides.supportEmail ?? supportEmail,
       adsEnabled: overrides.adsEnabled ?? adsEnabled,
       adsProvider: overrides.adsProvider ?? adsProvider,
       adsenseClientId: overrides.adsenseClientId ?? adsenseClientId,
@@ -188,7 +200,7 @@ export default function AdminAffiliates() {
   }
 
   async function handleToggleSwitch(
-    type: 'affiliates' | 'community' | 'tracks' | 'salesPopup' | 'ads'
+    type: 'affiliates' | 'community' | 'tracks' | 'salesPopup' | 'ads' | 'androidCheckout'
   ) {
     setTogglingKey(type);
     try {
@@ -207,9 +219,28 @@ export default function AdminAffiliates() {
       } else if (type === 'ads') {
         const next = !adsEnabled;
         if (await saveGlobalConfig({ adsEnabled: next })) setAdsEnabled(next);
+      } else if (type === 'androidCheckout') {
+        const next = !hideAndroidCheckout;
+        if (await saveGlobalConfig({ hideAndroidCheckout: next })) setHideAndroidCheckout(next);
       }
     } finally {
       setTogglingKey(null);
+    }
+  }
+
+  async function handleSaveSupportEmail() {
+    if (!supportEmail.trim()) return;
+    setSavingEmail(true);
+    setEmailSavedMsg('');
+    try {
+      if (await saveGlobalConfig({ supportEmail: supportEmail.trim() })) {
+        setEmailSavedMsg('✅ E-mail de suporte atualizado em todo o site e app!');
+        setTimeout(() => setEmailSavedMsg(''), 4000);
+      } else {
+        setEmailSavedMsg('❌ Erro ao salvar o e-mail de suporte.');
+      }
+    } finally {
+      setSavingEmail(false);
     }
   }
 
@@ -358,12 +389,43 @@ export default function AdminAffiliates() {
         <span>🛡️</span> Painel do Administrador
       </h1>
       <p className="text-stone-500 dark:text-stone-300 mb-6">
-        Controle geral da plataforma: anúncios, aulas/trilhas, comunidade, planos da Cakto e afiliados.
+        Controle geral da plataforma: anúncios, modo Play Store (Android), e-mail de suporte, aulas/trilhas, comunidade, planos da Cakto e afiliados.
       </p>
 
-      {/* CENTRAL DE 5 ALAVANCAS GLOBAIS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-8">
-        {/* Alavanca 1: Anúncios & Bônus Free */}
+      {/* CENTRAL DE 6 ALAVANCAS GLOBAIS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 mb-8">
+        {/* Alavanca 1: Ocultar Vendas/Cakto no App Android */}
+        <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-amber-400/30 p-4 flex flex-col justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${hideAndroidCheckout ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+              <h2 className="font-bold text-stone-800 dark:text-stone-100 text-xs sm:text-sm">
+                Cakto Android: {hideAndroidCheckout ? 'OCULTO' : 'VISÍVEL'}
+              </h2>
+            </div>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+              Oculta Planos, Cakto e pop-ups de venda <strong>apenas no App Android</strong> (Modo Revisão Play Store). A Web não é afetada.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleToggleSwitch('androidCheckout')}
+            disabled={togglingKey === 'androidCheckout'}
+            className={`w-full py-2 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all ${
+              hideAndroidCheckout
+                ? 'bg-amber-500 hover:bg-amber-600 text-stone-950'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+            }`}
+          >
+            {togglingKey === 'androidCheckout'
+              ? 'Salvando...'
+              : hideAndroidCheckout
+              ? '🔒 Liberar Vendas no Android'
+              : '🟢 Ocultar Vendas no Android'}
+          </button>
+        </div>
+
+        {/* Alavanca 2: Anúncios & Bônus Free */}
         <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -373,7 +435,7 @@ export default function AdminAffiliates() {
               </h2>
             </div>
             <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
-              Ativa banners e o botão de assistir anúncio (10s) nos chats para ganhar mais mensagens.
+              Ativa banners e o botão de assistir anúncio nos chats para ganhar mais mensagens.
             </p>
           </div>
           <button
@@ -388,7 +450,7 @@ export default function AdminAffiliates() {
           </button>
         </div>
 
-        {/* Alavanca 2: Aulas & Trilhas */}
+        {/* Alavanca 3: Aulas & Trilhas */}
         <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -413,7 +475,7 @@ export default function AdminAffiliates() {
           </button>
         </div>
 
-        {/* Alavanca 3: Afiliados */}
+        {/* Alavanca 4: Afiliados */}
         <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -438,7 +500,7 @@ export default function AdminAffiliates() {
           </button>
         </div>
 
-        {/* Alavanca 4: Comunidade Anônima */}
+        {/* Alavanca 5: Comunidade Anônima */}
         <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -463,7 +525,7 @@ export default function AdminAffiliates() {
           </button>
         </div>
 
-        {/* Alavanca 5: Pop-up de Notificações de Compra */}
+        {/* Alavanca 6: Pop-up de Notificações de Compra */}
         <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-sm border border-stone-200 dark:border-white/10 p-4 flex flex-col justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -487,6 +549,42 @@ export default function AdminAffiliates() {
             {togglingKey === 'salesPopup' ? 'Salvando...' : salesPopupOpen ? '🟢 Ocultar Pop-up' : '⚪ Ativar Pop-up'}
           </button>
         </div>
+      </div>
+
+      {/* E-MAIL OFICIAL DE SUPORTE (GLOBAL) */}
+      <div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-md border border-stone-200 dark:border-white/10 p-6 mb-10">
+        <div className="pb-4 mb-4 border-b border-stone-100 dark:border-white/10">
+          <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
+            <span>📧</span> E-mail Oficial de Suporte (Rodapé, Privacidade & Exclusão de Conta)
+          </h2>
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Altere aqui quando criar o e-mail oficial (ex.: Gmail). Ao salvar, o novo endereço aparece automaticamente no rodapé da Home, na Política de Privacidade e no formulário de Exclusão de Conta.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <input
+            type="email"
+            placeholder="Ex: suportelilithlove@gmail.com"
+            value={supportEmail}
+            onChange={(e) => setSupportEmail(e.target.value)}
+            className="flex-1 rounded-xl px-4 py-2.5 bg-stone-50 dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 text-sm text-stone-800 dark:text-stone-100 font-mono"
+          />
+          <button
+            type="button"
+            onClick={handleSaveSupportEmail}
+            disabled={savingEmail || !supportEmail.trim()}
+            className="px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-rose-700 dark:hover:bg-rose-600 text-white font-bold text-xs sm:text-sm shadow transition-all disabled:opacity-50 shrink-0"
+          >
+            {savingEmail ? 'Salvando...' : '💾 Salvar E-mail'}
+          </button>
+        </div>
+
+        {emailSavedMsg && (
+          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-3">
+            {emailSavedMsg}
+          </p>
+        )}
       </div>
 
       {/* CENTRAL DE MONETIZAÇÃO & ANÚNCIOS (ADSENSE / MONETAG / ADSTERRA) */}
@@ -949,7 +1047,7 @@ export default function AdminAffiliates() {
                           type="button"
                           onClick={() => handleAction(aff, 'reject_pending')}
                           disabled={updatingId === aff.id}
-                          className="px-3 py-2 rounded-lg bg-stone-200 hover:bg-stone-300 dark:bg-white/10 dark:hover:bg-white/20 text-stone-700 dark:text-stone-200 text-xs font-semibold transition-colors disabled:opacity-50"
+                          className="px-3.5 py-2 rounded-lg bg-stone-200 hover:bg-stone-300 dark:bg-white/10 dark:hover:bg-white/20 text-stone-700 dark:text-stone-200 text-xs font-semibold transition-colors disabled:opacity-50"
                         >
                           ✕ Recusar
                         </button>

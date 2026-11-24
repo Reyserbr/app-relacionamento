@@ -32,6 +32,8 @@ interface SystemSettings {
   communityOpen: boolean;
   tracksOpen: boolean;
   salesPopupOpen: boolean;
+  hideAndroidCheckout: boolean;
+  supportEmail: string;
   lessonVideos: Record<string, string>;
   adsEnabled: boolean;
   adsProvider: 'adsense' | 'custom';
@@ -69,6 +71,8 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
     communityOpen: false,
     tracksOpen: false,
     salesPopupOpen: true,
+    hideAndroidCheckout: true,
+    supportEmail: 'suporte@lilithlove.site',
     lessonVideos: {},
     adsEnabled: true,
     adsProvider: 'adsense',
@@ -93,6 +97,12 @@ function parseConfigFromRow(rawLink?: string | null): SystemSettings {
         communityOpen: typeof parsed.communityOpen === 'boolean' ? parsed.communityOpen : false,
         tracksOpen: typeof parsed.tracksOpen === 'boolean' ? parsed.tracksOpen : false,
         salesPopupOpen: typeof parsed.salesPopupOpen === 'boolean' ? parsed.salesPopupOpen : true,
+        hideAndroidCheckout:
+          typeof parsed.hideAndroidCheckout === 'boolean' ? parsed.hideAndroidCheckout : true,
+        supportEmail:
+          typeof parsed.supportEmail === 'string' && parsed.supportEmail.trim()
+            ? parsed.supportEmail.trim()
+            : defaults.supportEmail,
         lessonVideos: parsed.lessonVideos && typeof parsed.lessonVideos === 'object' ? parsed.lessonVideos : {},
         adsEnabled: typeof parsed.adsEnabled === 'boolean' ? parsed.adsEnabled : true,
         adsProvider: parsed.adsProvider === 'custom' ? 'custom' : 'adsense',
@@ -162,6 +172,14 @@ export async function POST(req: NextRequest) {
         typeof body.tracksOpen === 'boolean' ? body.tracksOpen : currentSettings.tracksOpen,
       salesPopupOpen:
         typeof body.salesPopupOpen === 'boolean' ? body.salesPopupOpen : currentSettings.salesPopupOpen,
+      hideAndroidCheckout:
+        typeof body.hideAndroidCheckout === 'boolean'
+          ? body.hideAndroidCheckout
+          : currentSettings.hideAndroidCheckout,
+      supportEmail:
+        typeof body.supportEmail === 'string' && body.supportEmail.trim()
+          ? body.supportEmail.trim()
+          : currentSettings.supportEmail,
       lessonVideos:
         body.lessonVideos && typeof body.lessonVideos === 'object'
           ? body.lessonVideos
@@ -265,4 +283,4 @@ export async function PUT(req: NextRequest) {
   } catch (e) {
     return NextResponse.json({ ok: false });
   }
-}
+} 

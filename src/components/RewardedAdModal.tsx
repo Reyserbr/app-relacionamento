@@ -42,12 +42,19 @@ export default function RewardedAdModal({
   const [nativeErrorMsg, setNativeErrorMsg] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(10);
   const [adsEnabled, setAdsEnabled] = useState(true);
+  const [nativeMode, setNativeMode] = useState(false);
+  const [hideAndroidCheckout, setHideAndroidCheckout] = useState(true);
 
   useEffect(() => {
+    setNativeMode(isNativeApp());
+
     fetch("/api/affiliate/config")
       .then((r) => r.json())
       .then((cfg) => {
         if (typeof cfg?.adsEnabled === "boolean") setAdsEnabled(cfg.adsEnabled);
+        if (typeof cfg?.hideAndroidCheckout === "boolean") {
+          setHideAndroidCheckout(cfg.hideAndroidCheckout);
+        }
       })
       .catch(() => {});
   }, []);
@@ -75,6 +82,7 @@ export default function RewardedAdModal({
   if (!isOpen) return null;
 
   const isPurple = theme === "purple";
+  const hideSalesOnAndroid = nativeMode && hideAndroidCheckout;
 
   const handleWatchSponsorClick = async () => {
     setNativeErrorMsg("");
@@ -132,43 +140,55 @@ export default function RewardedAdModal({
                 isPurple ? "text-purple-400" : "text-rose-400"
               }`}
             >
-              {badgeText}
+              {hideSalesOnAndroid ? "Bônus Gratuito • LilithLove" : badgeText}
             </span>
             <h3 className="text-2xl font-serif font-bold text-white mt-1 mb-2">
-              {titleText}
+              {hideSalesOnAndroid ? `Liberar ${rewardLabel}` : titleText}
             </h3>
             <p className="text-sm text-stone-300 leading-relaxed mb-5">
-              {descriptionText}
+              {hideSalesOnAndroid
+                ? "Assista a um breve anúncio patrocinado para continuar sua análise gratuitamente agora mesmo:"
+                : descriptionText}
             </p>
 
-            <ul className="space-y-2.5 text-sm text-stone-300 mb-6">
-              {benefits.map((b, idx) => (
-                <li key={idx} className="flex items-start gap-2.5">
-                  <span className="text-emerald-400 font-bold">✓</span>
-                  <span>
-                    <strong>{b.title}</strong> {b.desc}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {!hideSalesOnAndroid && (
+              <ul className="space-y-2.5 text-sm text-stone-300 mb-6">
+                {benefits.map((b, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span>
+                      <strong>{b.title}</strong> {b.desc}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
-            <a
-              href={checkoutUrl}
-              className={`w-full py-3.5 px-6 bg-gradient-to-r text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3 ${
-                isPurple
-                  ? "from-purple-900 to-indigo-700 hover:from-purple-800 hover:to-indigo-600"
-                  : "from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600"
-              }`}
-            >
-              Desbloquear Acesso Premium Ilimitado →
-            </a>
+            {!hideSalesOnAndroid && (
+              <a
+                href={checkoutUrl}
+                className={`w-full py-3.5 px-6 bg-gradient-to-r text-white font-bold text-center rounded-2xl shadow-lg block transition-all mb-3 ${
+                  isPurple
+                    ? "from-purple-900 to-indigo-700 hover:from-purple-800 hover:to-indigo-600"
+                    : "from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600"
+                }`}
+              >
+                Desbloquear Acesso Premium Ilimitado →
+              </a>
+            )}
 
             {adsEnabled && canWatchAd ? (
               <button
                 type="button"
                 disabled={loadingNativeAd}
                 onClick={handleWatchSponsorClick}
-                className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 text-stone-200 font-semibold text-xs rounded-2xl transition-colors flex items-center justify-center gap-2 border border-white/10 disabled:opacity-60"
+                className={`w-full py-3.5 px-4 font-bold text-xs sm:text-sm rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${
+                  hideSalesOnAndroid
+                    ? isPurple
+                      ? "bg-gradient-to-r from-purple-900 to-indigo-700 hover:from-purple-800 hover:to-indigo-600 text-white shadow-lg"
+                      : "bg-gradient-to-r from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600 text-white shadow-lg"
+                    : "bg-white/5 hover:bg-white/10 text-stone-200 border border-white/10"
+                }`}
               >
                 <span>📺</span>
                 <span>
@@ -179,7 +199,7 @@ export default function RewardedAdModal({
               </button>
             ) : !canWatchAd ? (
               <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-[11px] text-amber-200 text-center leading-relaxed">
-                🔒 {maxReachedText}
+                🔒 {hideSalesOnAndroid ? "Você atingiu o limite diário de análises gratuitas neste módulo." : maxReachedText}
               </div>
             ) : null}
           </>
@@ -234,12 +254,14 @@ export default function RewardedAdModal({
               </button>
             )}
 
-            <a
-              href={checkoutUrl}
-              className="block text-[11px] text-stone-400 hover:text-rose-400 underline pt-1"
-            >
-              Não quer esperar? Mude para o VIP Ilimitado sem anúncios
-            </a>
+            {!hideSalesOnAndroid && (
+              <a
+                href={checkoutUrl}
+                className="block text-[11px] text-stone-400 hover:text-rose-400 underline pt-1"
+              >
+                Não quer esperar? Mude para o VIP Ilimitado sem anúncios
+              </a>
+            )}
           </div>
         )}
       </div>
