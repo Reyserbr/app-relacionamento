@@ -5,6 +5,7 @@ import { Capacitor } from "@capacitor/core";
 // ============================================================================
 export const ADMOB_IDS = {
   BANNER_BOTTOM: "ca-app-pub-3940256099942544/6300978111",      // Banner Rodapé (320x50)
+  MREC_INLINE: "ca-app-pub-3940256099942544/6300978111",        // Bloco Inline 300x250
   INTERSTITIAL_FICHA: "ca-app-pub-3940256099942544/1033173712", // Intersticial Pós-Ficha (1x/sessão)
   REWARDED_VIDEO: "ca-app-pub-3940256099942544/5224354917",     // Vídeo Premiado (+Mensagens)
 };
@@ -12,6 +13,8 @@ export const ADMOB_IDS = {
 interface LilithNativeBridge {
   showBanner: (adUnitId: string) => void;
   hideBanner: () => void;
+  showInlineAd?: (adUnitId: string, topCssPx: number) => void;
+  hideInlineAd?: () => void;
   showInterstitial: (adUnitId: string) => void;
   showRewarded: (adUnitId: string) => void;
 }
@@ -28,9 +31,7 @@ export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform() || platform === "android" || platform === "ios";
 }
 
-export async function initAdMob(): Promise<void> {
-  // Inicialização nativa já ocorre automaticamente no onCreate do MainActivity.java
-}
+export async function initAdMob(): Promise<void> {}
 
 export async function removeAnyBanner(): Promise<void> {
   const bridge = getNativeBridge();
@@ -38,9 +39,6 @@ export async function removeAnyBanner(): Promise<void> {
     try {
       bridge.hideBanner();
     } catch (_) {}
-  }
-  if (typeof document !== "undefined") {
-    document.body.style.paddingBottom = "0px";
   }
 }
 
@@ -54,13 +52,88 @@ export async function showGlobalBottomBanner(): Promise<{ ok: boolean; error?: s
 
   try {
     bridge.showBanner(ADMOB_IDS.BANNER_BOTTOM);
-    if (typeof document !== "undefined") {
-      document.body.style.paddingBottom = "56px";
-    }
     return { ok: true };
   } catch (err: any) {
     return { ok: false, error: err?.message || String(err) };
   }
+}
+
+// ============================================================================
+// GERENCIADOR DE BLOCO INLINE NATIVO (300x250) PARA HOME E CHAT
+// ============================================================================
+const inlineSlots = new Set<HTMLElement>();
+let inlineListenersAttached = false;
+let rafId: number | null = null;
+
+function syncVisibleInlineSlot() {
+  rafId = null;
+  const bridge = getNativeBridge();
+  if (!bridge?.showInlineAd || !bridge?.hideInlineAd) return;
+
+  const topSafeLimit = 68; // Abaixo da Navbar
+  const bottomSafeLimit = window.innerHeight - 76; // Acima da caixa de digitação do chat
+
+  let bestEl: HTMLElement | null = null;
+  let bestTop = 0;
+
+  for (const el of inlineSlots) {
+    if (!document.body.contains(el)) {
+      inlineSlots.delete(el);
+      continue;
+    }
+    const rect = el.getBoundingClientRect();
+    // Só exibe se o bloco 300x250 couber inteiro na área segura visível
+    if (rect.height >= 200 && rect.top >= topSafeLimit && rect.bottom <= bottomSafeLimit) {
+      bestEl = el;
+      bestTop = rect.top;
+      break;
+    }
+  }
+
+  if (bestEl) {
+    bridge.showInlineAd(ADMOB_IDS.MREC_INLINE, bestTop);
+  } else {
+    bridge.hideInlineAd();
+  }
+}
+
+function scheduleInlineSync() {
+  if (typeof window === "undefined") return;
+  if (rafId !== null) return;
+  rafId = window.requestAnimationFrame(syncVisibleInlineSlot);
+}
+
+export function registerInlineAdSlot(el: HTMLElement): () => void {
+  if (typeof window === "undefined") return () => {};
+  const bridge = getNativeBridge();
+  if (!bridge?.showInlineAd) return () => {};
+
+  inlineSlots.add(el);
+
+  if (!inlineListenersAttached) {
+    inlineListenersAttached = true;
+    // capture: true captura rolagem tanto da Home quanto do container interno do Chat
+    window.addEventListener("scroll", scheduleInlineSync, true);
+    window.addEventListener("resize", scheduleInlineSync);
+  }
+
+  scheduleInlineSync();
+  const settleTimer = setTimeout(scheduleInlineSync, 350);
+
+  return () => {
+    clearTimeout(settleTimer);
+    inlineSlots.delete(el);
+    if (inlineSlots.size === 0) {
+      bridge.hideInlineAd?.();
+    } else {
+      scheduleInlineSync();
+    }
+  };
+}
+
+export function hideInlineMrec(): void {
+  const bridge = getNativeBridge();
+  bridge?.hideInlineAd?.();
 }
 
 export async function showPostFormInterstitialOnce(): Promise<void> {
@@ -86,6 +159,9 @@ export async function showNativeRewardedAd(): Promise<{
     return { status: "unavailable", error: "Instale o novo APK com ponte nativa LilithAds" };
   }
 
+  // Oculta o bloco inline enquanto o vídeo tela cheia estiver aberto
+  bridge.hideInlineAd?.();
+
   return new Promise((resolve) => {
     let settled = false;
 
@@ -96,6 +172,7 @@ export async function showNativeRewardedAd(): Promise<{
       if (typeof window !== "undefined") {
         delete (window as any).__onLilithRewarded;
       }
+      scheduleInlineSync();
       resolve({ status, error });
     };
 

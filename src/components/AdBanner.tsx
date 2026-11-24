@@ -7,6 +7,8 @@ import {
   isNativeApp,
   showGlobalBottomBanner,
   removeAnyBanner,
+  registerInlineAdSlot,
+  hideInlineMrec,
 } from "@/lib/admob";
 
 interface AdBannerProps {
@@ -46,6 +48,7 @@ export default function AdBanner({
   });
 
   const customContainerRef = useRef<HTMLDivElement>(null);
+  const nativeSlotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const isNative = isNativeApp();
@@ -56,6 +59,7 @@ export default function AdBanner({
     if (!userId && !forceShow) {
       setIsPremium(true);
       removeAnyBanner();
+      hideInlineMrec();
       return;
     }
 
@@ -94,7 +98,7 @@ export default function AdBanner({
     checkVipAndConfig();
   }, [forceShow, pathname, userId, isLoaded]);
 
-  // Aciona o Banner Nativo no rodapé do App Android
+  // 1. Gerencia o Banner Nativo fixo no rodapé do App Android
   useEffect(() => {
     if (!nativeMode || !isLoaded || isPremium === null) return;
 
@@ -114,7 +118,16 @@ export default function AdBanner({
     }
   }, [nativeMode, isLoaded, isPremium, userId, forceShow, adConfig.adsEnabled, format, pathname]);
 
-  // Carregamento Web (AdSense / HTML Customizado)
+  // 2. Registra o slot 300x250 nativo para encaixar o anúncio do Google na Home e no Chat
+  useEffect(() => {
+    if (!nativeMode || format !== "rectangle" || forceShow) return;
+    if (!isLoaded || !userId || isPremium !== false || !adConfig.adsEnabled) return;
+    if (!nativeSlotRef.current) return;
+
+    return registerInlineAdSlot(nativeSlotRef.current);
+  }, [nativeMode, format, forceShow, isLoaded, userId, isPremium, adConfig.adsEnabled, pathname]);
+
+  // 3. Carregamento Web (AdSense / HTML Customizado)
   useEffect(() => {
     if (nativeMode) return;
     if (!adConfig.adsEnabled) return;
@@ -160,17 +173,15 @@ export default function AdBanner({
   if (!adConfig.adsEnabled) return null;
   if (isPremium !== false && !forceShow) return null;
 
-  // No App Android:
-  if (nativeMode) {
-    // Se houve erro nativo no banner de rodapé, mostra um aviso discreto para diagnóstico imediato
-    if (format === "horizontal" && nativeBannerError) {
+  if (nativeMode && format === "horizontal") {
+    if (nativeBannerError) {
       return (
         <div className="fixed bottom-0 inset-x-0 z-40 bg-amber-950/95 border-t border-amber-500/40 px-3 py-1.5 text-[10px] text-amber-200 text-center">
           AdMob Status: {nativeBannerError}
         </div>
       );
     }
-    if (format === "horizontal") return null;
+    return null;
   }
 
   if (!nativeMode && isChatRoute && !forceShow) {
@@ -195,6 +206,7 @@ export default function AdBanner({
       </span>
 
       <div
+        ref={nativeSlotRef}
         className={`w-full max-w-2xl rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center overflow-hidden ${
           format === "rectangle" ? "min-h-[250px]" : "min-h-[90px]"
         }`}

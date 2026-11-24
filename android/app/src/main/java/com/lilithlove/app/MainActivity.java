@@ -23,6 +23,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 public class MainActivity extends BridgeActivity {
     private AdView bannerView;
+    private AdView inlineAdView;
     private boolean rewardEarned = false;
 
     @Override
@@ -43,7 +44,23 @@ public class MainActivity extends BridgeActivity {
             bannerView.destroy();
             bannerView = null;
         }
+        if (inlineAdView != null) {
+            inlineAdView.destroy();
+            inlineAdView = null;
+        }
         super.onDestroy();
+    }
+
+    private void setWebViewBottomMargin(int marginPx) {
+        WebView webView = getBridge().getWebView();
+        if (webView != null && webView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) webView.getLayoutParams();
+            if (lp.bottomMargin != marginPx) {
+                lp.bottomMargin = marginPx;
+                webView.setLayoutParams(lp);
+                webView.requestLayout();
+            }
+        }
     }
 
     private void notifyReward(String status, String errorMsg) {
@@ -64,6 +81,9 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public void showBanner(String adUnitId) {
             runOnUiThread(() -> {
+                int bannerHeightPx = AdSize.BANNER.getHeightInPixels(MainActivity.this);
+                setWebViewBottomMargin(bannerHeightPx);
+
                 if (bannerView != null) {
                     bannerView.setVisibility(View.VISIBLE);
                     return;
@@ -88,8 +108,61 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public void hideBanner() {
             runOnUiThread(() -> {
+                setWebViewBottomMargin(0);
                 if (bannerView != null) {
                     bannerView.setVisibility(View.GONE);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void showInlineAd(String adUnitId, float topCssPx) {
+            runOnUiThread(() -> {
+                ViewGroup rootView = findViewById(android.R.id.content);
+                WebView webView = getBridge().getWebView();
+                if (rootView == null || webView == null) return;
+
+                int[] webLoc = new int[2];
+                webView.getLocationInWindow(webLoc);
+                int[] rootLoc = new int[2];
+                rootView.getLocationInWindow(rootLoc);
+                int webOffsetY = webLoc[1] - rootLoc[1];
+
+                float density = getResources().getDisplayMetrics().density;
+                int topPx = webOffsetY + Math.round(topCssPx * density);
+
+                if (inlineAdView == null) {
+                    inlineAdView = new AdView(MainActivity.this);
+                    inlineAdView.setAdSize(AdSize.MEDIUM_RECTANGLE);
+                    inlineAdView.setAdUnitId(adUnitId);
+
+                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        Gravity.TOP | Gravity.CENTER_HORIZONTAL
+                    );
+                    params.topMargin = Math.max(0, topPx);
+                    rootView.addView(inlineAdView, params);
+                    inlineAdView.loadAd(new AdRequest.Builder().build());
+                } else {
+                    FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) inlineAdView.getLayoutParams();
+                    int clampedTop = Math.max(0, topPx);
+                    if (params.topMargin != clampedTop) {
+                        params.topMargin = clampedTop;
+                        inlineAdView.setLayoutParams(params);
+                    }
+                    if (inlineAdView.getVisibility() != View.VISIBLE) {
+                        inlineAdView.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void hideInlineAd() {
+            runOnUiThread(() -> {
+                if (inlineAdView != null && inlineAdView.getVisibility() != View.GONE) {
+                    inlineAdView.setVisibility(View.GONE);
                 }
             });
         }
@@ -109,7 +182,6 @@ public class MainActivity extends BridgeActivity {
 
                         @Override
                         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                            // Falha silenciosa se não houver inventário
                         }
                     }
                 );
