@@ -19,6 +19,13 @@ interface AssistantMessageCardProps {
   attachments?: AttachmentItem[];
 }
 
+const REPORT_REASONS = [
+  "Conteúdo ofensivo ou inadequado",
+  "Conselho prejudicial ou inseguro",
+  "Resposta sem sentido ou incorreta",
+  "Outro motivo",
+];
+
 export default function AssistantMessageCard({
   messageId,
   content,
@@ -33,11 +40,19 @@ export default function AssistantMessageCard({
   const [isTyping, setIsTyping] = useState(isNew);
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [feedbackSentMsg, setFeedbackSentMsg] = useState("");
+  const [reported, setReported] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedReason, setSelectedReason] = useState(REPORT_REASONS[0]);
+  const [reportDetails, setReportDetails] = useState("");
+  const [submittingReport, setSubmittingReport] = useState(false);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(`lilith_fb_${messageId}`);
       if (saved === "up" || saved === "down") setFeedback(saved);
+      if (localStorage.getItem(`lilith_rep_${messageId}`) === "true") {
+        setReported(true);
+      }
     } catch (_) {}
   }, [messageId]);
 
@@ -87,6 +102,38 @@ export default function AssistantMessageCard({
         }),
       });
     } catch (_) {}
+  };
+
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submittingReport) return;
+    setSubmittingReport(true);
+
+    try {
+      const detailTag = reportDetails.trim() ? ` (${reportDetails.trim()})` : "";
+      const reportSnippet = `[DENÚNCIA: ${selectedReason}${detailTag}] ${content.slice(0, 90)}`;
+
+      await fetch("/api/affiliate/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vote: "down",
+          agent,
+          snippet: reportSnippet.slice(0, 140),
+        }),
+      });
+    } catch (_) {}
+
+    try {
+      localStorage.setItem(`lilith_rep_${messageId}`, "true");
+    } catch (_) {}
+
+    setReported(true);
+    setSubmittingReport(false);
+    setShowReportModal(false);
+    setReportDetails("");
+    setFeedbackSentMsg("Denúncia enviada para análise. Obrigado.");
+    setTimeout(() => setFeedbackSentMsg(""), 4000);
   };
 
   const isPurple = agent === "mistico";
@@ -328,6 +375,29 @@ export default function AssistantMessageCard({
             </svg>
           </button>
 
+          <button
+            type="button"
+            onClick={() => {
+              if (!reported) setShowReportModal(true);
+            }}
+            disabled={reported}
+            className={`px-2 py-1 rounded-lg transition-colors flex items-center gap-1 ${
+              reported
+                ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 font-semibold cursor-default"
+                : "hover:bg-stone-200/50 dark:hover:bg-white/5 hover:text-amber-600 dark:hover:text-amber-400"
+            }`}
+            title="Denunciar resposta inadequada da IA"
+          >
+            <svg className="w-3.5 h-3.5" fill={reported ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 3v18m0-13.5l9-2.25 9 2.25v9l-9-2.25-9 2.25"
+              />
+            </svg>
+            <span>{reported ? "Denunciada" : "Denunciar"}</span>
+          </button>
+
           {feedbackSentMsg && (
             <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium animate-pulse">
               {feedbackSentMsg}
@@ -335,6 +405,74 @@ export default function AssistantMessageCard({
           )}
         </div>
       </div>
+
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1c0d15] border border-stone-200 dark:border-rose-300/20 rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h3 className="text-base font-serif font-bold text-stone-900 dark:text-white">
+                  Denunciar resposta da IA
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                  Ajude-nos a manter o aplicativo seguro sinalizando conteúdos inadequados.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowReportModal(false)}
+                className="w-7 h-7 rounded-full bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-stone-300 text-xs font-bold flex items-center justify-center shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleReportSubmit} className="space-y-3 text-xs">
+              <div className="space-y-1.5">
+                {REPORT_REASONS.map((reason) => (
+                  <button
+                    key={reason}
+                    type="button"
+                    onClick={() => setSelectedReason(reason)}
+                    className={`w-full text-left px-3 py-2.5 rounded-xl border transition-all font-medium ${
+                      selectedReason === reason
+                        ? "bg-rose-600/15 border-rose-500 text-rose-800 dark:text-rose-200"
+                        : "bg-stone-50 dark:bg-white/5 border-stone-200 dark:border-white/10 text-stone-700 dark:text-stone-300"
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                rows={2}
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+                placeholder="Detalhes adicionais (opcional)..."
+                className="w-full rounded-xl px-3 py-2 bg-stone-50 dark:bg-[#140a0f] border border-stone-200 dark:border-white/15 text-stone-800 dark:text-stone-100 text-xs"
+              />
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowReportModal(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-stone-100 dark:bg-white/10 text-stone-700 dark:text-stone-300 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingReport}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow disabled:opacity-50"
+                >
+                  {submittingReport ? "Enviando..." : "Enviar Denúncia"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
