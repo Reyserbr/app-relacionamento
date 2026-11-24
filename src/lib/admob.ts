@@ -76,7 +76,9 @@ function syncVisibleInlineSlot() {
   let bestEl: HTMLElement | null = null;
   let bestTop = 0;
 
-  for (const el of inlineSlots) {
+  const slots = Array.from(inlineSlots);
+  for (let i = 0; i < slots.length; i++) {
+    const el = slots[i];
     if (!document.body.contains(el)) {
       inlineSlots.delete(el);
       continue;
