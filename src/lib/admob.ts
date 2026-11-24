@@ -4,10 +4,10 @@ import { Capacitor } from "@capacitor/core";
 // BLOCOS DE ANÚNCIO ADMOB (IDs OFICIAIS DE TESTE DO GOOGLE)
 // ============================================================================
 export const ADMOB_IDS = {
-  BANNER_BOTTOM: "ca-app-pub-3940256099942544/6300978111",      // Banner Rodapé (320x50)
-  MREC_INLINE: "ca-app-pub-3940256099942544/6300978111",        // Bloco Inline 300x250
-  INTERSTITIAL_FICHA: "ca-app-pub-3940256099942544/1033173712", // Intersticial Pós-Ficha (1x/sessão)
-  REWARDED_VIDEO: "ca-app-pub-3940256099942544/5224354917",     // Vídeo Premiado (+Mensagens)
+  BANNER_BOTTOM: "ca-app-pub-5706280293116953/7828904921",      // Banner Rodapé (320x50)
+  MREC_INLINE: "ca-app-pub-5706280293116953/5373171514",        // Bloco Inline 300x250
+  INTERSTITIAL_FICHA: "ca-app-pub-5706280293116953/4854810117", // Intersticial Pós-Ficha (1x/sessão)
+  REWARDED_VIDEO: "ca-app-pub-5706280293116953/6835387451",     // Vídeo Premiado (+Mensagens)
 };
 
 interface LilithNativeBridge {
